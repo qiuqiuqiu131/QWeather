@@ -1,6 +1,5 @@
 package com.qiuqiuqiu.weatherPredicate.ui.screen.weather
 
-import android.Manifest
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -35,11 +34,11 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
+import com.qiuqiuqiu.weatherPredicate.LocalAppViewModel
 import com.qiuqiuqiu.weatherPredicate.model.LocationWeatherModel
 import com.qiuqiuqiu.weatherPredicate.tools.isToday
 import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseItem
 import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
-import com.qiuqiuqiu.weatherPredicate.ui.normal.MultiplePermissionsInterceptor
 import com.qiuqiuqiu.weatherPredicate.ui.normal.rememberScrollAlpha
 import com.qiuqiuqiu.weatherPredicate.ui.normal.rememberScrollThreshold
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.AirCurrentCard
@@ -51,53 +50,48 @@ import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.WarningInfoCard
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.WeatherCurrentCard
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.WeatherIndexCard
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.WeatherStatusInfoCard
+import com.qiuqiuqiu.weatherPredicate.viewModel.AppViewModel
 import com.qiuqiuqiu.weatherPredicate.viewModel.WeatherViewModel
 import com.qweather.sdk.response.geo.Location
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WeatherScreen(navController: NavController, location: Pair<Double, Double>? = null) {
-    MultiplePermissionsInterceptor(
-        permissions =
-            arrayOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ),
-        noPermission = { Text("需要定位权限") }
+fun WeatherScreen(navController: NavController) {
+    val appViewModel: AppViewModel = LocalAppViewModel.current
+    val currentCity by appViewModel.currentCity.collectAsState()
+
+    val viewModel: WeatherViewModel = hiltViewModel()
+    viewModel.initLocation(currentCity)
+    val weatherModel by viewModel.locationWeather.collectAsState()
+
+    val scrollState: ScrollState = rememberScrollState()
+    val centerCardAlpha = rememberScrollAlpha(scrollState, 70, 230)
+    val cityTextHide = rememberScrollThreshold(scrollState, 70)
+
+    PullToRefreshBox(
+        isRefreshing = viewModel.isRefreshing.value,
+        onRefresh = { viewModel.refreshing() },
     ) {
-        val viewModel: WeatherViewModel = hiltViewModel()
-        viewModel.initLocation(location)
-        val weatherModel by viewModel.locationWeather.collectAsState()
-
-        val scrollState: ScrollState = rememberScrollState()
-        val centerCardAlpha = rememberScrollAlpha(scrollState, 70, 230)
-        val cityTextHide = rememberScrollThreshold(scrollState, 70)
-
-        PullToRefreshBox(
-            isRefreshing = viewModel.isRefreshing.value,
-            onRefresh = { viewModel.refreshing() },
-        ) {
-            Scaffold(
-                topBar = {
-                    WeatherTopBar(
-                        weatherModel.location,
-                        navController,
-                        centerCardAlpha,
-                        cityTextHide,
-                        onCityClick = { navController.navigate("CityManage") }
-                    )
-                }
-            ) { innerPadding ->
-                LoadingContainer(isInit = viewModel.isInit.value) {
-                    WeatherCenterPage(
-                        weatherModel = weatherModel,
-                        scrollState = scrollState,
-                        navController = navController,
-                        alpha = centerCardAlpha,
-                        cityHide = cityTextHide,
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+        Scaffold(
+            topBar = {
+                WeatherTopBar(
+                    weatherModel.location,
+                    navController,
+                    centerCardAlpha,
+                    cityTextHide,
+                    onCityClick = { navController.navigate("CityManage") }
+                )
+            }
+        ) { innerPadding ->
+            LoadingContainer(isInit = viewModel.isInit.value) {
+                WeatherCenterPage(
+                    weatherModel = weatherModel,
+                    scrollState = scrollState,
+                    navController = navController,
+                    alpha = centerCardAlpha,
+                    cityHide = cityTextHide,
+                    modifier = Modifier.padding(innerPadding)
+                )
             }
         }
     }

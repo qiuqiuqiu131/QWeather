@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.qiuqiuqiu.weatherPredicate.LocalAppViewModel
+import com.qiuqiuqiu.weatherPredicate.model.CityLocationModel
 import com.qiuqiuqiu.weatherPredicate.model.LocationWeatherModel
 import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseCard
 import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
@@ -85,9 +86,9 @@ fun CityManageScreen(navController: NavController) {
                         CityCard(it, onClick = {
                             it.location?.let { location ->
                                 appViewModel.setCurrentCity(
-                                    Pair(
-                                        location.lon.toDouble(),
-                                        location.lat.toDouble()
+                                    CityLocationModel(
+                                        it.type,
+                                        Pair(it.location.lon.toDouble(), it.location.lat.toDouble())
                                     )
                                 )
                                 navController.navigate("Main") {

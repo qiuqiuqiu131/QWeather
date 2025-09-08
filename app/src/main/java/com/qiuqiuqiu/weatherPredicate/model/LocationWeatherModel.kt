@@ -10,6 +10,7 @@ import com.qweather.sdk.response.weather.WeatherNow
 import java.time.LocalDateTime
 
 data class LocationWeatherModel(
+    var type: CityType = CityType.Normal,
     val weatherNow: WeatherNow? = null,
     val location: Location? = null,
     val weatherHourlies: List<WeatherHourly>? = null,

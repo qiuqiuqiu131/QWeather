@@ -7,8 +7,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qiuqiuqiu.weatherPredicate.manager.ILocationWeatherManager
 import com.qiuqiuqiu.weatherPredicate.manager.ISearchCityManager
+import com.qiuqiuqiu.weatherPredicate.manager.LocalDataManager
+import com.qiuqiuqiu.weatherPredicate.model.CityLocationModel
+import com.qiuqiuqiu.weatherPredicate.model.CityType
 import com.qiuqiuqiu.weatherPredicate.model.SearchCityModel
 import com.qiuqiuqiu.weatherPredicate.service.IQWeatherService
+import com.qiuqiuqiu.weatherPredicate.service.LocationService
 import com.qweather.sdk.response.geo.Location
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -22,12 +26,15 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 @HiltViewModel
 class WeatherSearchViewModel @Inject constructor(
     val weatherService: IQWeatherService,
     val searchCityManager: ISearchCityManager,
-    val locationWeatherManager: ILocationWeatherManager
+    val locationService: LocationService,
+    val locationWeatherManager: ILocationWeatherManager,
+    val localDataManager: LocalDataManager
 ) : ViewModel() {
     var searchCityModel: MutableStateFlow<SearchCityModel> = MutableStateFlow(SearchCityModel())
         private set
@@ -82,8 +89,9 @@ class WeatherSearchViewModel @Inject constructor(
             Log.e("Weather", "获取天气失败: ${e.message}")
         } + Dispatchers.IO) {
             locationWeatherManager.getNewLocationWeather(
-                location.lon.toDouble(),
-                location.lat.toDouble()
+                CityLocationModel(
+                    CityType.Normal, Pair(location.lon.toDouble(), location.lat.toDouble())
+                )
             )
 
             viewModelScope.launch(Dispatchers.Main) {
@@ -93,4 +101,9 @@ class WeatherSearchViewModel @Inject constructor(
             }
         }
     }
+
+    fun requirePosition(): Boolean =
+        runBlocking {
+            localDataManager.getCityList().firstOrNull { it.type == CityType.Position } == null
+        }
 }

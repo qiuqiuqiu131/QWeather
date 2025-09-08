@@ -1,29 +1,55 @@
 package com.qiuqiuqiu.weatherPredicate.viewModel
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.qiuqiuqiu.weatherPredicate.manager.ILocalDataManager
+import com.qiuqiuqiu.weatherPredicate.model.CityLocationModel
+import com.qiuqiuqiu.weatherPredicate.model.CityType
+import com.qiuqiuqiu.weatherPredicate.service.ILocationService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 @HiltViewModel
 class AppViewModel @Inject constructor(
-    val localDataManager: ILocalDataManager
+    val localDataManager: ILocalDataManager,
+    val locationService: ILocationService
 ) : ViewModel() {
-    var currentCity: MutableState<Pair<Double, Double>?> = mutableStateOf(null)
+    var currentCity: MutableStateFlow<CityLocationModel?> = MutableStateFlow(null)
         private set
 
-    fun setCurrentCity(location: Pair<Double, Double>) {
+    init {
+        runBlocking {
+            val cityList = localDataManager.getCityList().toMutableList()
+            // 如果没有权限，则删掉定位Location
+            if (!locationService.hasLocationPermissions()) {
+                cityList.removeIf { it.type == CityType.Position }
+                launch { localDataManager.saveCityList(cityList) }
+            }
+            currentCity.update {
+                cityList.firstOrNull { it.type == CityType.Host } ?: cityList.firstOrNull()
+            }
+        }
+    }
+
+    fun setCurrentCity(location: CityLocationModel) {
         currentCity.value = location
     }
 
     fun addCity(location: Pair<Double, Double>) {
-        currentCity.value = location
-        viewModelScope.launch {
-            localDataManager.addCity(location)
+        runBlocking {
+            val type = localDataManager.addCity(location)
+            currentCity.value = CityLocationModel(type, location)
         }
+    }
+
+    fun addPositionCity(city: Pair<Double, Double> = defaultLocation.location) {
+        runBlocking {
+            currentCity.value = CityLocationModel(CityType.Position, city)
+            localDataManager.addPositionCity(city)
+        }
+
     }
 }

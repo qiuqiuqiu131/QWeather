@@ -22,9 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.qiuqiuqiu.weatherPredicate.LocalAppViewModel
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.WeatherScreen
-import com.qiuqiuqiu.weatherPredicate.viewModel.AppViewModel
 
 enum class MainNaviBar(val label: String, val icon: ImageVector, val contentDescription: String) {
     Weather("Weather", Icons.Default.CloudQueue, "Weather"),
@@ -38,11 +36,10 @@ fun MainHost(
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
-    val appViewModel: AppViewModel = LocalAppViewModel.current
     Box(modifier = modifier) {
         when (selectedBar) {
             MainNaviBar.Weather -> {
-                WeatherScreen(navController, appViewModel.currentCity.value)
+                WeatherScreen(navController)
             }
 
             MainNaviBar.Map -> {

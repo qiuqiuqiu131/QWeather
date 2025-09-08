@@ -7,6 +7,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qiuqiuqiu.weatherPredicate.manager.ILocationWeatherManager
+import com.qiuqiuqiu.weatherPredicate.manager.LocalDataManager
+import com.qiuqiuqiu.weatherPredicate.model.CityLocationModel
+import com.qiuqiuqiu.weatherPredicate.model.CityType
 import com.qiuqiuqiu.weatherPredicate.model.LocationWeatherModel
 import com.qiuqiuqiu.weatherPredicate.service.ILocationService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,10 +24,13 @@ import kotlinx.coroutines.launch
 import java.time.Duration
 import java.time.LocalDateTime
 
+val defaultLocation = CityLocationModel(CityType.Normal, Pair(116.4074, 39.9042))
+
 @HiltViewModel
 class WeatherViewModel @Inject constructor(
     private val weatherManager: ILocationWeatherManager,
-    private val locationService: ILocationService
+    private val locationService: ILocationService,
+    private val localDataManager: LocalDataManager
 ) : ViewModel() {
     private val _locationWeather = MutableStateFlow(LocationWeatherModel())
     val locationWeather: StateFlow<LocationWeatherModel> = _locationWeather.asStateFlow()
@@ -35,30 +41,55 @@ class WeatherViewModel @Inject constructor(
     var isRefreshing: MutableState<Boolean> = mutableStateOf(false)
         private set
 
-    private lateinit var currentLocation: Pair<Double, Double>
+    private lateinit var currentLocation: CityLocationModel
 
     /**
      * 使用前必须调用
      */
     @SuppressLint("NewApi")
-    fun initLocation(location: Pair<Double, Double>?, refresh: Boolean = true) {
+    fun initLocation(location: CityLocationModel?, refresh: Boolean = true) {
         if (location != null)
             currentLocation = location
+        else
+            currentLocation = defaultLocation
 
         viewModelScope.launch(CoroutineExceptionHandler { _, e ->
-            Log.e("Weather", "获取天气失败: ${e.message}")
+            Log.e("Weather", "获取天气失败: ${e.stackTrace}")
         } + Dispatchers.IO) {
-            if (location == null) {
-                val location = locationService.getLastLocation()
-                if (location != null)
-                    currentLocation = Pair(location.longitude, location.latitude)
-                else
-                // TODO:上一个显示的城市
-                    currentLocation = Pair(116.4074, 39.9042)
+            if (currentLocation.type == CityType.Position) {
+                if (!locationService.hasLocationPermissions()) {
+                    // 未获得权限，删除城市列表中的定位Location
+                    val list = localDataManager.getCityList().toMutableList()
+                    list.removeIf { it.type == CityType.Position }
+                    launch { localDataManager.saveCityList(list) }
+
+                    currentLocation =
+                        list.firstOrNull({ it.type == CityType.Host }) ?: list.firstOrNull()
+                                ?: defaultLocation
+                } else if (!locationService.isLocationEnabled()) {
+                    // TODO: 未开启定位功能
+                } else {
+                    val location = locationService.getLastLocation()
+                    if (location != null) {
+                        currentLocation = CityLocationModel(
+                            CityType.Position,
+                            Pair(location.longitude, location.latitude)
+                        )
+
+                        launch {
+                            val list = localDataManager.getCityList().toMutableList()
+                            list.removeIf { it.type == CityType.Position }
+                            list.add(0, currentLocation)
+                            localDataManager.saveCityList(list)
+                        }
+                    }
+
+                }
             }
 
             currentLocation.let {
-                val result = weatherManager.getCacheLocationWeather(it.first, it.second)
+                val result =
+                    weatherManager.getCacheLocationWeather(it)
                 _locationWeather.update { result.first }
 
                 viewModelScope.launch(Dispatchers.Main) {
@@ -72,7 +103,7 @@ class WeatherViewModel @Inject constructor(
                 ) {
                     isRefreshing.value = true
                     val weatherLocation =
-                        weatherManager.getNewLocationWeather(it.first, it.second)
+                        weatherManager.getNewLocationWeather(it)
                     _locationWeather.update { weatherLocation }
                     isRefreshing.value = false
                 }
@@ -92,7 +123,7 @@ class WeatherViewModel @Inject constructor(
         } + Dispatchers.IO) {
             currentLocation.let {
                 val locationWeather =
-                    weatherManager.getNewLocationWeather(it.first, it.second)
+                    weatherManager.getNewLocationWeather(it)
                 _locationWeather.update { locationWeather }
             }
             callback.invoke()

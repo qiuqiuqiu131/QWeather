@@ -43,17 +43,24 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
+import com.qiuqiuqiu.weatherPredicate.LocalAppViewModel
+import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseCard
 import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.SearchCityCard
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.TopCityCard
+import com.qiuqiuqiu.weatherPredicate.viewModel.AppViewModel
 import com.qiuqiuqiu.weatherPredicate.viewModel.WeatherSearchViewModel
 
 @Composable
 fun WeatherSearchScreen(navController: NavController) {
     var input by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
+
     val viewModel: WeatherSearchViewModel = hiltViewModel()
     val searchCityModel by viewModel.searchCityModel.collectAsState()
+
+    val appViewModel: AppViewModel = LocalAppViewModel.current
+
     val focusManager = LocalFocusManager.current
 
     Scaffold(topBar = {
@@ -115,6 +122,16 @@ fun WeatherSearchScreen(navController: NavController) {
                             })
                         })
                     }
+
+                    if (viewModel.requirePosition()) {
+                        BaseCard(onClick = {
+                            appViewModel.addPositionCity()
+                            navController.popBackStack()
+                        }) {
+                            Text("添加定位", modifier = Modifier.fillMaxSize())
+                        }
+                    }
+
                 }
             }
         }

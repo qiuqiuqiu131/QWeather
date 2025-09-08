@@ -14,8 +14,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Cancel
-import androidx.compose.material.icons.outlined.Circle
+import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.Icon
@@ -100,7 +100,7 @@ fun CityEditTopBar(cancelClick: () -> Unit, saveClick: () -> Unit) {
                     .size(36.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Outlined.Cancel, null,
+                    imageVector = Icons.Outlined.Close, null,
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -115,7 +115,7 @@ fun CityEditTopBar(cancelClick: () -> Unit, saveClick: () -> Unit) {
                     .size(36.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Outlined.Circle, null,
+                    imageVector = Icons.Outlined.Check, null,
                     modifier = Modifier.size(24.dp)
                 )
             }

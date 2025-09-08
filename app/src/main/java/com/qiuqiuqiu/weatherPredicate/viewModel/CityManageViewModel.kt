@@ -30,10 +30,7 @@ class CityManageViewModel @Inject constructor(
             val list = localDataManager.getCityList()
             val weatherTaskList = list.map {
                 async {
-                    locationWeatherManager.getCacheLocationWeather(
-                        it.first,
-                        it.second
-                    ).first
+                    locationWeatherManager.getCacheLocationWeather(it).first
                 }
             }
             cityList.value = weatherTaskList.map { it.await() }
