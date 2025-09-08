@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -104,7 +105,7 @@ fun CityEditTopBar(cancelClick: () -> Unit, saveClick: () -> Unit) {
                 )
             }
             Text(
-                text = "管理城市",
+                text = "编辑城市",
                 style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp)
             )
             Spacer(modifier = Modifier.weight(1f))
@@ -123,6 +124,7 @@ fun CityEditTopBar(cancelClick: () -> Unit, saveClick: () -> Unit) {
         SearchButton(
             "搜索城市(中文/拼音)",
             Modifier
+                .alpha(0.6f)
                 .padding(start = 12.dp, end = 12.dp, bottom = 8.dp)
                 .fillMaxWidth()
                 .height(42.dp),
