@@ -21,3 +21,14 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose") version "2.1.0" apply false
     id("com.google.dagger.hilt.android") version "2.56.2" apply false
 }
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // Hilt Gradle plugin
+        classpath("com.google.dagger:hilt-android-gradle-plugin:2.48")
+    }
+}
+

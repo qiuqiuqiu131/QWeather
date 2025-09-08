@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.qiuqiuqiu.weatherPredicate.ui.screen.MainScreen
+import com.qiuqiuqiu.weatherPredicate.ui.screen.time.GlobalTimeScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.CityEditScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.CityManageScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.WeatherCityScreen
@@ -237,6 +238,84 @@ fun MainApp(modifier: Modifier = Modifier) {
                 )
             }) {
             CityEditScreen(navController)
+        }
+        composable(
+            "time/global",
+            enterTransition = {
+                slideIntoContainer(
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessMediumLow,
+                    ),
+                    towards = AnimatedContentTransitionScope.SlideDirection.Left
+                )
+            },
+            exitTransition = {
+                slideOutOfContainer(
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessMediumLow,
+                    ),
+                    towards = AnimatedContentTransitionScope.SlideDirection.Left
+                )
+            }, popEnterTransition = {
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessMediumLow,
+                    )
+                )
+            },
+            popExitTransition = {
+                slideOutOfContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessMediumLow,
+                    )
+                )
+            }) {
+            GlobalTimeScreen(onBack = { navController.popBackStack() })
+        }
+        composable(
+            "time/solar",
+            enterTransition = {
+                slideIntoContainer(
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessMediumLow,
+                    ),
+                    towards = AnimatedContentTransitionScope.SlideDirection.Left
+                )
+            },
+            exitTransition = {
+                slideOutOfContainer(
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessMediumLow,
+                    ),
+                    towards = AnimatedContentTransitionScope.SlideDirection.Left
+                )
+            }, popEnterTransition = {
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessMediumLow,
+                    )
+                )
+            },
+            popExitTransition = {
+                slideOutOfContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessMediumLow,
+                    )
+                )
+            }) {
+            SolarTermsScreen(onBack = { navController.popBackStack() })
         }
     }
 }

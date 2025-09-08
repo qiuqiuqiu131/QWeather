@@ -50,7 +50,7 @@ fun MainHost(
             }
 
             MainNaviBar.Time -> {
-                null
+                TimeScreen(navController)
             }
         }
     }
