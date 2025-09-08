@@ -16,7 +16,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,6 +38,7 @@ import androidx.navigation.NavOptions
 import com.qiuqiuqiu.weatherPredicate.model.LocationWeatherModel
 import com.qiuqiuqiu.weatherPredicate.tools.isToday
 import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseItem
+import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
 import com.qiuqiuqiu.weatherPredicate.ui.normal.MultiplePermissionsInterceptor
 import com.qiuqiuqiu.weatherPredicate.ui.normal.rememberScrollAlpha
 import com.qiuqiuqiu.weatherPredicate.ui.normal.rememberScrollThreshold
@@ -70,7 +70,7 @@ fun WeatherScreen(navController: NavController, location: Pair<Double, Double>? 
         val weatherModel by viewModel.locationWeather.collectAsState()
 
         val scrollState: ScrollState = rememberScrollState()
-        val centerCardAlpha = rememberScrollAlpha(scrollState, 70, 300)
+        val centerCardAlpha = rememberScrollAlpha(scrollState, 70, 230)
         val cityTextHide = rememberScrollThreshold(scrollState, 70)
 
         PullToRefreshBox(
@@ -88,15 +88,7 @@ fun WeatherScreen(navController: NavController, location: Pair<Double, Double>? 
                     )
                 }
             ) { innerPadding ->
-                if (viewModel.isInit.value) {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        CircularProgressIndicator(
-                            modifier = Modifier
-                                .size(32.dp)
-                                .align(Alignment.Center)
-                        )
-                    }
-                } else {
+                LoadingContainer(isInit = viewModel.isInit.value) {
                     WeatherCenterPage(
                         weatherModel = weatherModel,
                         scrollState = scrollState,
@@ -167,6 +159,7 @@ fun WeatherCenterPage(
     alpha: State<Float>,
     cityHide: State<Boolean>,
     modifier: Modifier = Modifier,
+    centerScreen: Boolean = true,
     navController: NavController? = null
 ) {
     Column(
@@ -185,6 +178,7 @@ fun WeatherCenterPage(
             weatherModel.weatherNow,
             weatherDaily,
             alpha, cityHide,
+            centerScreen,
             onCityClick = { navController?.navigate("CityManage") }
         )
 

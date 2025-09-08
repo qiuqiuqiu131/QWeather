@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -13,14 +14,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,17 +33,30 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.qiuqiuqiu.weatherPredicate.LocalAppViewModel
+import com.qiuqiuqiu.weatherPredicate.model.LocationWeatherModel
+import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseCard
+import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
+import com.qiuqiuqiu.weatherPredicate.viewModel.AppViewModel
+import com.qiuqiuqiu.weatherPredicate.viewModel.CityManageViewModel
 
 @Composable
 fun CityManageScreen(navController: NavController) {
+    val viewModel: CityManageViewModel = hiltViewModel()
+    val appViewModel: AppViewModel = LocalAppViewModel.current
+    viewModel.refreshCities()
     Scaffold(
         topBar = {
             CityManagerTopBar(
                 navBack = { navController.popBackStack() },
-                searchClick = { navController.navigate("WeatherSearch") })
+                searchClick = { navController.navigate("WeatherSearch") },
+                editClick = { navController.navigate("CityEdit") })
         },
         bottomBar = {
             CityManagerBottomBar(onClick = { navController.navigate("WeatherSearch") })
@@ -50,18 +65,39 @@ fun CityManageScreen(navController: NavController) {
         Card(
             modifier = Modifier
                 .padding(innerPadding)
-                .padding(horizontal = 12.dp, vertical = 4.dp)
                 .fillMaxSize(),
+            colors = CardColors(
+                contentColor = MaterialTheme.colorScheme.background,
+                containerColor = MaterialTheme.colorScheme.background,
+                disabledContainerColor = MaterialTheme.colorScheme.background,
+                disabledContentColor = MaterialTheme.colorScheme.background
+            ),
             shape = RoundedCornerShape(16.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-
+            LoadingContainer(isInit = viewModel.isInit.value) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    items(viewModel.cityList.value) {
+                        CityCard(it, onClick = {
+                            it.location?.let { location ->
+                                appViewModel.setCurrentCity(
+                                    Pair(
+                                        location.lon.toDouble(),
+                                        location.lat.toDouble()
+                                    )
+                                )
+                                navController.navigate("Main") {
+                                    popUpTo("Main") { inclusive = false }
+                                    launchSingleTop = true
+                                }
+                            }
+                        })
+                    }
+                }
             }
         }
 
@@ -71,7 +107,8 @@ fun CityManageScreen(navController: NavController) {
 @Composable
 fun CityManagerTopBar(
     navBack: () -> Unit,
-    searchClick: () -> Unit
+    searchClick: () -> Unit,
+    editClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -102,7 +139,7 @@ fun CityManagerTopBar(
             )
             Spacer(modifier = Modifier.weight(1f))
             IconButton(
-                onClick = {}, modifier = Modifier
+                onClick = editClick, modifier = Modifier
                     .padding(horizontal = 4.dp)
                     .size(36.dp)
             )
@@ -150,6 +187,7 @@ fun CityManagerBottomBar(onClick: (() -> Unit)? = null) {
 fun SearchButton(
     label: String,
     modifier: Modifier = Modifier,
+    enable: Boolean = true,
     onClick: (() -> Unit)? = null
 ) {
     Card(
@@ -160,7 +198,7 @@ fun SearchButton(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxSize()
-                .clickable(onClick = { onClick?.invoke() })
+                .clickable(onClick = { onClick?.invoke() }, enabled = enable)
         ) {
             Icon(
                 imageVector = Icons.Default.Search, null,
@@ -183,6 +221,84 @@ fun SearchButton(
                         .alpha(0.6f),
                     style = MaterialTheme.typography.bodyMedium.copy(fontSize = 15.sp),
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun CityCard(weather: LocationWeatherModel, onClick: (() -> Unit)? = null) {
+    BaseCard(
+        modifier = Modifier.height(110.dp),
+        onClick = onClick
+    )
+    {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .weight(1.7f)
+                    .fillMaxSize()
+            ) {
+                weather.location?.let {
+                    Text(
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontSize = 21.sp,
+                            fontWeight = FontWeight.Medium
+                        ),
+                        softWrap = false,
+                        overflow = TextOverflow.Ellipsis,
+                        text = "${it.adm1} " +
+                                (if (it.adm2.equals(it.name)) "" else it.adm2 + " ") +
+                                "${it.name}",
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(top = 4.dp)
+                    )
+                }
+
+                weather.weatherNow?.let {
+                    Text(
+                        style = MaterialTheme.typography.bodyMedium,
+                        text = weather.weatherNow!!.text
+                    )
+                }
+            }
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.End
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.Top,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                ) {
+                    weather.weatherNow?.let {
+                        Text(
+                            style = MaterialTheme.typography.titleLarge.copy(fontSize = 34.sp),
+                            text = weather.weatherNow!!.temp,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+
+                    Text(text = "℃", style = MaterialTheme.typography.titleMedium)
+                }
+
+                weather.weatherDailies?.let {
+                    val weatherDay = it.first()
+                    Text(
+                        style = MaterialTheme.typography.bodyMedium,
+                        text = "${weatherDay.tempMax}/${weatherDay.tempMin}℃",
+                        modifier = Modifier.alpha(0.6f)
+                    )
+                }
             }
         }
     }

@@ -1,8 +1,10 @@
 package com.qiuqiuqiu.weatherPredicate
 
 import android.content.Context
+import com.qiuqiuqiu.weatherPredicate.manager.ILocalDataManager
 import com.qiuqiuqiu.weatherPredicate.manager.ILocationWeatherManager
 import com.qiuqiuqiu.weatherPredicate.manager.ISearchCityManager
+import com.qiuqiuqiu.weatherPredicate.manager.LocalDataManager
 import com.qiuqiuqiu.weatherPredicate.manager.LocationWeatherManager
 import com.qiuqiuqiu.weatherPredicate.manager.SearchCityManager
 import com.qiuqiuqiu.weatherPredicate.service.ILocationService
@@ -28,6 +30,10 @@ abstract class AppModule {
     @Binds
     @Singleton
     abstract fun bindSearchCityManager(impl: SearchCityManager): ISearchCityManager
+
+    @Binds
+    @Singleton
+    abstract fun bindLocalDataManager(impl: LocalDataManager): ILocalDataManager
 
     @Binds
     @Singleton

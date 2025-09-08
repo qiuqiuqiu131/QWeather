@@ -21,7 +21,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -44,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
+import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.SearchCityCard
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.TopCityCard
 import com.qiuqiuqiu.weatherPredicate.viewModel.WeatherSearchViewModel
@@ -64,18 +64,7 @@ fun WeatherSearchScreen(navController: NavController) {
             },
             { navController.popBackStack() })
     }) { innerPadding ->
-        if (viewModel.isInit.value) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .size(32.dp)
-                )
-            }
-        } else {
+        LoadingContainer(isInit = viewModel.isInit.value) {
             if (viewModel.searchCities.value != null) {
                 Column(
                     modifier =

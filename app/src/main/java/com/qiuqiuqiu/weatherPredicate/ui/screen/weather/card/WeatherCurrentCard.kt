@@ -27,6 +27,7 @@ fun WeatherCurrentCard(
     weatherDaily: WeatherDaily?,
     alpha: State<Float>,
     cityHide: State<Boolean>,
+    centerScreen: Boolean,
     onCityClick: (() -> Unit)? = null
 ) {
     Column(
@@ -36,10 +37,23 @@ fun WeatherCurrentCard(
     ) {
         // 城市
         location?.let {
-            BaseItem(
-                innerModifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                onClick = onCityClick
-            ) {
+            if(centerScreen) {
+                BaseItem(
+                    innerModifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                    onClick = onCityClick
+                ) {
+                    Text(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 19.sp,
+                        text =
+                            "${it.adm1} " +
+                                    (if (it.adm2.equals(it.name)) "" else it.adm2 + " ") +
+                                    "${it.name}",
+                        modifier = Modifier.alpha((if (cityHide.value) 0f else 1f))
+                    )
+                }
+            }
+            else {
                 Text(
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 19.sp,

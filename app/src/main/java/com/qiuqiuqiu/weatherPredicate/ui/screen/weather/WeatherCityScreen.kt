@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,7 +16,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -41,7 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.qiuqiuqiu.weatherPredicate.LocalAppViewModel
-import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseItem
+import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
 import com.qiuqiuqiu.weatherPredicate.ui.normal.rememberScrollAlpha
 import com.qiuqiuqiu.weatherPredicate.ui.normal.rememberScrollThreshold
 import com.qiuqiuqiu.weatherPredicate.viewModel.AppViewModel
@@ -74,21 +72,14 @@ fun WeatherCityScreen(navController: NavController, location: Pair<Double, Doubl
                 )
             }
         ) { innerPadding ->
-            if (viewModel.isInit.value) {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .align(Alignment.Center)
-                    )
-                }
-            } else {
+            LoadingContainer(isInit = viewModel.isInit.value) {
                 Box(modifier = Modifier.padding(innerPadding)) {
                     WeatherCenterPage(
                         weatherModel = weatherModel,
                         scrollState = scrollState,
                         alpha = centerCardAlpha,
-                        cityHide = cityTextHide
+                        cityHide = cityTextHide,
+                        centerScreen = false
                     )
 
                     WeatherCityBottomBar(
@@ -96,7 +87,7 @@ fun WeatherCityScreen(navController: NavController, location: Pair<Double, Doubl
                             .align(Alignment.BottomCenter)
                             .fillMaxWidth(),
                         onClick = {
-                            appViewModel.setCurrentCity(location)
+                            appViewModel.addCity(location)
                             navController.navigate("Main") {
                                 popUpTo("Main") { inclusive = false }
                                 launchSingleTop = true
@@ -152,8 +143,7 @@ fun WeatherCityTopBar(
     location: Location?,
     navController: NavController,
     alpha: State<Float>,
-    cityHide: State<Boolean>,
-    onCityClick: (() -> Unit)? = null
+    cityHide: State<Boolean>
 ) {
     Box(
         modifier = Modifier
@@ -162,24 +152,18 @@ fun WeatherCityTopBar(
             .height(50.dp)
     ) {
         location?.let {
-            BaseItem(
-                onClick = onCityClick,
-                modifier =
-                    Modifier
-                        .align(Alignment.Center)
-                        .padding(top = ((1 - alpha.value) * 26).dp)
-                        .alpha((if (cityHide.value) 1f else 0f)),
-                innerModifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-            ) {
-                Text(
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = (15 + 2 * (1 - alpha.value)).sp,
-                    text =
-                        "${it.adm1} " +
-                                (if (it.adm2.equals(it.name)) "" else it.adm2 + " ") +
-                                "${it.name}"
-                )
-            }
+            Text(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(top = ((1 - alpha.value) * 26).dp)
+                    .alpha((if (cityHide.value) 1f else 0f)),
+                fontWeight = FontWeight.SemiBold,
+                fontSize = (15 + 2 * (1 - alpha.value)).sp,
+                text =
+                    "${it.adm1} " +
+                            (if (it.adm2.equals(it.name)) "" else it.adm2 + " ") +
+                            "${it.name}"
+            )
         }
 
         IconButton(
