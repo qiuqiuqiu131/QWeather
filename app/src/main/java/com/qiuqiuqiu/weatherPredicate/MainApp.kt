@@ -278,44 +278,44 @@ fun MainApp(modifier: Modifier = Modifier) {
             }) {
             GlobalTimeScreen(onBack = { navController.popBackStack() })
         }
-        composable(
-            "time/solar",
-            enterTransition = {
-                slideIntoContainer(
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioNoBouncy,
-                        stiffness = Spring.StiffnessMediumLow,
-                    ),
-                    towards = AnimatedContentTransitionScope.SlideDirection.Left
-                )
-            },
-            exitTransition = {
-                slideOutOfContainer(
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioNoBouncy,
-                        stiffness = Spring.StiffnessMediumLow,
-                    ),
-                    towards = AnimatedContentTransitionScope.SlideDirection.Left
-                )
-            }, popEnterTransition = {
-                slideIntoContainer(
-                    towards = AnimatedContentTransitionScope.SlideDirection.Right,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioNoBouncy,
-                        stiffness = Spring.StiffnessMediumLow,
-                    )
-                )
-            },
-            popExitTransition = {
-                slideOutOfContainer(
-                    towards = AnimatedContentTransitionScope.SlideDirection.Right,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioNoBouncy,
-                        stiffness = Spring.StiffnessMediumLow,
-                    )
-                )
-            }) {
-            SolarTermsScreen(onBack = { navController.popBackStack() })
-        }
+//        composable(
+//            "time/solar",
+//            enterTransition = {
+//                slideIntoContainer(
+//                    animationSpec = spring(
+//                        dampingRatio = Spring.DampingRatioNoBouncy,
+//                        stiffness = Spring.StiffnessMediumLow,
+//                    ),
+//                    towards = AnimatedContentTransitionScope.SlideDirection.Left
+//                )
+//            },
+//            exitTransition = {
+//                slideOutOfContainer(
+//                    animationSpec = spring(
+//                        dampingRatio = Spring.DampingRatioNoBouncy,
+//                        stiffness = Spring.StiffnessMediumLow,
+//                    ),
+//                    towards = AnimatedContentTransitionScope.SlideDirection.Left
+//                )
+//            }, popEnterTransition = {
+//                slideIntoContainer(
+//                    towards = AnimatedContentTransitionScope.SlideDirection.Right,
+//                    animationSpec = spring(
+//                        dampingRatio = Spring.DampingRatioNoBouncy,
+//                        stiffness = Spring.StiffnessMediumLow,
+//                    )
+//                )
+//            },
+//            popExitTransition = {
+//                slideOutOfContainer(
+//                    towards = AnimatedContentTransitionScope.SlideDirection.Right,
+//                    animationSpec = spring(
+//                        dampingRatio = Spring.DampingRatioNoBouncy,
+//                        stiffness = Spring.StiffnessMediumLow,
+//                    )
+//                )
+//            }) {
+//            SolarTermsScreen(onBack = { navController.popBackStack() })
+//        }
     }
 }
