@@ -39,6 +39,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.qiuqiuqiu.weatherPredicate.LocalAppViewModel
+import com.qiuqiuqiu.weatherPredicate.model.CityLocationModel
+import com.qiuqiuqiu.weatherPredicate.model.CityType
 import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
 import com.qiuqiuqiu.weatherPredicate.ui.normal.rememberScrollAlpha
 import com.qiuqiuqiu.weatherPredicate.ui.normal.rememberScrollThreshold
@@ -52,7 +54,7 @@ fun WeatherCityScreen(navController: NavController, location: Pair<Double, Doubl
     val appViewModel: AppViewModel = LocalAppViewModel.current
     val viewModel: WeatherViewModel = hiltViewModel()
     val weatherModel by viewModel.locationWeather.collectAsState()
-    viewModel.initLocation(location, false)
+    viewModel.initLocation(CityLocationModel(CityType.Normal, location), false)
 
     val scrollState: ScrollState = rememberScrollState()
     val centerCardAlpha = rememberScrollAlpha(scrollState, 70, 300)

@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qiuqiuqiu.weatherPredicate.manager.ILocalDataManager
 import com.qiuqiuqiu.weatherPredicate.manager.ILocationWeatherManager
+import com.qiuqiuqiu.weatherPredicate.model.CityLocationModel
 import com.qiuqiuqiu.weatherPredicate.model.LocationWeatherModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -31,10 +32,7 @@ class CityEditViewModel @Inject constructor(
             val list = localDataManager.getCityList()
             val weatherTaskList = list.map {
                 async {
-                    locationWeatherManager.getCacheLocationWeather(
-                        it.first,
-                        it.second
-                    ).first
+                    locationWeatherManager.getCacheLocationWeather(it).first
                 }
             }
             cityList.addAll(weatherTaskList.map { it.await() })
@@ -49,9 +47,12 @@ class CityEditViewModel @Inject constructor(
     fun saveEdit(callBack: (() -> Unit)? = null) {
         viewModelScope.launch(Dispatchers.IO) {
             localDataManager.saveCityList(cityList.map {
-                Pair(
-                    it.location!!.lon.toDouble(),
-                    it.location.lat.toDouble()
+                CityLocationModel(
+                    it.type,
+                    Pair(
+                        it.location!!.lon.toDouble(),
+                        it.location.lat.toDouble()
+                    )
                 )
             })
             viewModelScope.launch(Dispatchers.Main) {

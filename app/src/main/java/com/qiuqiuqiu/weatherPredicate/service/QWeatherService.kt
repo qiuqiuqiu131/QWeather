@@ -77,7 +77,7 @@ interface IQWeatherService {
      * 获取实时空气质量
      * @param locationId 经纬度坐标
      */
-    suspend fun getAirCurrent(latitude: Double, longitude: Double): AirV1CurrentResponse
+    suspend fun getAirCurrent(longitude: Double, latitude: Double): AirV1CurrentResponse
 
     /**
      * 获取城市信息
@@ -256,7 +256,7 @@ class QWeatherService @Inject constructor(@ApplicationContext private val contex
         }
     }
 
-    override suspend fun getAirCurrent(latitude: Double, longitude: Double): AirV1CurrentResponse {
+    override suspend fun getAirCurrent(longitude: Double, latitude: Double): AirV1CurrentResponse {
         val parameter = AirV1Parameter(latitude, longitude).setLang(Lang.ZH_HANS)
         return suspendCancellableCoroutine { cont ->
             instance.airCurrent(parameter, object : Callback<AirV1CurrentResponse> {

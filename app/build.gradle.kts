@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 plugins {
-
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
@@ -104,8 +103,4 @@ dependencies {
 
     implementation("androidx.datastore:datastore-preferences:1.1.7")
     implementation("com.google.code.gson:gson:2.13.1")
-
-    implementation("com.squareup.retrofit2:retrofit:3.0.0")
-    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:5.1.0")
 }

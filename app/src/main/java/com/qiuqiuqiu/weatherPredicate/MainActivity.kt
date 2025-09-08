@@ -39,7 +39,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             enableEdgeToEdge(statusBarStyle = SystemBarStyle.auto(5, 5))
             LunchTrayTheme {
-
                 CompositionLocalProvider(LocalAppViewModel provides appViewModel) {
                     MainApp(
                         Modifier.fillMaxSize()
