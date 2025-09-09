@@ -29,8 +29,8 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun BaseItem(
-    bgColor: Color = MaterialTheme.colorScheme.surfaceContainer,
     modifier: Modifier = Modifier,
+    bgColor: Color = MaterialTheme.colorScheme.secondaryContainer,
     innerModifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     content: @Composable (BoxScope.() -> Unit)
@@ -40,7 +40,7 @@ fun BaseItem(
         modifier =
             modifier
                 .background(
-                    color = if (isPressed) bgColor else Color.Transparent,
+                    color = if (isPressed) bgColor.copy(alpha = 0.6f) else Color.Transparent,
                     shape = RoundedCornerShape(8.dp)
                 )
                 .pointerInput(Unit) {
@@ -67,10 +67,7 @@ fun BaseCard(
     endCorner: @Composable (BoxScope.() -> Unit)? = null,
     content: @Composable (ColumnScope.() -> Unit)
 ) {
-    Card(
-        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-        shape = RoundedCornerShape(16.dp)
-    ) {
+    DefaultCard(modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)) {
         BaseItem(onClick = onClick) {
             Column(modifier = modifier) {
                 if (title != null || endCorner != null) {
@@ -116,17 +113,7 @@ fun SearchBaseCard(
     endCorner: @Composable (BoxScope.() -> Unit)? = null,
     content: @Composable (ColumnScope.() -> Unit)
 ) {
-    val cardColor = CardDefaults.cardColors()
-    Card(
-        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardColors(
-            containerColor = cardColor.containerColor,
-            contentColor = cardColor.contentColor,
-            disabledContainerColor = cardColor.disabledContainerColor,
-            disabledContentColor = cardColor.disabledContentColor
-        )
-    ) {
+    DefaultCard(modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)) {
         Column(modifier = modifier) {
             if (title != null || endCorner != null) {
                 Box(
@@ -159,5 +146,22 @@ fun SearchBaseCard(
             }
             content()
         }
+    }
+}
+
+@Composable
+fun DefaultCard(modifier: Modifier = Modifier, content: @Composable (ColumnScope.() -> Unit)) {
+    val cardColor = CardDefaults.cardColors()
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(16.dp),
+        colors = CardColors(
+            containerColor = cardColor.containerColor.copy(alpha = 0.6f),
+            contentColor = cardColor.contentColor,
+            disabledContainerColor = cardColor.disabledContainerColor.copy(alpha = 0.6f),
+            disabledContentColor = cardColor.disabledContentColor
+        )
+    ) {
+        content()
     }
 }

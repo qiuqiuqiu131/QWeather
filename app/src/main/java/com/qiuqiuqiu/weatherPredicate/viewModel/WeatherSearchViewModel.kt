@@ -43,11 +43,10 @@ class WeatherSearchViewModel @Inject constructor(
     var searchHistories: MutableState<List<SearchHistory>> = mutableStateOf(listOf())
         private set
 
-    var isInit: MutableState<Boolean> = mutableStateOf(false)
+    var isInit: MutableState<Boolean> = mutableStateOf(true)
         private set
 
     fun initSearchData() {
-        isInit.value = true
         searchInputFlow.value = null
         viewModelScope.launch(CoroutineExceptionHandler { _, e ->
             Log.e("Search", "获取天气失败: ${e.message}")

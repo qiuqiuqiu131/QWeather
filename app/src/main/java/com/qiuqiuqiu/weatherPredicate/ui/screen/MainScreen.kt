@@ -21,11 +21,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.WeatherScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.qiuqiuqiu.weatherPredicate.ui.screen.map.MapViewModel
+import androidx.navigation.NavController
 import com.qiuqiuqiu.weatherPredicate.ui.screen.map.MapScreen
+import com.qiuqiuqiu.weatherPredicate.ui.screen.map.MapViewModel
+import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.WeatherScreen
 
 enum class MainNaviBar(val label: String, val icon: ImageVector, val contentDescription: String) {
     Weather("Weather", Icons.Default.CloudQueue, "Weather"),
@@ -85,6 +85,10 @@ fun MainScreen(navController: NavController, modifier: Modifier = Modifier) {
             }
         }
     ) { innerPadding ->
-        MainHost(selectedDestination, navController, Modifier.padding(innerPadding))
+        MainHost(
+            selectedDestination,
+            navController,
+            Modifier.padding(bottom = innerPadding.calculateBottomPadding())
+        )
     }
 }
