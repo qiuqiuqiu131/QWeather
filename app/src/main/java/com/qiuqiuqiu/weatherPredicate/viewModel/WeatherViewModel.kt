@@ -56,6 +56,14 @@ class WeatherViewModel @Inject constructor(
         viewModelScope.launch(CoroutineExceptionHandler { _, e ->
             Log.e("Weather", "获取天气失败: ${e.stackTrace}")
         } + Dispatchers.IO) {
+            val list = localDataManager.getCityList()
+            if (list.firstOrNull {
+                    it.location.first == currentLocation.location.first &&
+                            it.location.second == currentLocation.location.second
+                } == null) {
+                currentLocation = list.firstOrNull() ?: defaultLocation
+            }
+
             if (currentLocation.type == CityType.Position && !locationService.hasLocationPermissions()) {
                 // 未获得权限，删除城市列表中的定位Location
                 localDataManager.removePositionCity()

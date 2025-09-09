@@ -5,7 +5,6 @@ package com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,6 +19,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.qiuqiuqiu.weatherPredicate.model.SearchHistory
 import com.qiuqiuqiu.weatherPredicate.ui.normal.SearchBaseCard
 
@@ -85,12 +85,11 @@ fun SearchHistoryItem(
     ) {
         Text(
             text = history.name,
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.labelMedium.copy(fontSize = 13.5.sp),
             overflow = TextOverflow.Ellipsis,
             softWrap = false,
             modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 4.dp)
-                .height(20.dp)
+                .padding(horizontal = 16.dp, vertical = 6.dp)
         )
     }
 }

@@ -278,7 +278,7 @@ fun EditCityCard(
                             imageVector = Icons.Outlined.Delete,
                             null,
                             modifier = Modifier
-                                .padding(bottom = 4.dp, end = 8.dp)
+                                .padding(bottom = 4.dp, top = 8.dp)
                                 .size(24.dp)
 
                         )
