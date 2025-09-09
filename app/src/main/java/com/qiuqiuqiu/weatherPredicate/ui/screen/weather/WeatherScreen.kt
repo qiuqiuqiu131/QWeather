@@ -35,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -100,11 +101,26 @@ fun WeatherScreen(navController: NavController) {
         }
     }
 
+//    Box(
+//        modifier = Modifier
+//            .background(
+//                Color(
+//                    red = 0.8f,
+//                    green = 0.9f,
+//                    blue = 1f,
+//                    alpha = 1f,
+//                    colorSpace = ColorSpaces.Srgb
+//                )
+//            )
+//            .fillMaxSize()
+//    )
+
     PullToRefreshBox(
         isRefreshing = viewModel.isRefreshing.value,
         onRefresh = { viewModel.refreshing() },
     ) {
         Scaffold(
+            containerColor = Color.Transparent,
             topBar = {
                 WeatherTopBar(
                     weatherModel.type,

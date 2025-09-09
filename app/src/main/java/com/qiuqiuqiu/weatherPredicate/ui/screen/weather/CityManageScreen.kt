@@ -47,6 +47,7 @@ import com.qiuqiuqiu.weatherPredicate.model.CityLocationModel
 import com.qiuqiuqiu.weatherPredicate.model.CityType
 import com.qiuqiuqiu.weatherPredicate.model.LocationWeatherModel
 import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseCard
+import com.qiuqiuqiu.weatherPredicate.ui.normal.DefaultCard
 import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
 import com.qiuqiuqiu.weatherPredicate.viewModel.AppViewModel
 import com.qiuqiuqiu.weatherPredicate.viewModel.CityManageViewModel
@@ -195,10 +196,7 @@ fun SearchButton(
     enable: Boolean = true,
     onClick: (() -> Unit)? = null
 ) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(16.dp)
-    ) {
+    DefaultCard(modifier = modifier) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier

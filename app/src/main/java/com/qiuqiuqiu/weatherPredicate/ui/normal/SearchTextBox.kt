@@ -7,13 +7,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -35,7 +33,7 @@ fun SearchTextBox(
     onClear: (() -> Unit),
     modifier: Modifier = Modifier
 ) {
-    Card(modifier = modifier, shape = RoundedCornerShape(16.dp)) {
+    DefaultCard(modifier = modifier) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxSize()) {
             Icon(
                 imageVector = Icons.Default.Search,
@@ -87,7 +85,6 @@ fun SearchTextBox(
                             )
                         })
             }
-
         }
     }
 }

@@ -32,6 +32,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -60,6 +62,20 @@ fun WeatherCityScreen(navController: NavController, location: Pair<Double, Doubl
     val centerCardAlpha = rememberScrollAlpha(scrollState, 70, 300)
     val cityTextHide = rememberScrollThreshold(scrollState, 70)
 
+    val color = Color(
+        red = 0.8f,
+        green = 0.9f,
+        blue = 1f,
+        alpha = 1f,
+        colorSpace = ColorSpaces.Srgb
+    )
+
+//    Box(
+//        modifier = Modifier
+//            .background(color)
+//            .fillMaxSize()
+//    )
+
     PullToRefreshBox(
         isRefreshing = viewModel.isRefreshing.value,
         onRefresh = { viewModel.refreshing() },
@@ -72,7 +88,8 @@ fun WeatherCityScreen(navController: NavController, location: Pair<Double, Doubl
                     centerCardAlpha,
                     cityTextHide
                 )
-            }
+            },
+            containerColor = Color.Transparent
         ) { innerPadding ->
             LoadingContainer(isInit = viewModel.isInit.value) {
                 Box(modifier = Modifier.padding(innerPadding)) {
@@ -103,7 +120,11 @@ fun WeatherCityScreen(navController: NavController, location: Pair<Double, Doubl
 }
 
 @Composable
-fun WeatherCityBottomBar(modifier: Modifier = Modifier, onClick: (() -> Unit)? = null) {
+fun WeatherCityBottomBar(
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
+    color: Color = MaterialTheme.colorScheme.background
+) {
     val boxHeight = 150.dp
     val density = LocalDensity.current
     Row(

@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun BaseItem(
     modifier: Modifier = Modifier,
-    bgColor: Color = MaterialTheme.colorScheme.secondaryContainer,
+    bgColor: Color = MaterialTheme.colorScheme.surfaceContainer,
     innerModifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     content: @Composable (BoxScope.() -> Unit)
@@ -40,7 +40,7 @@ fun BaseItem(
         modifier =
             modifier
                 .background(
-                    color = if (isPressed) bgColor.copy(alpha = 0.6f) else Color.Transparent,
+                    color = if (isPressed) bgColor.copy(alpha = 1f) else Color.Transparent,
                     shape = RoundedCornerShape(8.dp)
                 )
                 .pointerInput(Unit) {
@@ -151,16 +151,24 @@ fun SearchBaseCard(
 
 @Composable
 fun DefaultCard(modifier: Modifier = Modifier, content: @Composable (ColumnScope.() -> Unit)) {
-    val cardColor = CardDefaults.cardColors()
+    val color1 = CardColors(
+        containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f),
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        disabledContainerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f),
+        disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+
+    val color2 = CardColors(
+        containerColor = CardDefaults.cardColors().containerColor.copy(alpha = 1f),
+        contentColor = CardDefaults.cardColors().contentColor,
+        disabledContainerColor = CardDefaults.cardColors().disabledContainerColor.copy(alpha = 1f),
+        disabledContentColor = CardDefaults.cardColors().disabledContentColor
+    )
+
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
-        colors = CardColors(
-            containerColor = cardColor.containerColor.copy(alpha = 0.6f),
-            contentColor = cardColor.contentColor,
-            disabledContainerColor = cardColor.disabledContainerColor.copy(alpha = 0.6f),
-            disabledContentColor = cardColor.disabledContentColor
-        )
+        colors = color2
     ) {
         content()
     }
