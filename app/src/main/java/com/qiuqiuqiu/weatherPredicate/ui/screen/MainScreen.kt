@@ -23,6 +23,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.WeatherScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.qiuqiuqiu.weatherPredicate.ui.screen.map.MapViewModel
+import com.qiuqiuqiu.weatherPredicate.ui.screen.map.MapScreen
 
 enum class MainNaviBar(val label: String, val icon: ImageVector, val contentDescription: String) {
     Weather("Weather", Icons.Default.CloudQueue, "Weather"),
@@ -43,7 +46,8 @@ fun MainHost(
             }
 
             MainNaviBar.Map -> {
-                MapScreen()
+                val mapViewModel: MapViewModel = viewModel()
+                MapScreen(viewModel = mapViewModel)
             }
 
             MainNaviBar.Time -> {
