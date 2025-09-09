@@ -4,8 +4,7 @@ import androidx.compose.runtime.Composable
 
 
 @Composable
-fun SolarTermSScreen(){
-
+fun SolarTermsScreen() {
 
 
 }

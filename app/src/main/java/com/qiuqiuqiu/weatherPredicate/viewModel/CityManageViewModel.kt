@@ -1,6 +1,7 @@
 package com.qiuqiuqiu.weatherPredicate.viewModel
 
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -21,19 +22,16 @@ class CityManageViewModel @Inject constructor(
     var isInit: MutableState<Boolean> = mutableStateOf(true)
         private set
 
-    var cityList: MutableState<List<LocationWeatherModel>> = mutableStateOf(emptyList())
+    var cityList = mutableStateListOf<LocationWeatherModel>()
         private set
 
     fun refreshCities() {
-        isInit.value = true
         viewModelScope.launch(Dispatchers.IO) {
             val list = localDataManager.getCityList()
-            val weatherTaskList = list.map {
-                async {
-                    locationWeatherManager.getCacheLocationWeather(it).first
-                }
-            }
-            cityList.value = weatherTaskList.map { it.await() }
+            val weatherTaskList =
+                list.map { async { locationWeatherManager.getCacheLocationWeather(it).first } }
+            cityList.clear()
+            cityList.addAll(weatherTaskList.map { it.await() })
             isInit.value = false
         }
     }

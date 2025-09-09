@@ -5,12 +5,13 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.qiuqiuqiu.weatherPredicate.manager.ILocalDataManager
 import com.qiuqiuqiu.weatherPredicate.manager.ILocationWeatherManager
 import com.qiuqiuqiu.weatherPredicate.manager.ISearchCityManager
-import com.qiuqiuqiu.weatherPredicate.manager.LocalDataManager
 import com.qiuqiuqiu.weatherPredicate.model.CityLocationModel
 import com.qiuqiuqiu.weatherPredicate.model.CityType
 import com.qiuqiuqiu.weatherPredicate.model.SearchCityModel
+import com.qiuqiuqiu.weatherPredicate.model.SearchHistory
 import com.qiuqiuqiu.weatherPredicate.service.IQWeatherService
 import com.qiuqiuqiu.weatherPredicate.service.LocationService
 import com.qweather.sdk.response.geo.Location
@@ -34,21 +35,26 @@ class WeatherSearchViewModel @Inject constructor(
     val searchCityManager: ISearchCityManager,
     val locationService: LocationService,
     val locationWeatherManager: ILocationWeatherManager,
-    val localDataManager: LocalDataManager
+    val localDataManager: ILocalDataManager
 ) : ViewModel() {
     var searchCityModel: MutableStateFlow<SearchCityModel> = MutableStateFlow(SearchCityModel())
+        private set
+
+    var searchHistories: MutableState<List<SearchHistory>> = mutableStateOf(listOf())
         private set
 
     var isInit: MutableState<Boolean> = mutableStateOf(false)
         private set
 
-    init {
+    fun initSearchData() {
         isInit.value = true
+        searchInputFlow.value = null
         viewModelScope.launch(CoroutineExceptionHandler { _, e ->
             Log.e("Search", "获取天气失败: ${e.message}")
         } + Dispatchers.IO) {
             val model = searchCityManager.getTopCities()
             searchCityModel.update { model }
+            searchHistories.value = localDataManager.getSearchHistories()
             viewModelScope.launch(Dispatchers.Main) {
                 isInit.value = false
             }
@@ -58,7 +64,8 @@ class WeatherSearchViewModel @Inject constructor(
     var searchCities: MutableState<List<Location>?> = mutableStateOf(null)
         private set
 
-    private val searchInputFlow = MutableStateFlow<String?>(null)
+    var searchInputFlow = MutableStateFlow<String?>(null)
+        private set
 
     init {
         searchInputFlow.debounce(400) // 400ms内只响应最后一次输入
@@ -87,6 +94,7 @@ class WeatherSearchViewModel @Inject constructor(
         isInit.value = true
         viewModelScope.launch(CoroutineExceptionHandler { _, e ->
             Log.e("Weather", "获取天气失败: ${e.message}")
+            isInit.value = false
         } + Dispatchers.IO) {
             locationWeatherManager.getNewLocationWeather(
                 CityLocationModel(
@@ -106,4 +114,56 @@ class WeatherSearchViewModel @Inject constructor(
         runBlocking {
             localDataManager.getCityList().firstOrNull { it.type == CityType.Position } == null
         }
+
+    var isLoadingLocation: MutableState<Boolean> = mutableStateOf(false)
+        private set
+
+    fun isLocationEnabled(): Boolean = locationService.isLocationEnabled()
+
+    fun addPositionCity(callBack: (CityLocationModel) -> Unit) {
+        isLoadingLocation.value = true
+        viewModelScope.launch(Dispatchers.IO) {
+            val location = locationService.getLastLocation()
+            if (location == null) {
+                // 获取定位失败
+            } else {
+                val city = CityLocationModel(
+                    CityType.Position,
+                    Pair(location.longitude, location.latitude)
+                )
+                localDataManager.addPositionCity(city)
+                locationWeatherManager.getNewLocationWeather(city)
+                delay(500)
+                viewModelScope.launch(Dispatchers.Main) {
+                    callBack(city)
+                    isLoadingLocation.value = false
+                }
+            }
+        }
+    }
+
+    fun clearSearchHistories() {
+        viewModelScope.launch(Dispatchers.IO) {
+            localDataManager.clearSearchHistories()
+            viewModelScope.launch(Dispatchers.Main) {
+                searchHistories.value = listOf()
+            }
+        }
+    }
+
+    fun searchHistoryClick(history: SearchHistory) {
+        searchInputFlow.value = history.name
+    }
+
+    fun addSearchHistory(location: Location) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val history =
+                SearchHistory(location.name, Pair(location.lon.toDouble(), location.lat.toDouble()))
+            localDataManager.addSearchHistory(history)
+            val list = localDataManager.getSearchHistories()
+            viewModelScope.launch(Dispatchers.Main) {
+                searchHistories.value = list
+            }
+        }
+    }
 }

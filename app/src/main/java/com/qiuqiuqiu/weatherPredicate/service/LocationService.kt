@@ -1,6 +1,7 @@
 package com.qiuqiuqiu.weatherPredicate.service
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
@@ -8,6 +9,7 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.Looper
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -30,6 +32,22 @@ fun hasLocationPermissions(context: Context): Boolean {
                 context,
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
+}
+
+fun isLocationPermanentlyDenied(context: Context): Boolean {
+    val activity = context as? Activity
+    // 检查是否永久拒绝
+    return activity != null && (!ActivityCompat
+        .shouldShowRequestPermissionRationale(
+            activity,
+            Manifest.permission
+                .ACCESS_FINE_LOCATION
+        ) && !ActivityCompat
+        .shouldShowRequestPermissionRationale(
+            activity,
+            Manifest.permission
+                .ACCESS_COARSE_LOCATION
+        ))
 }
 
 class LocationService @Inject constructor(@ApplicationContext private val context: Context) :

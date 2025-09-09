@@ -19,8 +19,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.ElevatedButton
@@ -41,6 +44,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.qiuqiuqiu.weatherPredicate.LocalAppViewModel
 import com.qiuqiuqiu.weatherPredicate.model.CityLocationModel
+import com.qiuqiuqiu.weatherPredicate.model.CityType
 import com.qiuqiuqiu.weatherPredicate.model.LocationWeatherModel
 import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseCard
 import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
@@ -82,7 +86,7 @@ fun CityManageScreen(navController: NavController) {
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    items(viewModel.cityList.value) {
+                    items(viewModel.cityList) {
                         CityCard(it, onClick = {
                             it.location?.let { location ->
                                 appViewModel.setCurrentCity(
@@ -241,31 +245,74 @@ fun CityCard(weather: LocationWeatherModel, onClick: (() -> Unit)? = null) {
         ) {
             Column(
                 modifier = Modifier
-                    .weight(1.7f)
+                    .weight(2.5f)
                     .fillMaxSize()
             ) {
                 weather.location?.let {
-                    Text(
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontSize = 21.sp,
-                            fontWeight = FontWeight.Medium
-                        ),
-                        softWrap = false,
-                        overflow = TextOverflow.Ellipsis,
-                        text = "${it.adm1} " +
-                                (if (it.adm2.equals(it.name)) "" else it.adm2 + " ") +
-                                "${it.name}",
+                    Row(
                         modifier = Modifier
                             .weight(1f)
-                            .padding(top = 4.dp)
-                    )
+                            .padding(vertical = 4.dp)
+                    ) {
+                        if (weather.type == CityType.Position) {
+                            Icon(
+                                Icons.Default.LocationOn,
+                                null,
+                                modifier = Modifier
+                                    .size(28.dp)
+                                    .alpha(0.9f)
+                            )
+                        } else if (weather.type == CityType.Host) {
+                            Icon(
+                                Icons.Rounded.Home,
+                                null,
+                                modifier = Modifier
+                                    .size(28.dp)
+                                    .alpha(0.9f)
+                            )
+                        }
+                        Text(
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontSize = 21.sp,
+                                fontWeight = FontWeight.Medium
+                            ),
+                            softWrap = false,
+                            overflow = TextOverflow.Ellipsis,
+                            text = "${it.adm1} " +
+                                    (if (it.adm2.equals(it.name)) "" else it.adm2 + " ") +
+                                    "${it.name}",
+                            modifier = Modifier.padding(horizontal = 4.dp)
+                        )
+                    }
+
                 }
 
-                weather.weatherNow?.let {
-                    Text(
-                        style = MaterialTheme.typography.bodyMedium,
-                        text = weather.weatherNow!!.text
-                    )
+                if (weather.warnings != null && weather.warnings.isNotEmpty()) {
+                    val warning = weather.warnings.first()
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            Icons.Default.Warning,
+                            null,
+                            modifier = Modifier
+                                .size(20.dp)
+                                .padding(end = 4.dp)
+                        )
+                        Text(
+                            style = MaterialTheme.typography.bodyMedium,
+                            text = "${warning.typeName}${warning.level}预警",
+                            modifier = Modifier.height(20.dp),
+                            softWrap = false, overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                } else {
+                    weather.weatherNow?.let {
+                        Text(
+                            style = MaterialTheme.typography.bodyMedium,
+                            text = it.text,
+                            modifier = Modifier.height(20.dp),
+                            softWrap = false, overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
             }
 

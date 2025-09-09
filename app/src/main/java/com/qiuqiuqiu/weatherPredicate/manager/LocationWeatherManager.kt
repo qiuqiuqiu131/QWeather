@@ -37,7 +37,10 @@ class LocationWeatherManager @Inject constructor(val weatherService: IQWeatherSe
         location: CityLocationModel
     ): Pair<LocationWeatherModel, Boolean> {
         val locationWeather = weatherCache["${location.location.first},${location.location.second}"]
-        if (locationWeather != null) return Pair(locationWeather, false)
+        if (locationWeather != null) {
+            locationWeather.type = location.type
+            return Pair(locationWeather, false)
+        }
         return Pair(getNewLocationWeather(location), true)
     }
 

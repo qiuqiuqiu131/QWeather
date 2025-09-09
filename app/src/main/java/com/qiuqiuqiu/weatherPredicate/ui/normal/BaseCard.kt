@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -114,9 +116,16 @@ fun SearchBaseCard(
     endCorner: @Composable (BoxScope.() -> Unit)? = null,
     content: @Composable (ColumnScope.() -> Unit)
 ) {
+    val cardColor = CardDefaults.cardColors()
     Card(
         modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-        shape = RoundedCornerShape(16.dp)
+        shape = RoundedCornerShape(16.dp),
+        colors = CardColors(
+            containerColor = cardColor.containerColor,
+            contentColor = cardColor.contentColor,
+            disabledContainerColor = cardColor.disabledContainerColor,
+            disabledContentColor = cardColor.disabledContentColor
+        )
     ) {
         Column(modifier = modifier) {
             if (title != null || endCorner != null) {

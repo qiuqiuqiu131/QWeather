@@ -9,7 +9,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 @HiltViewModel
@@ -22,12 +21,7 @@ class AppViewModel @Inject constructor(
 
     init {
         runBlocking {
-            val cityList = localDataManager.getCityList().toMutableList()
-            // 如果没有权限，则删掉定位Location
-            if (!locationService.hasLocationPermissions()) {
-                cityList.removeIf { it.type == CityType.Position }
-                launch { localDataManager.saveCityList(cityList) }
-            }
+            val cityList = localDataManager.getCityList()
             currentCity.update {
                 cityList.firstOrNull { it.type == CityType.Host } ?: cityList.firstOrNull()
             }
@@ -40,16 +34,8 @@ class AppViewModel @Inject constructor(
 
     fun addCity(location: Pair<Double, Double>) {
         runBlocking {
-            val type = localDataManager.addCity(location)
-            currentCity.value = CityLocationModel(type, location)
+            localDataManager.addCity(location)
+            currentCity.value = CityLocationModel(CityType.Normal, location)
         }
-    }
-
-    fun addPositionCity(city: Pair<Double, Double> = defaultLocation.location) {
-        runBlocking {
-            currentCity.value = CityLocationModel(CityType.Position, city)
-            localDataManager.addPositionCity(city)
-        }
-
     }
 }

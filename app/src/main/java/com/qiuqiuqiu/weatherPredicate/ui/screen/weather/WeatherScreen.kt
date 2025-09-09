@@ -1,10 +1,14 @@
 package com.qiuqiuqiu.weatherPredicate.ui.screen.weather
 
+import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -22,12 +27,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,7 +42,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import com.qiuqiuqiu.weatherPredicate.LocalAppViewModel
+import com.qiuqiuqiu.weatherPredicate.model.CityType
 import com.qiuqiuqiu.weatherPredicate.model.LocationWeatherModel
+import com.qiuqiuqiu.weatherPredicate.service.hasLocationPermissions
+import com.qiuqiuqiu.weatherPredicate.service.isLocationPermanentlyDenied
 import com.qiuqiuqiu.weatherPredicate.tools.isToday
 import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseItem
 import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
@@ -59,14 +69,35 @@ import com.qweather.sdk.response.geo.Location
 fun WeatherScreen(navController: NavController) {
     val appViewModel: AppViewModel = LocalAppViewModel.current
     val currentCity by appViewModel.currentCity.collectAsState()
+    val context = LocalContext.current
 
     val viewModel: WeatherViewModel = hiltViewModel()
-    viewModel.initLocation(currentCity)
     val weatherModel by viewModel.locationWeather.collectAsState()
 
     val scrollState: ScrollState = rememberScrollState()
     val centerCardAlpha = rememberScrollAlpha(scrollState, 70, 230)
     val cityTextHide = rememberScrollThreshold(scrollState, 70)
+
+    val permissionLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { viewModel.initLocation(currentCity) }
+
+    LaunchedEffect(currentCity) {
+        val hasPermissions = hasLocationPermissions(context)
+        val isDenied = isLocationPermanentlyDenied(context)
+        if (currentCity != null && currentCity!!.type == CityType.Position && !hasPermissions && isDenied) {
+            // 只在副作用中调用 launch
+            permissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        } else {
+            viewModel.initLocation(currentCity)
+        }
+    }
 
     PullToRefreshBox(
         isRefreshing = viewModel.isRefreshing.value,
@@ -75,6 +106,7 @@ fun WeatherScreen(navController: NavController) {
         Scaffold(
             topBar = {
                 WeatherTopBar(
+                    weatherModel.type,
                     weatherModel.location,
                     navController,
                     centerCardAlpha,
@@ -100,6 +132,7 @@ fun WeatherScreen(navController: NavController) {
 /** 天气页面顶部栏 */
 @Composable
 fun WeatherTopBar(
+    type: CityType,
     location: Location?,
     navController: NavController,
     alpha: State<Float>,
@@ -121,14 +154,28 @@ fun WeatherTopBar(
                         .alpha((if (cityHide.value) 1f else 0f)),
                 innerModifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
             ) {
-                Text(
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = (15 + 2 * (1 - alpha.value)).sp,
-                    text =
-                        "${it.adm1} " +
-                                (if (it.adm2.equals(it.name)) "" else it.adm2 + " ") +
-                                "${it.name}"
-                )
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = (15 + 2 * (1 - alpha.value)).sp,
+                        text =
+                            "${it.adm1} " +
+                                    (if (it.adm2.equals(it.name)) "" else it.adm2 + " ") +
+                                    "${it.name}"
+                    )
+                    if (type == CityType.Position) {
+                        Icon(
+                            Icons.Default.LocationOn,
+                            null,
+                            modifier = Modifier
+                                .size(22.dp)
+                                .padding(bottom = 2.dp)
+                        )
+                    }
+                }
             }
         }
 
@@ -149,7 +196,8 @@ fun WeatherTopBar(
 
 @Composable
 fun WeatherCenterPage(
-    weatherModel: LocationWeatherModel, scrollState: ScrollState,
+    weatherModel: LocationWeatherModel,
+    scrollState: ScrollState,
     alpha: State<Float>,
     cityHide: State<Boolean>,
     modifier: Modifier = Modifier,
@@ -163,15 +211,16 @@ fun WeatherCenterPage(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val weatherDaily =
-            weatherModel.weatherDailies?.first({ d -> d.fxDate.isToday() })
+        val weatherDaily = weatherModel.weatherDailies?.first({ d -> d.fxDate.isToday() })
 
         // 天气中心卡片
         WeatherCurrentCard(
+            weatherModel.type,
             weatherModel.location,
             weatherModel.weatherNow,
             weatherDaily,
-            alpha, cityHide,
+            alpha,
+            cityHide,
             centerScreen,
             onCityClick = { navController?.navigate("CityManage") }
         )
