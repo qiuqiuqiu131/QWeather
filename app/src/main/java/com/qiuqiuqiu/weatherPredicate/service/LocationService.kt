@@ -36,18 +36,17 @@ fun hasLocationPermissions(context: Context): Boolean {
 
 fun isLocationPermanentlyDenied(context: Context): Boolean {
     val activity = context as? Activity
+    if (activity == null) return false
+    val fine_location = ActivityCompat.shouldShowRequestPermissionRationale(
+        activity,
+        Manifest.permission.ACCESS_FINE_LOCATION
+    )
+    val coarse_location = ActivityCompat.shouldShowRequestPermissionRationale(
+        activity,
+        Manifest.permission.ACCESS_COARSE_LOCATION
+    )
     // 检查是否永久拒绝
-    return activity != null && (!ActivityCompat
-        .shouldShowRequestPermissionRationale(
-            activity,
-            Manifest.permission
-                .ACCESS_FINE_LOCATION
-        ) && !ActivityCompat
-        .shouldShowRequestPermissionRationale(
-            activity,
-            Manifest.permission
-                .ACCESS_COARSE_LOCATION
-        ))
+    return !fine_location && !coarse_location
 }
 
 class LocationService @Inject constructor(@ApplicationContext private val context: Context) :
