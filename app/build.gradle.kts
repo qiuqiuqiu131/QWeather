@@ -1,3 +1,5 @@
+import java.util.Properties
+
 /*
  * Copyright (C) 2023 The Android Open Source Project
  *
@@ -31,7 +33,16 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-
+        val tianKey: String = (project.findProperty("TIAN_API_KEY") as? String)
+            ?: run {
+                val localProps = Properties()
+                val localFile = rootProject.file("local.properties")
+                if (localFile.exists()) {
+                    localProps.load(localFile.inputStream())
+                    localProps.getProperty("TIAN_API_KEY", "")
+                } else ""
+            }
+        buildConfigField("String", "TIAN_API_KEY", "\"$tianKey\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
@@ -60,6 +71,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     packaging {
         resources {
@@ -78,6 +90,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation("androidx.appcompat:appcompat:1.7.1")
+    implementation("androidx.compose.foundation:foundation:1.9.0")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     debugImplementation("androidx.compose.ui:ui-tooling")
 
@@ -107,5 +120,9 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+
+    implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+
 
 }
