@@ -256,50 +256,66 @@ fun WeatherCenterPage(
         // 预警信息卡片
         weatherModel.warnings?.let {
             WarningInfoCard(it, onClick = {
-                navController?.navigate("WeatherDetail")
+                navToWeatherDetail(navController, pageName = "预警信息")
             })
         }
 
         // 每小时天气列表
         weatherModel.weatherHourlies?.let {
             HourlyWeatherCard(it, onClick = {
-                navController?.navigate("WeatherDetail")
+                navToWeatherDetail(navController, pageName = "每日天气")
+            }, onItemClick = {
+                navToWeatherDetail(navController, pageName = "每日天气")
             })
         }
 
         // 未来7天天气列表
         weatherModel.weatherDailies?.let {
             DailyWeatherCard(it, onClick = {
-                navController?.navigate("WeatherDetail")
+                navToWeatherDetail(navController, pageName = "多日天气")
+            }, onItemClick = {
+                navToWeatherDetail(navController, pageName = "多日天气")
             })
         }
 
         // 更多天气按钮
         MoreWeatherButton(onClick = {
-            navController?.navigate("WeatherDetail")
+            navToWeatherDetail(navController, pageName = "多日天气")
         })
 
         // 空气质量卡片
         weatherModel.airCurrent?.let {
             AirCurrentCard(it, onClick = {
-                navController?.navigate("WeatherDetail")
+                navToWeatherDetail(navController, pageName = "空气质量")
             })
         }
 
         // 天气指数卡片
         weatherModel.weatherNow?.let {
             WeatherIndexCard(it, weatherDaily?.uvIndex, onClick = {
-                navController?.navigate("WeatherDetail")
+                navToWeatherDetail(navController, pageName = "实况天气")
             })
         }
 
         // 生活指数卡片
         weatherModel.indicesDailies?.let {
             LifeIndexCard(it, onClick = {
-                navController?.navigate("WeatherDetail")
+                navToWeatherDetail(
+                    navController, pageName = it.firstOrNull()?.name?.replace("指数", "")
+                )
+            }, onItemClick = { item ->
+                navToWeatherDetail(navController, pageName = item.name.replace("指数", ""))
             })
         }
 
         Spacer(modifier = Modifier.height(50.dp))
     }
+}
+
+private fun navToWeatherDetail(
+    navController: NavController?,
+    pageName: String? = null,
+    pageInfo: String? = null
+) {
+    navController?.navigate("WeatherDetail?pageName=$pageName&pageInfo=$pageInfo")
 }

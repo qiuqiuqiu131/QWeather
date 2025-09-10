@@ -79,7 +79,8 @@ fun MainApp(modifier: Modifier = Modifier) {
         }
 
         composable(
-            "WeatherDetail",
+            "WeatherDetail?pageName={pageName}&pageInfo={pageInfo}",
+            arguments = listOf(),
             enterTransition = {
                 slideIntoContainer(
                     animationSpec = spring(
@@ -115,7 +116,9 @@ fun MainApp(modifier: Modifier = Modifier) {
                     )
                 )
             }) {
-            WeatherDetailScreen(navController)
+            val pageName = it.arguments?.getString("pageName")
+            val pageInfo = it.arguments?.getString("pageInfo")
+            WeatherDetailScreen(navController, pageName, pageInfo)
         }
 
         composable(

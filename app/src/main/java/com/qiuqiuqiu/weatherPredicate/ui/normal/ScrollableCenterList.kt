@@ -8,11 +8,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
@@ -28,12 +24,11 @@ fun ScrollableCenterRowList(
 ) {
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-    var selectedIndex by remember { mutableStateOf(itemIndex) }
 
     // 自动滚动选中项到中间（考虑不同宽度）
-    LaunchedEffect(selectedIndex) {
+    LaunchedEffect(itemIndex) {
         if (itemCount > 0 && listState.layoutInfo.visibleItemsInfo.isNotEmpty()) {
-            val itemInfo = listState.layoutInfo.visibleItemsInfo.find { it.index == selectedIndex }
+            val itemInfo = listState.layoutInfo.visibleItemsInfo.find { it.index == itemIndex }
             if (itemInfo != null) {
                 val viewportStart = listState.layoutInfo.viewportStartOffset
                 val viewportEnd = listState.layoutInfo.viewportEndOffset
@@ -44,7 +39,7 @@ fun ScrollableCenterRowList(
                 coroutineScope.launch { listState.animateScrollBy(diff.toFloat()) }
             } else {
                 // 如果目标item不在可见区域，先滚动到它，再触发一次LaunchedEffect
-                listState.animateScrollToItem(selectedIndex)
+                listState.animateScrollToItem(itemIndex)
             }
         }
     }
@@ -56,11 +51,10 @@ fun ScrollableCenterRowList(
                     .padding(horizontal = 8.dp)
                     .pointerInput(Unit) {
                         detectTapGestures {
-                            selectedIndex = index
                             selectedItemChanged(index)
                         }
                     }
-            ) { content(index, index == selectedIndex) }
+            ) { content(index, index == itemIndex) }
         }
     }
 }
