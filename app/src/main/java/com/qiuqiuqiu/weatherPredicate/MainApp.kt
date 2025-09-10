@@ -13,6 +13,7 @@ import com.qiuqiuqiu.weatherPredicate.ui.screen.time.GlobalTimeScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.CityEditScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.CityManageScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.WeatherCityScreen
+import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.WeatherDetailScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.WeatherSearchScreen
 
 @Composable
@@ -75,6 +76,46 @@ fun MainApp(modifier: Modifier = Modifier) {
                 )
             }) {
             MainScreen(navController)
+        }
+
+        composable(
+            "WeatherDetail",
+            enterTransition = {
+                slideIntoContainer(
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessMediumLow,
+                    ),
+                    towards = AnimatedContentTransitionScope.SlideDirection.Left
+                )
+            },
+            exitTransition = {
+                slideOutOfContainer(
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessMediumLow,
+                    ),
+                    towards = AnimatedContentTransitionScope.SlideDirection.Left
+                )
+            }, popEnterTransition = {
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessMediumLow,
+                    )
+                )
+            },
+            popExitTransition = {
+                slideOutOfContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessMediumLow,
+                    )
+                )
+            }) {
+            WeatherDetailScreen(navController)
         }
 
         composable(

@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -38,6 +39,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -63,7 +65,7 @@ import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.WeatherCurrentCard
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.WeatherIndexCard
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.WeatherStatusInfoCard
 import com.qiuqiuqiu.weatherPredicate.viewModel.AppViewModel
-import com.qiuqiuqiu.weatherPredicate.viewModel.WeatherViewModel
+import com.qiuqiuqiu.weatherPredicate.viewModel.weather.WeatherViewModel
 import com.qweather.sdk.response.geo.Location
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -182,7 +184,10 @@ fun WeatherTopBar(
                         text =
                             "${it.adm1} " +
                                     (if (it.adm2.equals(it.name)) "" else it.adm2 + " ") +
-                                    "${it.name}"
+                                    "${it.name}",
+                        modifier = Modifier.widthIn(max = 300.dp),
+                        overflow = TextOverflow.Ellipsis,
+                        softWrap = false
                     )
                     if (type == CityType.Position) {
                         Icon(
@@ -249,25 +254,51 @@ fun WeatherCenterPage(
         weatherModel.indicesDailies?.let { WeatherStatusInfoCard(it) }
 
         // 预警信息卡片
-        weatherModel.warnings?.let { WarningInfoCard(it) }
+        weatherModel.warnings?.let {
+            WarningInfoCard(it, onClick = {
+                navController?.navigate("WeatherDetail")
+            })
+        }
 
         // 每小时天气列表
-        weatherModel.weatherHourlies?.let { HourlyWeatherCard(it) }
+        weatherModel.weatherHourlies?.let {
+            HourlyWeatherCard(it, onClick = {
+                navController?.navigate("WeatherDetail")
+            })
+        }
 
         // 未来7天天气列表
-        weatherModel.weatherDailies?.let { DailyWeatherCard(it) }
+        weatherModel.weatherDailies?.let {
+            DailyWeatherCard(it, onClick = {
+                navController?.navigate("WeatherDetail")
+            })
+        }
 
         // 更多天气按钮
-        MoreWeatherButton()
+        MoreWeatherButton(onClick = {
+            navController?.navigate("WeatherDetail")
+        })
 
         // 空气质量卡片
-        weatherModel.airCurrent?.let { AirCurrentCard(it) }
+        weatherModel.airCurrent?.let {
+            AirCurrentCard(it, onClick = {
+                navController?.navigate("WeatherDetail")
+            })
+        }
 
         // 天气指数卡片
-        weatherModel.weatherNow?.let { WeatherIndexCard(it, weatherDaily?.uvIndex) }
+        weatherModel.weatherNow?.let {
+            WeatherIndexCard(it, weatherDaily?.uvIndex, onClick = {
+                navController?.navigate("WeatherDetail")
+            })
+        }
 
         // 生活指数卡片
-        weatherModel.indicesDailies?.let { LifeIndexCard(it) }
+        weatherModel.indicesDailies?.let {
+            LifeIndexCard(it, onClick = {
+                navController?.navigate("WeatherDetail")
+            })
+        }
 
         Spacer(modifier = Modifier.height(50.dp))
     }

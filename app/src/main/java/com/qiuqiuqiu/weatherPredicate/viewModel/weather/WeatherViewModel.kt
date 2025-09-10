@@ -1,4 +1,4 @@
-package com.qiuqiuqiu.weatherPredicate.viewModel
+package com.qiuqiuqiu.weatherPredicate.viewModel.weather
 
 import android.annotation.SuppressLint
 import android.util.Log

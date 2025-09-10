@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -36,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -47,7 +49,7 @@ import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
 import com.qiuqiuqiu.weatherPredicate.ui.normal.rememberScrollAlpha
 import com.qiuqiuqiu.weatherPredicate.ui.normal.rememberScrollThreshold
 import com.qiuqiuqiu.weatherPredicate.viewModel.AppViewModel
-import com.qiuqiuqiu.weatherPredicate.viewModel.WeatherViewModel
+import com.qiuqiuqiu.weatherPredicate.viewModel.weather.WeatherViewModel
 import com.qweather.sdk.response.geo.Location
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -179,13 +181,16 @@ fun WeatherCityTopBar(
                 modifier = Modifier
                     .align(Alignment.Center)
                     .padding(top = ((1 - alpha.value) * 26).dp)
+                    .widthIn(max = 300.dp)
                     .alpha((if (cityHide.value) 1f else 0f)),
                 fontWeight = FontWeight.SemiBold,
                 fontSize = (15 + 2 * (1 - alpha.value)).sp,
                 text =
                     "${it.adm1} " +
                             (if (it.adm2.equals(it.name)) "" else it.adm2 + " ") +
-                            "${it.name}"
+                            "${it.name}",
+                overflow = TextOverflow.Ellipsis,
+                softWrap = false
             )
         }
 

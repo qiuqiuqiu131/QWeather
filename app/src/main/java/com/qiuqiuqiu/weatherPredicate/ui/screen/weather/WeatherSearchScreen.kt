@@ -47,7 +47,7 @@ import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.SearchCityCard
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.SearchHistoryCard
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.TopCityCard
 import com.qiuqiuqiu.weatherPredicate.viewModel.AppViewModel
-import com.qiuqiuqiu.weatherPredicate.viewModel.WeatherSearchViewModel
+import com.qiuqiuqiu.weatherPredicate.viewModel.weather.WeatherSearchViewModel
 
 @Composable
 fun WeatherSearchScreen(navController: NavController) {
