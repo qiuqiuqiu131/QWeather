@@ -124,5 +124,12 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.6.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
 
+    implementation("com.baidu.lbsyun:BaiduMapSDK_Map:7.6.5")
+    implementation("com.baidu.lbsyun:BaiduMapSDK_Search:7.6.5.1")
+    implementation("com.baidu.lbsyun:BaiduMapSDK_Location:9.6.4")
+    implementation("com.baidu.lbsyun:BaiduMapSDK_Util:7.6.4")
+    implementation("com.baidu.lbsyun:BaiduMapSDK_Panorama:2.9.0")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    kapt("com.github.bumptech.glide:compiler:4.16.0")
 
 }
