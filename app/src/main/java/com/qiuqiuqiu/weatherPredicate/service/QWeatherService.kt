@@ -50,6 +50,11 @@ interface IQWeatherService {
     suspend fun getWeather24Hour(locationId: String): List<WeatherHourly>
 
     /**
+     * 获取168小时天气
+     */
+    suspend fun getWeather168Hour(locationId: String): List<WeatherHourly>
+
+    /**
      * 获取近三天的天气
      * @param locationId 位置ID，经纬度坐标/城市ID
      */
@@ -157,6 +162,28 @@ class QWeatherService @Inject constructor(@ApplicationContext private val contex
             .lang(Lang.ZH_HANS).unit(Unit.METRIC)
         return suspendCancellableCoroutine { cont ->
             instance.weather24h(parameter, object : Callback<WeatherHourlyResponse> {
+                override fun onSuccess(response: WeatherHourlyResponse) {
+                    cont.resume(response.hourly, null)
+                }
+
+                override fun onFailure(errorResponse: ErrorResponse) {
+                    Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
+                    cont.resumeWithException(Exception(errorResponse.toString()))
+                }
+
+                override fun onException(e: Throwable) {
+                    Log.e(TAG, "getWeatherNow onException: $e")
+                    cont.resumeWithException(e)
+                }
+            })
+        }
+    }
+
+    override suspend fun getWeather168Hour(locationId: String): List<WeatherHourly> {
+        val parameter = WeatherParameter(locationId)
+            .lang(Lang.ZH_HANS).unit(Unit.METRIC)
+        return suspendCancellableCoroutine { cont ->
+            instance.weather168h(parameter, object : Callback<WeatherHourlyResponse> {
                 override fun onSuccess(response: WeatherHourlyResponse) {
                     cont.resume(response.hourly, null)
                 }

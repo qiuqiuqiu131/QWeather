@@ -68,7 +68,7 @@ fun MainScreen(navController: NavController, modifier: Modifier = Modifier) {
                 windowInsets = NavigationBarDefaults.windowInsets,
                 modifier = Modifier.height(50.dp),
                 contentColor = MaterialTheme.colorScheme.onTertiary,
-                containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                containerColor = MaterialTheme.colorScheme.surfaceContainer
             ) {
                 MainNaviBar.entries.forEachIndexed { index, destination ->
                     NavigationBarItem(
@@ -89,7 +89,7 @@ fun MainScreen(navController: NavController, modifier: Modifier = Modifier) {
                             unselectedTextColor = MaterialTheme.colorScheme.onTertiary.copy(
                                 alpha = 0.7f
                             ),
-                            selectedIndicatorColor = MaterialTheme.colorScheme.tertiary,
+                            selectedIndicatorColor = MaterialTheme.colorScheme.tertiaryContainer,
                             disabledIconColor = MaterialTheme.colorScheme.onTertiary.copy(
                                 alpha = 0.4f
                             ),
