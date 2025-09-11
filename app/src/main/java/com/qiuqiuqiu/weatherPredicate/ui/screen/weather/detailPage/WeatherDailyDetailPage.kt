@@ -17,7 +17,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowLeft
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -31,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import com.qiuqiuqiu.weatherPredicate.tools.toDay
 import com.qiuqiuqiu.weatherPredicate.tools.toDayLabel
 import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseItem
+import com.qiuqiuqiu.weatherPredicate.ui.normal.CustomDivider
 import com.qiuqiuqiu.weatherPredicate.ui.theme.QWeatherFontFamily
 import com.qiuqiuqiu.weatherPredicate.ui.theme.getQWeatherIconUnicode
 import com.qweather.sdk.response.weather.WeatherDaily
@@ -96,10 +96,7 @@ fun DailyDetailWeatherItem(hw: WeatherDaily) {
             modifier = Modifier.padding(vertical = 6.dp)
         )
 
-        HorizontalDivider(
-            modifier = Modifier.padding(4.dp),
-            color = MaterialTheme.colorScheme.onSurface
-        )
+        CustomDivider(modifier = Modifier.padding(4.dp))
 
         Text(
             text = hw.iconDay.getQWeatherIconUnicode(),
@@ -128,10 +125,7 @@ fun DailyDetailWeatherItem(hw: WeatherDaily) {
         )
         Text(text = hw.textNight, style = MaterialTheme.typography.bodySmall)
 
-        HorizontalDivider(
-            modifier = Modifier.padding(horizontal = 4.dp, vertical = 12.dp),
-            color = MaterialTheme.colorScheme.onSurface
-        )
+        CustomDivider(modifier = Modifier.padding(horizontal = 4.dp, vertical = 12.dp))
 
         Icon(
             Icons.Rounded.ArrowLeft,

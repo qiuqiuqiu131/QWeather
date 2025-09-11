@@ -83,7 +83,7 @@ fun MoreWeatherButton(onClick: (() -> Unit)? = null) {
                             color =
                                 if (isPressed)
                                     MaterialTheme.colorScheme
-                                        .surfaceContainer
+                                        .tertiaryContainer.copy(0.6f)
                                 else Color.Transparent,
                             shape = RoundedCornerShape(8.dp)
                         )

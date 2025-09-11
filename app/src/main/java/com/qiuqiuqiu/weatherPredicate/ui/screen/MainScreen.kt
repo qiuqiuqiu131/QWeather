@@ -67,8 +67,8 @@ fun MainScreen(navController: NavController, modifier: Modifier = Modifier) {
             NavigationBar(
                 windowInsets = NavigationBarDefaults.windowInsets,
                 modifier = Modifier.height(50.dp),
-                contentColor = MaterialTheme.colorScheme.onSurface,
-                containerColor = MaterialTheme.colorScheme.surfaceContainer
+                contentColor = MaterialTheme.colorScheme.onTertiary,
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer
             ) {
                 MainNaviBar.entries.forEachIndexed { index, destination ->
                     NavigationBarItem(
@@ -81,13 +81,21 @@ fun MainScreen(navController: NavController, modifier: Modifier = Modifier) {
                             )
                         },
                         colors = NavigationBarItemColors(
-                            selectedIconColor = MaterialTheme.colorScheme.onSurface,
-                            unselectedIconColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                            selectedTextColor = MaterialTheme.colorScheme.onSurface,
-                            unselectedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                            selectedIndicatorColor = MaterialTheme.colorScheme.tertiaryContainer,
-                            disabledIconColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
-                            disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                            selectedIconColor = MaterialTheme.colorScheme.onTertiary,
+                            unselectedIconColor = MaterialTheme.colorScheme.onTertiary.copy(
+                                alpha = 0.7f
+                            ),
+                            selectedTextColor = MaterialTheme.colorScheme.onTertiary,
+                            unselectedTextColor = MaterialTheme.colorScheme.onTertiary.copy(
+                                alpha = 0.7f
+                            ),
+                            selectedIndicatorColor = MaterialTheme.colorScheme.tertiary,
+                            disabledIconColor = MaterialTheme.colorScheme.onTertiary.copy(
+                                alpha = 0.4f
+                            ),
+                            disabledTextColor = MaterialTheme.colorScheme.onTertiary.copy(
+                                alpha = 0.4f
+                            ),
                         ),
                         modifier = Modifier.align(Alignment.CenterVertically)
                     )

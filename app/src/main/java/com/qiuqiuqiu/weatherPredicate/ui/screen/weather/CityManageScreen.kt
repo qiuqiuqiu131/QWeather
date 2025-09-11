@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.ElevatedButton
@@ -182,10 +183,20 @@ fun CityManagerBottomBar(onClick: (() -> Unit)? = null) {
         ElevatedButton(
             onClick = { onClick?.invoke() },
             shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.elevatedButtonColors().copy(
+                contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+            ),
             modifier = Modifier
                 .width(200.dp)
                 .padding(bottom = 25.dp)
-        ) { Text(text = "添加城市", style = MaterialTheme.typography.titleMedium) }
+        ) {
+            Text(
+                text = "添加城市",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onTertiaryContainer
+            )
+        }
     }
 }
 

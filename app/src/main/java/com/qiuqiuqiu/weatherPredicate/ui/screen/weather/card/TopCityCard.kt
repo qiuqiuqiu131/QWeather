@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,6 +16,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseItem
+import com.qiuqiuqiu.weatherPredicate.ui.normal.CustomDivider
 import com.qiuqiuqiu.weatherPredicate.ui.normal.InfinitePageContainer
 import com.qiuqiuqiu.weatherPredicate.ui.normal.SearchBaseCard
 import com.qiuqiuqiu.weatherPredicate.ui.theme.QWeatherFontFamily
@@ -47,10 +47,7 @@ fun TopCityList(
         cities.forEachIndexed { index, it ->
             CityItem(it, onClick)
             if (index != count - 1) {
-                HorizontalDivider(
-                    modifier = Modifier.padding(horizontal = 14.dp),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                CustomDivider(modifier = Modifier.padding(horizontal = 14.dp))
             }
         }
     }
