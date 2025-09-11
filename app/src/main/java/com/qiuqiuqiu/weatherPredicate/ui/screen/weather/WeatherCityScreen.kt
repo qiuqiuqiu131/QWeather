@@ -17,6 +17,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -155,10 +156,20 @@ fun WeatherCityBottomBar(
         ElevatedButton(
             onClick = { onClick?.invoke() },
             shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.elevatedButtonColors().copy(
+                contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+            ),
             modifier = Modifier
                 .width(200.dp)
                 .padding(top = 60.dp)
-        ) { Text(text = "添加城市", style = MaterialTheme.typography.titleMedium) }
+        ) {
+            Text(
+                text = "添加城市",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onTertiaryContainer
+            )
+        }
     }
 }
 

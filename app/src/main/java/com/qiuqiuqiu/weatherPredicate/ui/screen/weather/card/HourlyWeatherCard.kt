@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,6 +16,7 @@ import androidx.compose.ui.unit.sp
 import com.qiuqiuqiu.weatherPredicate.tools.toTimeWithPeriod
 import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseCard
 import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseItem
+import com.qiuqiuqiu.weatherPredicate.ui.normal.CustomDivider
 import com.qiuqiuqiu.weatherPredicate.ui.theme.QWeatherFontFamily
 import com.qiuqiuqiu.weatherPredicate.ui.theme.getQWeatherIconUnicode
 import com.qweather.sdk.response.weather.WeatherHourly
@@ -48,10 +48,7 @@ fun HourlyWeatherItem(hw: WeatherHourly) {
         modifier = Modifier.width(70.dp)
     ) {
         Text(text = hw.fxTime.toTimeWithPeriod(), style = MaterialTheme.typography.bodySmall)
-        HorizontalDivider(
-            modifier = Modifier.padding(4.dp),
-            color = MaterialTheme.colorScheme.onSurface
-        )
+        CustomDivider(modifier = Modifier.padding(4.dp))
         Text(
             text = hw.icon.getQWeatherIconUnicode(),
             fontFamily = QWeatherFontFamily,

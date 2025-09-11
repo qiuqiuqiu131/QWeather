@@ -9,7 +9,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -24,6 +23,7 @@ import com.qiuqiuqiu.weatherPredicate.tools.toDayLabel
 import com.qiuqiuqiu.weatherPredicate.tools.toMonthDay
 import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseCard
 import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseItem
+import com.qiuqiuqiu.weatherPredicate.ui.normal.CustomDivider
 import com.qiuqiuqiu.weatherPredicate.ui.theme.QWeatherFontFamily
 import com.qiuqiuqiu.weatherPredicate.ui.theme.getQWeatherIconUnicode
 import com.qweather.sdk.response.weather.WeatherDaily
@@ -76,10 +76,7 @@ fun DailyWeatherItem(hw: WeatherDaily) {
             fontSize = 10.sp
         )
 
-        HorizontalDivider(
-            modifier = Modifier.padding(4.dp),
-            color = MaterialTheme.colorScheme.onSurface
-        )
+        CustomDivider(modifier = Modifier.padding(4.dp))
 
         Text(
             text = hw.iconDay.getQWeatherIconUnicode(),
@@ -108,10 +105,7 @@ fun DailyWeatherItem(hw: WeatherDaily) {
         )
         Text(text = hw.textNight, style = MaterialTheme.typography.bodySmall)
 
-        HorizontalDivider(
-            modifier = Modifier.padding(4.dp),
-            color = MaterialTheme.colorScheme.onSurface
-        )
+        CustomDivider(modifier = Modifier.padding(4.dp))
 
         Text(text = hw.windDirDay, style = MaterialTheme.typography.bodySmall)
 

@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,7 +29,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun BaseItem(
     modifier: Modifier = Modifier,
-    bgColor: Color = MaterialTheme.colorScheme.surfaceContainer,
+    bgColor: Color = MaterialTheme.colorScheme.tertiaryContainer,
     innerModifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     content: @Composable (BoxScope.() -> Unit)
@@ -152,17 +151,10 @@ fun SearchBaseCard(
 @Composable
 fun DefaultCard(modifier: Modifier = Modifier, content: @Composable (ColumnScope.() -> Unit)) {
     val color1 = CardColors(
-        containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.6f),
-        contentColor = MaterialTheme.colorScheme.onSurface,
-        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
-        disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-    )
-
-    val color2 = CardColors(
-        containerColor = CardDefaults.cardColors().containerColor.copy(alpha = 1f),
-        contentColor = CardDefaults.cardColors().contentColor,
-        disabledContainerColor = CardDefaults.cardColors().disabledContainerColor.copy(alpha = 1f),
-        disabledContentColor = CardDefaults.cardColors().disabledContentColor
+        containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.7f),
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.7f),
+        disabledContentColor = MaterialTheme.colorScheme.onSecondaryContainer
     )
 
     Card(

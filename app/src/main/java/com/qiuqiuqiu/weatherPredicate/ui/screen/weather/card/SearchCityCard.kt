@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,6 +16,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseItem
+import com.qiuqiuqiu.weatherPredicate.ui.normal.CustomDivider
 import com.qiuqiuqiu.weatherPredicate.ui.normal.SearchBaseCard
 import com.qweather.sdk.response.geo.Location
 
@@ -30,10 +30,7 @@ fun SearchCityCard(cities: List<Location>, onClick: ((Location) -> Unit)? = null
             itemsIndexed(cities) { index, it ->
                 SearchCityItem(it, onClick = onClick)
                 if (index != size - 1)
-                    HorizontalDivider(
-                        modifier = Modifier.alpha(0.7f),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                    CustomDivider(modifier = Modifier.alpha(0.7f))
             }
         }
     }
