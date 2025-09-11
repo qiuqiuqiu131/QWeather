@@ -38,8 +38,7 @@ fun WeatherIndicesPage(weatherIndices: IndicesDaily?, modifier: Modifier = Modif
                         .weight(1.5f)
                         .fillMaxHeight()
                 ) {
-                    Text(text = weatherIndices.level)
-                    Text(text = "${weatherIndices.category.toInt() * 100 / indicesData.maxCategory}%")
+                    Text(text = "${weatherIndices.level.toInt() * 100 / indicesData.maxLevel}%")
                     Text(text = weatherIndices.category)
                     Text(text = weatherIndices.text)
                 }
@@ -61,7 +60,7 @@ fun WeatherIndicesPage(weatherIndices: IndicesDaily?, modifier: Modifier = Modif
 
 data class IndicesData(
     val type: Int,
-    val maxCategory: Int,
+    val maxLevel: Int,
     val color: Color
 )
 

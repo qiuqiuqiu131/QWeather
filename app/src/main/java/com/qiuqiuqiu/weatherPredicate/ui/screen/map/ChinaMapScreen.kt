@@ -8,13 +8,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
-import com.baidu.mapapi.map.BaiduMap
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.baidu.mapapi.map.MapStatusUpdateFactory
 import com.baidu.mapapi.model.LatLng
-import com.qiuqiuqiu.weatherPredicate.service.QWeatherService
 
 @Composable
 fun ChinaMapScreen() {
+    val viewModel: MapViewModel = hiltViewModel()
+
     val context = LocalContext.current
     val mapView = rememberMapViewWithLifecycle()
     val baiduMap = remember { mapView.map }
@@ -36,8 +37,7 @@ fun ChinaMapScreen() {
 
     // 加载省会城市天气并显示图标
     LaunchedEffect(Unit) {
-        val service = QWeatherService(context)
-        val cities = service.getManualCitiesWeather()
+        val cities = viewModel.getManualCitiesWeather()
         showCityWeatherMarkers(context, baiduMap, cities)
     }
 

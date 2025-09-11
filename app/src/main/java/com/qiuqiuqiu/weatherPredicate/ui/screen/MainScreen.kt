@@ -8,9 +8,11 @@ import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.CloudQueue
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,7 +25,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.qiuqiuqiu.weatherPredicate.ui.screen.map.MapScreen
-import com.qiuqiuqiu.weatherPredicate.ui.screen.time.TimeScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.WeatherScreen
 
 enum class MainNaviBar(val label: String, val icon: ImageVector, val contentDescription: String) {
@@ -65,7 +66,9 @@ fun MainScreen(navController: NavController, modifier: Modifier = Modifier) {
         bottomBar = {
             NavigationBar(
                 windowInsets = NavigationBarDefaults.windowInsets,
-                modifier = Modifier.height(50.dp)
+                modifier = Modifier.height(50.dp),
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                containerColor = MaterialTheme.colorScheme.surfaceContainer
             ) {
                 MainNaviBar.entries.forEachIndexed { index, destination ->
                     NavigationBarItem(
@@ -77,6 +80,15 @@ fun MainScreen(navController: NavController, modifier: Modifier = Modifier) {
                                 contentDescription = destination.contentDescription
                             )
                         },
+                        colors = NavigationBarItemColors(
+                            selectedIconColor = MaterialTheme.colorScheme.onSurface,
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                            selectedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                            selectedIndicatorColor = MaterialTheme.colorScheme.tertiaryContainer,
+                            disabledIconColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                            disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                        ),
                         modifier = Modifier.align(Alignment.CenterVertically)
                     )
                 }

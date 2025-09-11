@@ -18,12 +18,12 @@ package com.qiuqiuqiu.weatherPredicate.ui.theme
 import androidx.compose.ui.graphics.Color
 
 // ======================== Light Theme ========================
-val md_theme_light_primary = Color(0xFF2196F3) // 浅蓝主色
+val md_theme_light_primary = Color(0xFF0D47A1) // 浅蓝主色
 val md_theme_light_onPrimary = Color(0xFFFFFFFF)
-val md_theme_light_primaryContainer = Color(0xFFBBDEFB)
+val md_theme_light_primaryContainer = Color(0xFF3785D0)
 val md_theme_light_onPrimaryContainer = Color(0xFF0D47A1)
 
-val md_theme_light_secondary = Color(0xFF90CAF9) // 辅助色
+val md_theme_light_secondary = Color(0xFF8D929A) // 辅助色
 val md_theme_light_onSecondary = Color(0xFF0D47A1)
 val md_theme_light_secondaryContainer = Color(0xFFE3F2FD)
 val md_theme_light_onSecondaryContainer = Color(0xFF0D47A1)
@@ -39,10 +39,11 @@ val md_theme_light_errorContainer = Color(0xFFF9DEDC)
 val md_theme_light_onErrorContainer = Color(0xFF410E0B)
 
 val md_theme_light_outline = Color(0xFF90A4AE)
-val md_theme_light_background = Color(0xFFE3F2FD) // 浅蓝背景
-val md_theme_light_onBackground = Color(0xFF0D47A1)
-val md_theme_light_surface = Color(0xFFE3F2FD)
-val md_theme_light_onSurface = Color(0xFF0D47A1)
+val md_theme_light_background = Color(0xFFFFFFFF) // 浅蓝背景
+val md_theme_light_onBackground = Color(0xFF000000)
+val md_theme_light_surface = Color(0xFF6699EE)
+val md_theme_light_onSurface = Color(0xFF000000)
+val md_theme_light_surfaceContainer = Color(0xFFE8F2FD)
 val md_theme_light_surfaceVariant = Color(0xFFBBDEFB)
 val md_theme_light_onSurfaceVariant = Color(0xFF0D47A1)
 val md_theme_light_inverseSurface = Color(0xFF0D47A1)

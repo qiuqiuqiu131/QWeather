@@ -76,7 +76,10 @@ fun DailyWeatherItem(hw: WeatherDaily) {
             fontSize = 10.sp
         )
 
-        HorizontalDivider(modifier = Modifier.padding(4.dp))
+        HorizontalDivider(
+            modifier = Modifier.padding(4.dp),
+            color = MaterialTheme.colorScheme.onSurface
+        )
 
         Text(
             text = hw.iconDay.getQWeatherIconUnicode(),
@@ -105,7 +108,10 @@ fun DailyWeatherItem(hw: WeatherDaily) {
         )
         Text(text = hw.textNight, style = MaterialTheme.typography.bodySmall)
 
-        HorizontalDivider(modifier = Modifier.padding(4.dp))
+        HorizontalDivider(
+            modifier = Modifier.padding(4.dp),
+            color = MaterialTheme.colorScheme.onSurface
+        )
 
         Text(text = hw.windDirDay, style = MaterialTheme.typography.bodySmall)
 

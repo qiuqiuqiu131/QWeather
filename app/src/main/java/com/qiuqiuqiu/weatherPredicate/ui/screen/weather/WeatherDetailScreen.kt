@@ -35,6 +35,7 @@ import androidx.navigation.NavController
 import com.qiuqiuqiu.weatherPredicate.LocalAppViewModel
 import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
 import com.qiuqiuqiu.weatherPredicate.ui.normal.ScrollableCenterRowList
+import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.detailPage.WeatherAirDetailPage
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.detailPage.WeatherCurrentDetailPage
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.detailPage.WeatherDailyDetailPage
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.detailPage.WeatherHourlyDetailPage
@@ -117,6 +118,7 @@ fun WeatherDetailScreen(
                                     "每日天气" -> WeatherHourlyDetailPage(weatherModel.weatherHourlies)
                                     "多日天气" -> WeatherDailyDetailPage(weatherModel.weatherDailiesMore)
                                     "实况天气" -> WeatherCurrentDetailPage()
+                                    "空气质量" -> WeatherAirDetailPage()
                                     else -> Text(pageName)
                                 }
                             }

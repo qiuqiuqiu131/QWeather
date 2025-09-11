@@ -1,5 +1,8 @@
 package com.qiuqiuqiu.weatherPredicate.model
 
+import com.qweather.sdk.response.air.v1.AirIndex
+import com.qweather.sdk.response.weather.WeatherNow
+
 data class CityWeather(
     val id: String,
     val name: String,
@@ -7,7 +10,11 @@ data class CityWeather(
     val lon: Double,
     val icon: String,  // 和风天气 icon code
     val text: String   // 天气描述
+)
 
+data class CityCurrentWeather(
+    val weatherNow: WeatherNow?,
+    val airNow: AirIndex?
 )
 
 data class CityInfo(

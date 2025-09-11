@@ -40,7 +40,7 @@ fun BaseItem(
         modifier =
             modifier
                 .background(
-                    color = if (isPressed) bgColor.copy(alpha = 1f) else Color.Transparent,
+                    color = if (isPressed) bgColor.copy(alpha = 0.6f) else Color.Transparent,
                     shape = RoundedCornerShape(8.dp)
                 )
                 .pointerInput(Unit) {
@@ -152,9 +152,9 @@ fun SearchBaseCard(
 @Composable
 fun DefaultCard(modifier: Modifier = Modifier, content: @Composable (ColumnScope.() -> Unit)) {
     val color1 = CardColors(
-        containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f),
+        containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.6f),
         contentColor = MaterialTheme.colorScheme.onSurface,
-        disabledContainerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f),
+        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
         disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
     )
 
@@ -168,7 +168,7 @@ fun DefaultCard(modifier: Modifier = Modifier, content: @Composable (ColumnScope
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
-        colors = color2
+        colors = color1
     ) {
         content()
     }

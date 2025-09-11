@@ -48,7 +48,10 @@ fun HourlyWeatherItem(hw: WeatherHourly) {
         modifier = Modifier.width(70.dp)
     ) {
         Text(text = hw.fxTime.toTimeWithPeriod(), style = MaterialTheme.typography.bodySmall)
-        HorizontalDivider(modifier = Modifier.padding(4.dp))
+        HorizontalDivider(
+            modifier = Modifier.padding(4.dp),
+            color = MaterialTheme.colorScheme.onSurface
+        )
         Text(
             text = hw.icon.getQWeatherIconUnicode(),
             fontFamily = QWeatherFontFamily,

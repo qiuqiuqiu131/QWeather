@@ -47,7 +47,10 @@ fun TopCityList(
         cities.forEachIndexed { index, it ->
             CityItem(it, onClick)
             if (index != count - 1) {
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 14.dp))
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 14.dp),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
             }
         }
     }
