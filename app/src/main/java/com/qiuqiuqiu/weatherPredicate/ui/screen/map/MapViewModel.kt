@@ -1,19 +1,23 @@
 package com.qiuqiuqiu.weatherPredicate.ui.screen.map
 
-
 import android.content.Context
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.baidu.mapapi.map.BaiduMap
 import com.baidu.mapapi.map.MapView
 import com.qiuqiuqiu.weatherPredicate.manager.IMapWeatherManager
 import com.qiuqiuqiu.weatherPredicate.model.CityWeather
+import com.qiuqiuqiu.weatherPredicate.model.CityCurrentWeather
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 @HiltViewModel
 class MapViewModel @Inject constructor(val mapWeatherManager: IMapWeatherManager) : ViewModel() {
+
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query
 
@@ -52,5 +56,26 @@ class MapViewModel @Inject constructor(val mapWeatherManager: IMapWeatherManager
 
     suspend fun getManualCitiesWeather(): List<CityWeather> {
         return mapWeatherManager.getManualCitiesWeather()
+    }
+
+    // ------------------- 点击获取天气 -------------------
+    private val _clickedWeather = MutableStateFlow<CityCurrentWeather?>(null)
+    val clickedWeather: StateFlow<CityCurrentWeather?> = _clickedWeather
+
+    fun fetchWeatherAt(lat: Double, lon: Double) {
+        viewModelScope.launch {
+            try {
+                val weather = mapWeatherManager.getMapCityWeather(lon, lat)
+                _clickedWeather.value = weather
+            } catch (e: Exception) {
+                _clickedWeather.value = null
+                // 可选：提示用户
+                // Toast.makeText(getApplication(), "该位置无天气数据", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    fun clearClickedWeather() {
+        _clickedWeather.value = null
     }
 }
