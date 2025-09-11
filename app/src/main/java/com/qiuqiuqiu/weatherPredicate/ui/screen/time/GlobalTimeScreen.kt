@@ -1,21 +1,22 @@
 package com.qiuqiuqiu.weatherPredicate.ui.screen.time
 
-import androidx.compose.foundation.clickable
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.qiuqiuqiu.weatherPredicate.viewModel.CitiesViewModel
-import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -37,13 +38,17 @@ fun GlobalTimeScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("全球时间查询") },
+            CenterAlignedTopAppBar(
+                title = { Text("全球时间查询", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.primary
+                )
             )
         }
     ) { innerPadding ->
@@ -51,37 +56,49 @@ fun GlobalTimeScreen(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // 搜索区域
-            OutlinedTextField(
-                value = cityInput,
-                onValueChange = { cityInput = it },
-                label = { Text("输入城市名称 (中文或英文)") },
-                trailingIcon = {
-                    if (cityInput.isNotBlank()) {
-                        IconButton(
-                            onClick = {
-                                if (cityInput.isNotBlank()) {
-                                    viewModel.fetchCityTime(cityInput.trim())
-                                    // 添加到搜索历史
-                                    searchHistory = listOf(cityInput.trim()) + searchHistory.take(4)
-                                }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    value = cityInput,
+                    onValueChange = { cityInput = it },
+                    label = { Text("输入城市名称 (中文或英文)") },
+                    trailingIcon = {
+                        if (cityInput.isNotEmpty()) {
+                            IconButton(onClick = { cityInput = "" }) {
+                                Icon(Icons.Default.Close, contentDescription = "清除")
                             }
-                        ) {
-                            Icon(Icons.Default.Search, contentDescription = "搜索")
                         }
-                    }
-                },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
+                    },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f)
+                )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Button(
+                    onClick = {
+                        if (cityInput.isNotBlank()) {
+                            viewModel.fetchCityTime(cityInput.trim())
+                            // 添加到搜索历史
+                            searchHistory = listOf(cityInput.trim()) + searchHistory.take(4)
+                        }
+                    },
+                    modifier = Modifier.height(56.dp)
+                ) {
+                    Icon(Icons.Default.Search, contentDescription = "搜索", modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("搜索")
+                }
+            }
 
             // 热门城市快捷选择
             Text("热门城市", style = MaterialTheme.typography.titleMedium)
-            Spacer(modifier = Modifier.height(8.dp))
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -95,17 +112,19 @@ fun GlobalTimeScreen(
                             // 添加到搜索历史
                             searchHistory = listOf(city) + searchHistory.take(4)
                         },
-                        label = { Text(city) }
+                        label = { Text(city) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.primary,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                        )
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
             // 搜索结果展示
             when {
                 loading -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator()
                     }
                 }
@@ -120,7 +139,13 @@ fun GlobalTimeScreen(
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(8.dp))
-                        Button(onClick = { viewModel.fetchCityTime(cityInput.trim()) }) {
+                        Button(
+                            onClick = { viewModel.fetchCityTime(cityInput.trim()) },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        ) {
                             Text("重试")
                         }
                     }
@@ -129,12 +154,22 @@ fun GlobalTimeScreen(
                     val result = cityResult!!.result!!
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                        shape = MaterialTheme.shapes.medium,
+                        elevation = CardDefaults.cardElevation(4.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
                     ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
                             Text(
                                 result.city,
-                                style = MaterialTheme.typography.headlineSmall
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text("国家: ${result.country}")
@@ -144,7 +179,9 @@ fun GlobalTimeScreen(
                             Text(
                                 result.strtime,
                                 style = MaterialTheme.typography.headlineMedium,
-                                color = MaterialTheme.colorScheme.primary
+                                color = MaterialTheme.colorScheme.primary,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
                             )
                         }
                     }
@@ -153,30 +190,47 @@ fun GlobalTimeScreen(
                     // 显示搜索历史或提示
                     if (searchHistory.isNotEmpty()) {
                         Text("最近搜索", style = MaterialTheme.typography.titleMedium)
-                        Spacer(modifier = Modifier.height(8.dp))
                         LazyColumn {
                             items(searchHistory) { historyItem ->
-                                ListItem(
-                                    headlineContent = { Text(historyItem) },
-                                    supportingContent = { Text("点击重新查询") },
+                                Card(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .clickable {
-                                            cityInput = historyItem
-                                            viewModel.fetchCityTime(historyItem)
-                                        }
-                                )
-                                Divider()
+                                        .padding(vertical = 4.dp),
+                                    shape = MaterialTheme.shapes.small,
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                                    ),
+                                    onClick = {
+                                        cityInput = historyItem
+                                        viewModel.fetchCityTime(historyItem)
+                                    }
+                                ) {
+                                    Row(
+                                        modifier = Modifier.padding(16.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            historyItem,
+                                            modifier = Modifier.weight(1f)
+                                        )
+                                        Text(
+                                            "点击重新查询",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                        )
+                                    }
+                                }
                             }
                         }
                     } else {
                         Box(
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = Modifier.fillMaxWidth(),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 "输入城市名称查询时间\n(例如: Beijing, London, New York)",
-                                textAlign = TextAlign.Center
+                                textAlign = TextAlign.Center,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                             )
                         }
                     }
