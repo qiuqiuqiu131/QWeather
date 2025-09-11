@@ -1,4 +1,4 @@
-package com.qiuqiuqiu.weatherPredicate.ui.screen
+package com.qiuqiuqiu.weatherPredicate.ui.screen.weather
 
 import android.Manifest
 import android.content.pm.PackageManager

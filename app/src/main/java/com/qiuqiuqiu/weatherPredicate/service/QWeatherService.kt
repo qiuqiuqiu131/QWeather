@@ -36,6 +36,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resumeWithException
 
+
 data class CityWeather(
     val id: String,
     val name: String,
@@ -157,7 +158,12 @@ val provinceCapitals = listOf(
     CityInfo("香港", "101320101", 22.3964, 114.1095),
     CityInfo("澳门", "101330101", 22.203, 113.545)
 )
-
+data class LatLngWeather(
+    val temp: String,
+    val text: String,
+    val aqi: String,
+    val category: String
+)
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class QWeatherService @Inject constructor(@ApplicationContext private val context: Context) :
@@ -415,4 +421,8 @@ class QWeatherService @Inject constructor(@ApplicationContext private val contex
         }
         return result
     }
+
+
 }
+
+
