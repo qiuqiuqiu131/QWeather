@@ -38,3 +38,8 @@
 -keep public class com.qweather.sdk.JWTGenerator {
     public *;
 }
+
+-keep class com.baidu.** {*;}
+-keep class vi.com.** {*;}
+-keep class com.baidu.vi.** {*;}
+-dontwarn com.baidu.**

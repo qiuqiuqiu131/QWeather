@@ -16,7 +16,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.CalendarMonth
-import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -33,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.qiuqiuqiu.weatherPredicate.ui.normal.DefaultCard
 
 /** 查看更多天气按钮 */
 @Composable
@@ -53,7 +53,7 @@ fun MoreWeatherButton(onClick: (() -> Unit)? = null) {
             .padding(horizontal = 12.dp, vertical = 4.dp)
             .height(40.dp)
     ) {
-        Card(
+        DefaultCard(
             modifier =
                 Modifier
                     .fillMaxSize()
@@ -70,8 +70,7 @@ fun MoreWeatherButton(onClick: (() -> Unit)? = null) {
                             },
                             onTap = { onClick?.invoke() }
                         )
-                    },
-            shape = RoundedCornerShape(16.dp)
+                    }
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,

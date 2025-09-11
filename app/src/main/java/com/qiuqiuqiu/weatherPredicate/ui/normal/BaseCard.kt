@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,8 +29,8 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun BaseItem(
-    bgColor: Color = MaterialTheme.colorScheme.surfaceContainer,
     modifier: Modifier = Modifier,
+    bgColor: Color = MaterialTheme.colorScheme.surfaceContainer,
     innerModifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     content: @Composable (BoxScope.() -> Unit)
@@ -38,7 +40,7 @@ fun BaseItem(
         modifier =
             modifier
                 .background(
-                    color = if (isPressed) bgColor else Color.Transparent,
+                    color = if (isPressed) bgColor.copy(alpha = 1f) else Color.Transparent,
                     shape = RoundedCornerShape(8.dp)
                 )
                 .pointerInput(Unit) {
@@ -65,10 +67,7 @@ fun BaseCard(
     endCorner: @Composable (BoxScope.() -> Unit)? = null,
     content: @Composable (ColumnScope.() -> Unit)
 ) {
-    Card(
-        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-        shape = RoundedCornerShape(16.dp)
-    ) {
+    DefaultCard(modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)) {
         BaseItem(onClick = onClick) {
             Column(modifier = modifier) {
                 if (title != null || endCorner != null) {
@@ -114,10 +113,7 @@ fun SearchBaseCard(
     endCorner: @Composable (BoxScope.() -> Unit)? = null,
     content: @Composable (ColumnScope.() -> Unit)
 ) {
-    Card(
-        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-        shape = RoundedCornerShape(16.dp)
-    ) {
+    DefaultCard(modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)) {
         Column(modifier = modifier) {
             if (title != null || endCorner != null) {
                 Box(
@@ -150,5 +146,30 @@ fun SearchBaseCard(
             }
             content()
         }
+    }
+}
+
+@Composable
+fun DefaultCard(modifier: Modifier = Modifier, content: @Composable (ColumnScope.() -> Unit)) {
+    val color1 = CardColors(
+        containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f),
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        disabledContainerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f),
+        disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+
+    val color2 = CardColors(
+        containerColor = CardDefaults.cardColors().containerColor.copy(alpha = 1f),
+        contentColor = CardDefaults.cardColors().contentColor,
+        disabledContainerColor = CardDefaults.cardColors().disabledContainerColor.copy(alpha = 1f),
+        disabledContentColor = CardDefaults.cardColors().disabledContentColor
+    )
+
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(16.dp),
+        colors = color2
+    ) {
+        content()
     }
 }

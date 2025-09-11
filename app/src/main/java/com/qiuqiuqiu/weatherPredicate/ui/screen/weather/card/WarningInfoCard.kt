@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -32,99 +31,91 @@ import com.qiuqiuqiu.weatherPredicate.ui.theme.QWeatherFontFamily
 import com.qiuqiuqiu.weatherPredicate.ui.theme.getQWeatherIconUnicode
 import com.qweather.sdk.response.warning.Warning
 
-/** 预警信息卡片（已做越界/空数据保护） */
+/** 预警信息卡片 */
 @Composable
 fun WarningInfoCard(warnings: List<Warning>, onClick: (() -> Unit)? = null) {
-    // 如果没有真实预警，展示一个测试预警；否则只展示真实预警
-    val sourceWarnings = if (warnings.isEmpty()) listOf(testWarning()) else warnings
+    var composes = warnings.map { @Composable { WarningItem(it) } }
 
-    // 把每个 Warning 转成一个可组合项传给 AutoInfinitePageContainer
-    val composes = sourceWarnings.map { w -> @Composable { WarningItem(w) } }
+    composes =
+            composes +
+                    @Composable { WarningItem(testWarning()) } +
+                    @Composable { WarningItem(testWarning()) }
 
     BaseCard(onClick = onClick) {
         AutoInfinitePageContainer(
-            composes,
-            modifier = Modifier.padding(top = 12.dp),
-            idleThresholdMillis = 3000,
-            pageDurationMillis = 5000
+                composes,
+                modifier = Modifier.padding(top = 12.dp),
+                idleThresholdMillis = 3000,
+                pageDurationMillis = 5000
         )
     }
 }
 
 @Composable
 fun WarningItem(warning: Warning) {
-    // 安全地从 warning.text 中分割出冒号之后的部分
-    val splitParts = warning.text?.split(":", "：", limit = 2) ?: listOf()
-    val afterColon = if (splitParts.size > 1) splitParts[1].trim() else warning.text ?: ""
     val title = "${warning.typeName}${warning.level}预警"
-    val text = if (afterColon.isNotBlank()) "${warning.title}: $afterColon" else (warning.title ?: "")
-
+    val text = run {
+        val raw = warning.text
+        val index = raw.indexOfFirst { it == ':' || it == '：' }
+        if (index != -1 && index < raw.length - 1) {
+            warning.title + ":" + raw.substring(index + 1)
+        } else {
+            warning.title + ":" + raw
+        }
+    }
     Row(
-        horizontalArrangement = Arrangement.SpaceAround,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .height(100.dp)
+            horizontalArrangement = Arrangement.SpaceAround,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).height(100.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight()
-        ) {
+        Column(modifier = Modifier.weight(1f).fillMaxHeight()) {
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 4.dp)
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(bottom = 4.dp)
             ) {
                 Icon(
-                    Icons.Default.Warning,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(22.dp)
-                        .padding(end = 4.dp)
+                        Icons.Default.Warning,
+                        null,
+                        modifier = Modifier.size(22.dp).padding(end = 4.dp)
                 )
                 Text(
-                    style = MaterialTheme.typography.titleMedium,
-                    fontSize = 14.sp,
-                    text = title,
-                    softWrap = false,
-                    overflow = TextOverflow.Ellipsis
+                        style = MaterialTheme.typography.titleMedium,
+                        fontSize = 14.sp,
+                        text = title,
+                        softWrap = false,
+                        overflow = TextOverflow.Ellipsis
                 )
             }
             Text(
-                style = MaterialTheme.typography.bodySmall,
-                text = text,
-                textAlign = TextAlign.Justify,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.alpha(0.6f)
+                    style = MaterialTheme.typography.bodySmall,
+                    text = text,
+                    textAlign = TextAlign.Justify,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.alpha(0.6f)
             )
         }
 
         Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .padding(start = 10.dp, top = 10.dp)
-                .width(90.dp)
-                .fillMaxHeight()
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(start = 10.dp, top = 10.dp).width(90.dp).fillMaxHeight()
         ) {
             Text(
-                text = warning.type.getQWeatherIconUnicode(),
-                fontSize = 45.sp,
-                fontFamily = QWeatherFontFamily
+                    text = warning.type.getQWeatherIconUnicode(),
+                    fontSize = 45.sp,
+                    fontFamily = QWeatherFontFamily
             )
             Box(
-                modifier =
-                    Modifier
-                        .padding(top = 8.dp)
-                        .background(
-                            color = (warning.severityColor ?: "Blue").getLightColorByName(),
-                            shape = MaterialTheme.shapes.medium
-                        )
+                    modifier =
+                            Modifier.padding(top = 8.dp)
+                                    .background(
+                                            color = warning.severityColor.getLightColorByName(),
+                                            shape = MaterialTheme.shapes.medium
+                                    )
             ) {
                 Text(
-                    "${warning.level}预警",
-                    style = MaterialTheme.typography.labelSmall,
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                        "${warning.level}预警",
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                 )
             }
         }
@@ -138,7 +129,6 @@ private fun testWarning(): Warning {
     warning.type = "1006"
     warning.severityColor = "Blue"
     warning.typeName = "暴雨"
-    warning.text =
-        "测试预警:这是一个测试预警信息，用于展示预警信息的显示效果。请注意，这不是实际的天气预警。"
+    warning.text = "测试预警:这是一个测试预警信息，用于展示预警信息的显示效果。请注意，这不是实际的天气预警。"
     return warning
 }

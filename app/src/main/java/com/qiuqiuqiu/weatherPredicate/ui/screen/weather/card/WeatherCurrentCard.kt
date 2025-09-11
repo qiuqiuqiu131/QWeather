@@ -4,6 +4,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,6 +18,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.qiuqiuqiu.weatherPredicate.model.CityType
 import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseItem
 import com.qweather.sdk.response.geo.Location
 import com.qweather.sdk.response.weather.WeatherDaily
@@ -22,6 +27,7 @@ import com.qweather.sdk.response.weather.WeatherNow
 /** 当前天气卡片 */
 @Composable
 fun WeatherCurrentCard(
+    type: CityType,
     location: Location?,
     weatherNow: WeatherNow?,
     weatherDaily: WeatherDaily?,
@@ -37,23 +43,38 @@ fun WeatherCurrentCard(
     ) {
         // 城市
         location?.let {
-            if(centerScreen) {
+            if (centerScreen) {
                 BaseItem(
                     innerModifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                     onClick = onCityClick
                 ) {
-                    Text(
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 19.sp,
-                        text =
-                            "${it.adm1} " +
-                                    (if (it.adm2.equals(it.name)) "" else it.adm2 + " ") +
-                                    "${it.name}",
-                        modifier = Modifier.alpha((if (cityHide.value) 0f else 1f))
-                    )
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .alpha((if (cityHide.value) 0f else 1f))
+                    ) {
+                        Text(
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 19.sp,
+                            text =
+                                "${it.adm1} " +
+                                        (if (it.adm2.equals(it.name)) "" else it.adm2 + " ") +
+                                        "${it.name}",
+                        )
+                        if (type == CityType.Position) {
+                            Icon(
+                                Icons.Default.LocationOn,
+                                null,
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .padding(bottom = 2.dp)
+                            )
+                        }
+                    }
+
                 }
-            }
-            else {
+            } else {
                 Text(
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 19.sp,

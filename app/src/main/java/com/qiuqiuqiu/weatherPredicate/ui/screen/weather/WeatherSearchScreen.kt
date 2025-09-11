@@ -1,26 +1,22 @@
 package com.qiuqiuqiu.weatherPredicate.ui.screen.weather
 
+import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -34,51 +30,62 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import com.qiuqiuqiu.weatherPredicate.LocalAppViewModel
-import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseCard
+import com.qiuqiuqiu.weatherPredicate.service.hasLocationPermissions
+import com.qiuqiuqiu.weatherPredicate.service.isLocationPermanentlyDenied
 import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
+import com.qiuqiuqiu.weatherPredicate.ui.normal.SearchTextBox
+import com.qiuqiuqiu.weatherPredicate.ui.normal.showPermissionSettingDialog
+import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.AddPositionCard
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.SearchCityCard
+import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.SearchHistoryCard
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.TopCityCard
 import com.qiuqiuqiu.weatherPredicate.viewModel.AppViewModel
-import com.qiuqiuqiu.weatherPredicate.viewModel.WeatherSearchViewModel
+import com.qiuqiuqiu.weatherPredicate.viewModel.weather.WeatherSearchViewModel
 
 @Composable
 fun WeatherSearchScreen(navController: NavController) {
-    var input by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
 
+    var showDialog by remember { mutableStateOf(false) }
+
     val viewModel: WeatherSearchViewModel = hiltViewModel()
+    viewModel.initSearchData()
     val searchCityModel by viewModel.searchCityModel.collectAsState()
+    val input by viewModel.searchInputFlow.collectAsState()
 
     val appViewModel: AppViewModel = LocalAppViewModel.current
-
     val focusManager = LocalFocusManager.current
+    val context = LocalContext.current
 
-    Scaffold(topBar = {
-        WeatherSearchTopBar(
-            input, {
-                input = it
-                viewModel.onSearchInputChange(it)
-            },
-            { navController.popBackStack() })
-    }) { innerPadding ->
+    if (showDialog) {
+        showPermissionSettingDialog(onDismiss = { showDialog = false }, context = context)
+    }
+
+    Scaffold(
+        topBar = {
+            WeatherSearchTopBar(
+                input,
+                {
+                    viewModel.onSearchInputChange(it)
+                },
+                { navController.popBackStack() }
+            )
+        }
+    ) { innerPadding ->
         LoadingContainer(isInit = viewModel.isInit.value) {
-            if (viewModel.searchCities.value != null) {
+            if (!viewModel.searchCities.value.isNullOrEmpty()) {
                 Column(
-                    modifier =
-                        Modifier
-                            .padding(innerPadding)
-                            .imePadding()
-                            .fillMaxSize(),
+                    modifier = Modifier
+                        .padding(innerPadding)
+                        .imePadding()
+                        .fillMaxSize(),
                     verticalArrangement = Arrangement.Top
                 ) {
                     Text(
@@ -91,13 +98,17 @@ fun WeatherSearchScreen(navController: NavController) {
                         viewModel.searchCities.value!!,
                         onClick = {
                             focusManager.clearFocus(true)
+                            viewModel.addSearchHistory(it)
                             viewModel.initCityWeather(it, {
                                 navController.navigate(
                                     "CityWeather?longitude=${it.lon}&latitude=${it.lat}",
-                                    NavOptions.Builder().setLaunchSingleTop(true).build()
+                                    NavOptions.Builder()
+                                        .setLaunchSingleTop(true)
+                                        .build()
                                 )
                             })
-                        })
+                        }
+                    )
                 }
             } else {
                 Column(
@@ -112,25 +123,84 @@ fun WeatherSearchScreen(navController: NavController) {
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    searchCityModel.topCities?.let { cities ->
-                        TopCityCard(cities, onClick = {
-                            viewModel.initCityWeather(it, {
-                                navController.navigate(
-                                    "CityWeather?longitude=${it.lon}&latitude=${it.lat}",
-                                    NavOptions.Builder().setLaunchSingleTop(true).build()
-                                )
-                            })
+                    SearchHistoryCard(
+                        viewModel.searchHistories.value, onClearClick = {
+                            viewModel.clearSearchHistories()
+                        },
+                        onClick = {
+                            viewModel.searchHistoryClick(it)
                         })
-                    }
 
                     if (viewModel.requirePosition()) {
-                        BaseCard(onClick = {
-                            appViewModel.addPositionCity()
-                            navController.popBackStack()
-                        }) {
-                            Text("添加定位", modifier = Modifier.fillMaxSize())
-                        }
+                        val permissionLauncher =
+                            rememberLauncherForActivityResult(
+                                ActivityResultContracts.RequestMultiplePermissions(),
+                                { permissions ->
+                                    val granted =
+                                        permissions[
+                                            Manifest.permission
+                                                .ACCESS_FINE_LOCATION] ==
+                                                true ||
+                                                permissions[
+                                                    Manifest.permission
+                                                        .ACCESS_COARSE_LOCATION] ==
+                                                true
+                                    if (granted) {
+                                        viewModel.addPositionCity {
+                                            appViewModel.setCurrentCity(it)
+                                            navController.popBackStack()
+                                        }
+                                    }
+                                }
+                            )
+                        AddPositionCard(
+                            viewModel.isLoadingLocation.value,
+                            onClick = {
+                                if (!hasLocationPermissions(context)) {
+                                    if (!isLocationPermanentlyDenied(context)) {
+                                        showDialog = true
+                                    } else {
+                                        // 正常请求权限
+                                        permissionLauncher.launch(
+                                            arrayOf(
+                                                Manifest.permission
+                                                    .ACCESS_FINE_LOCATION,
+                                                Manifest.permission
+                                                    .ACCESS_COARSE_LOCATION
+                                            )
+                                        )
+                                    }
+                                } else if (!viewModel.isLocationEnabled()) {
+                                    // 请求开启定位功能
+                                } else {
+                                    viewModel.addPositionCity {
+                                        appViewModel.setCurrentCity(it)
+                                        navController.popBackStack()
+                                    }
+                                }
+                            }
+                        )
                     }
+
+                    searchCityModel.topCities?.let { cities ->
+                        TopCityCard(
+                            cities,
+                            onClick = {
+                                viewModel.initCityWeather(
+                                    it,
+                                    {
+                                        navController.navigate(
+                                            "CityWeather?longitude=${it.lon}&latitude=${it.lat}",
+                                            NavOptions.Builder()
+                                                .setLaunchSingleTop(true)
+                                                .build()
+                                        )
+                                    }
+                                )
+                            }
+                        )
+                    }
+
 
                 }
             }
@@ -139,89 +209,35 @@ fun WeatherSearchScreen(navController: NavController) {
 }
 
 @Composable
-fun WeatherSearchTopBar(
-    input: String, inputChanged: (String) -> Unit,
-    navBack: () -> Unit
-) {
+fun WeatherSearchTopBar(input: String?, inputChanged: (String) -> Unit, navBack: () -> Unit) {
     Row(
-        modifier = Modifier
-            .statusBarsPadding()
-            .height(60.dp)
-            .padding(start = 4.dp, end = 12.dp, top = 4.dp, bottom = 12.dp),
+        modifier =
+            Modifier
+                .statusBarsPadding()
+                .height(60.dp)
+                .padding(start = 4.dp, end = 12.dp, top = 4.dp, bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically
-    )
-    {
+    ) {
         IconButton(
             onClick = navBack, modifier = Modifier
                 .padding(horizontal = 4.dp)
                 .size(36.dp)
         ) {
             Icon(
-                imageVector = Icons.Default.KeyboardArrowLeft, null,
+                imageVector = Icons.Default.KeyboardArrowLeft,
+                null,
                 modifier = Modifier.size(24.dp)
             )
         }
         SearchTextBox(
             "搜索城市(中文/拼音)",
-            input, inputChanged, Modifier
+            input ?: "",
+            inputChanged,
+            { inputChanged("") },
+            Modifier
                 .padding(vertical = 2.dp)
                 .weight(1f)
                 .fillMaxSize()
         )
-    }
-}
-
-@Composable
-fun SearchTextBox(
-    label: String,
-    input: String,
-    inputChanged: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(16.dp)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Icon(
-                imageVector = Icons.Default.Search, null,
-                modifier = Modifier
-                    .padding(start = 12.dp, end = 8.dp)
-                    .size(22.dp)
-            )
-
-            Box(
-                contentAlignment = Alignment.CenterStart,
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-            )
-            {
-                BasicTextField(
-                    value = input,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Search
-                    ),
-                    onValueChange = inputChanged,
-                    textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 15.sp),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                if (input.isEmpty()) {
-                    Text(
-                        label,
-                        modifier = Modifier
-                            .padding(start = 4.dp)
-                            .alpha(0.6f),
-                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 15.sp),
-                    )
-                }
-            }
-
-        }
     }
 }
