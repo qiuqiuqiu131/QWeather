@@ -22,10 +22,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -55,6 +59,9 @@ fun WeatherDetailScreen(
 
     val viewModel: WeatherDetailViewModel = hiltViewModel()
     val weatherModel by viewModel.locationWeather.collectAsState()
+
+    val defaultColor = MaterialTheme.colorScheme.background
+    var topBarColor by remember { mutableStateOf(defaultColor) }
 
     LaunchedEffect(currentCity) {
         viewModel.initWeatherData(currentCity, pageName)
@@ -88,6 +95,7 @@ fun WeatherDetailScreen(
                                     "${it.name}",
                         pageItems = viewModel.pageItems.value,
                         pageIndex = viewModel.pageIndex.intValue,
+                        bgColor = topBarColor,
                         navBack = { navController.popBackStack() },
                         onSelectionChanged = { index ->
                             if (viewModel.pageIndex.intValue != index && !pageState.isScrollInProgress) {
@@ -123,12 +131,18 @@ fun WeatherDetailScreen(
                                 }
                             }
 
-                            else -> WeatherIndicesPage(weatherModel.indicesDailies?.firstOrNull {
-                                it.name.replace(
-                                    "指数",
-                                    ""
-                                ) == pageName
-                            })
+                            else -> WeatherIndicesPage(
+                                weatherModel.indicesDailies?.firstOrNull {
+                                    it.name.replace(
+                                        "指数",
+                                        ""
+                                    ) == pageName
+                                },
+                                currentPageIndex = pageState.targetPage,
+                                pageIndex = it,
+                                onColorChanged = { color ->
+                                    topBarColor = color
+                                })
                         }
                     }
                 }
@@ -142,12 +156,17 @@ fun WeatherDetailScreen(
 fun WeatherDetailTopBar(
     cityName: String,
     pageItems: List<String>,
+    bgColor: Color,
     pageIndex: Int,
     navBack: () -> Unit,
     onSelectionChanged: (index: Int) -> Unit,
 ) {
 
-    Column(modifier = Modifier.statusBarsPadding()) {
+    Column(
+        modifier = Modifier
+            .background(bgColor)
+            .statusBarsPadding()
+    ) {
         Box(
             modifier = Modifier
                 .padding(horizontal = 4.dp)

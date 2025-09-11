@@ -9,11 +9,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
@@ -31,22 +27,36 @@ fun ScrollableCenterRowList(
 ) {
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-    var triedScrollToItem by remember { mutableStateOf(false) }
 
-    LaunchedEffect(itemIndex, listState.layoutInfo.visibleItemsInfo) {
+    LaunchedEffect(itemIndex) {
         if (itemCount > 0 && listState.layoutInfo.visibleItemsInfo.isNotEmpty()) {
             val itemInfo = listState.layoutInfo.visibleItemsInfo.find { it.index == itemIndex }
             if (itemInfo != null) {
+                // 已经可见，微调到中心
                 val viewportStart = listState.layoutInfo.viewportStartOffset
                 val viewportEnd = listState.layoutInfo.viewportEndOffset
                 val viewportCenter = (viewportStart + viewportEnd) / 2
                 val itemCenter = (itemInfo.offset + itemInfo.offset + itemInfo.size) / 2
                 val diff = itemCenter - viewportCenter
                 coroutineScope.launch { listState.animateScrollBy(diff.toFloat()) }
-                triedScrollToItem = false // 重置
-            } else if (!triedScrollToItem) {
-                triedScrollToItem = true
-                coroutineScope.launch { listState.animateScrollToItem(itemIndex) }
+            } else {
+                // 不可见，先滚动到item，再微调到中心
+                coroutineScope.launch {
+                    listState.animateScrollToItem(itemIndex)
+                    // 等待布局刷新
+                    kotlinx.coroutines.yield()
+                    val newItemInfo =
+                        listState.layoutInfo.visibleItemsInfo.find { it.index == itemIndex }
+                    if (newItemInfo != null) {
+                        val viewportStart = listState.layoutInfo.viewportStartOffset
+                        val viewportEnd = listState.layoutInfo.viewportEndOffset
+                        val viewportCenter = (viewportStart + viewportEnd) / 2
+                        val itemCenter =
+                            (newItemInfo.offset + newItemInfo.offset + newItemInfo.size) / 2
+                        val diff = itemCenter - viewportCenter
+                        listState.animateScrollBy(diff.toFloat())
+                    }
+                }
             }
         }
     }
