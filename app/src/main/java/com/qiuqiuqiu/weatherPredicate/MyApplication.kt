@@ -8,10 +8,10 @@ import dagger.hilt.android.HiltAndroidApp
 class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
+        LocationClient.setAgreePrivacy(true)  // ✅ 声明同意定位 SDK 的隐私政策
 
         // 必须在 SDK 初始化前设置用户同意隐私协议
         SDKInitializer.setAgreePrivacy(applicationContext, true)
-        LocationClient.setAgreePrivacy(true)  // ✅ 声明同意定位 SDK 的隐私政策
 
         // 初始化百度地图 SDK
         SDKInitializer.initialize(applicationContext)
