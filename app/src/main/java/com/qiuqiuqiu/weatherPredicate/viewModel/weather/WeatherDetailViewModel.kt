@@ -1,5 +1,6 @@
 package com.qiuqiuqiu.weatherPredicate.viewModel.weather
 
+import android.util.Log
 import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
@@ -10,8 +11,10 @@ import com.qiuqiuqiu.weatherPredicate.manager.ILocalDataManager
 import com.qiuqiuqiu.weatherPredicate.manager.ILocationWeatherManager
 import com.qiuqiuqiu.weatherPredicate.model.CityLocationModel
 import com.qiuqiuqiu.weatherPredicate.model.LocationWeatherModel
+import com.qiuqiuqiu.weatherPredicate.service.IQWeatherService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,7 +27,8 @@ val defaultPageNames = listOf("实况天气", "每日天气", "多日天气", "�
 @HiltViewModel
 class WeatherDetailViewModel @Inject constructor(
     val locationWeatherManager: ILocationWeatherManager,
-    val localDataManager: ILocalDataManager
+    val localDataManager: ILocalDataManager,
+    val weatherService: IQWeatherService
 ) : ViewModel() {
     var isInit = mutableStateOf(true)
         private set
@@ -41,11 +45,16 @@ class WeatherDetailViewModel @Inject constructor(
     private lateinit var cityList: List<CityLocationModel>
 
     fun initWeatherData(city: CityLocationModel, pageName: String? = null) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(CoroutineExceptionHandler { _, e ->
+            Log.e("Weather", "获取天气失败: ${e.stackTrace}")
+        } + Dispatchers.IO) {
             cityList = localDataManager.getCityList()
 
             val result = locationWeatherManager.getCacheLocationWeather(city)
+            result.first.weatherDailiesMore =
+                weatherService.getWeatherMoreDay(result.first.location!!.id)
             _locationWeather.update { result.first }
+
             pageItems.value =
                 defaultPageNames + (result.first.indicesDailies?.map { it.name.replace("指数", "") }
                     ?: emptyList())

@@ -90,7 +90,7 @@ fun WeatherScreen(navController: NavController) {
     LaunchedEffect(currentCity) {
         val hasPermissions = hasLocationPermissions(context)
         val isDenied = isLocationPermanentlyDenied(context)
-        if (currentCity != null && currentCity!!.type == CityType.Position && !hasPermissions && isDenied) {
+        if (currentCity.type == CityType.Position && !hasPermissions && isDenied) {
             // 只在副作用中调用 launch
             permissionLauncher.launch(
                 arrayOf(

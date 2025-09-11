@@ -1,5 +1,6 @@
 package com.qiuqiuqiu.weatherPredicate.ui.screen.weather
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,7 +35,12 @@ import androidx.navigation.NavController
 import com.qiuqiuqiu.weatherPredicate.LocalAppViewModel
 import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
 import com.qiuqiuqiu.weatherPredicate.ui.normal.ScrollableCenterRowList
+import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.detailPage.WeatherCurrentDetailPage
+import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.detailPage.WeatherDailyDetailPage
+import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.detailPage.WeatherHourlyDetailPage
+import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.detailPage.WeatherIndicesPage
 import com.qiuqiuqiu.weatherPredicate.viewModel.weather.WeatherDetailViewModel
+import com.qiuqiuqiu.weatherPredicate.viewModel.weather.defaultPageNames
 import kotlinx.coroutines.launch
 
 @Composable
@@ -50,10 +56,14 @@ fun WeatherDetailScreen(
     val weatherModel by viewModel.locationWeather.collectAsState()
 
     LaunchedEffect(currentCity) {
-        currentCity?.let { viewModel.initWeatherData(it, pageName) }
+        viewModel.initWeatherData(currentCity, pageName)
     }
 
-
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    )
 
     LoadingContainer(isInit = viewModel.isInit.value) {
         val pageState = rememberPagerState(
@@ -94,11 +104,30 @@ fun WeatherDetailScreen(
                         .padding(innerPadding)
                         .fillMaxSize()
                 ) {
-                    HorizontalPager(pageState, modifier = Modifier.fillMaxSize()) { it ->
-                        Text(
-                            text = viewModel.pageItems.value[it],
-                            style = MaterialTheme.typography.titleMedium
-                        )
+                    HorizontalPager(
+                        pageState,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.surfaceContainer)
+                    ) { it ->
+                        val pageName = viewModel.pageItems.value[it]
+                        when (pageName) {
+                            in defaultPageNames -> {
+                                when (pageName) {
+                                    "每日天气" -> WeatherHourlyDetailPage(weatherModel.weatherHourlies)
+                                    "多日天气" -> WeatherDailyDetailPage(weatherModel.weatherDailiesMore)
+                                    "实况天气" -> WeatherCurrentDetailPage()
+                                    else -> Text(pageName)
+                                }
+                            }
+
+                            else -> WeatherIndicesPage(weatherModel.indicesDailies?.firstOrNull {
+                                it.name.replace(
+                                    "指数",
+                                    ""
+                                ) == pageName
+                            })
+                        }
                     }
                 }
             }
@@ -155,7 +184,7 @@ fun WeatherDetailTopBar(
             itemIndex = pageIndex,
             modifier = Modifier
                 .padding(horizontal = 4.dp, vertical = 8.dp)
-                .height(30.dp),
+                .height(25.dp),
             selectedItemChanged = onSelectionChanged
         ) { index, isSelected ->
             val style =

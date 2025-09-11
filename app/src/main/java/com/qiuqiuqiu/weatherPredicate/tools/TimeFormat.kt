@@ -65,6 +65,12 @@ fun String.toMonthDay(): String {
 }
 
 @SuppressLint("NewApi")
+fun String.toDay(): String {
+    val date = LocalDate.parse(this)
+    return date.format(DateTimeFormatter.ofPattern("dd"))
+}
+
+@SuppressLint("NewApi")
 fun String.isToday(): Boolean {
     return try {
         val date = LocalDate.parse(this)

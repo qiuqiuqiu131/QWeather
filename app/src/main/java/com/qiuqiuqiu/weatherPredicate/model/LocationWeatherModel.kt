@@ -18,5 +18,7 @@ data class LocationWeatherModel(
     val indicesDailies: List<IndicesDaily>? = null,
     val warnings: List<Warning>? = null,
     val airCurrent: AirV1CurrentResponse? = null,
-    val lastUpdateTime: LocalDateTime? = null
+    val lastUpdateTime: LocalDateTime? = null,
+
+    var weatherDailiesMore: List<WeatherDaily>? = null
 )

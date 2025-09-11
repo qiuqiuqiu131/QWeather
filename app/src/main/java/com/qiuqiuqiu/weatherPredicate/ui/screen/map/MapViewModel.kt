@@ -5,10 +5,15 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import com.baidu.mapapi.map.BaiduMap
 import com.baidu.mapapi.map.MapView
+import com.qiuqiuqiu.weatherPredicate.manager.IMapWeatherManager
+import com.qiuqiuqiu.weatherPredicate.model.CityWeather
+import dagger.hilt.android.lifecycle.HiltViewModel
+import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class MapViewModel : ViewModel() {
+@HiltViewModel
+class MapViewModel @Inject constructor(val mapWeatherManager: IMapWeatherManager) : ViewModel() {
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query
 
@@ -43,5 +48,9 @@ class MapViewModel : ViewModel() {
                 )
             }
         }
+    }
+
+    suspend fun getManualCitiesWeather(): List<CityWeather> {
+        return mapWeatherManager.getManualCitiesWeather()
     }
 }

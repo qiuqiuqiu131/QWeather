@@ -3,9 +3,11 @@ package com.qiuqiuqiu.weatherPredicate
 import android.content.Context
 import com.qiuqiuqiu.weatherPredicate.manager.ILocalDataManager
 import com.qiuqiuqiu.weatherPredicate.manager.ILocationWeatherManager
+import com.qiuqiuqiu.weatherPredicate.manager.IMapWeatherManager
 import com.qiuqiuqiu.weatherPredicate.manager.ISearchCityManager
 import com.qiuqiuqiu.weatherPredicate.manager.LocalDataManager
 import com.qiuqiuqiu.weatherPredicate.manager.LocationWeatherManager
+import com.qiuqiuqiu.weatherPredicate.manager.MapWeatherManager
 import com.qiuqiuqiu.weatherPredicate.manager.SearchCityManager
 import com.qiuqiuqiu.weatherPredicate.service.ILocationService
 import com.qiuqiuqiu.weatherPredicate.service.IQWeatherService
@@ -34,6 +36,9 @@ abstract class AppModule {
     @Binds
     @Singleton
     abstract fun bindLocalDataManager(impl: LocalDataManager): ILocalDataManager
+
+    @Binds
+    abstract fun bindMapWeatherManager(impl: MapWeatherManager): IMapWeatherManager
 
     @Binds
     @Singleton

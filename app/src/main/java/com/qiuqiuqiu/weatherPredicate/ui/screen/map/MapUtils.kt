@@ -10,16 +10,28 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import com.baidu.location.*
-import com.baidu.mapapi.map.*
+import com.baidu.location.BDAbstractLocationListener
+import com.baidu.location.BDLocation
+import com.baidu.location.LocationClient
+import com.baidu.location.LocationClientOption
+import com.baidu.mapapi.map.BaiduMap
+import com.baidu.mapapi.map.BitmapDescriptor
+import com.baidu.mapapi.map.BitmapDescriptorFactory
+import com.baidu.mapapi.map.MapStatusUpdateFactory
+import com.baidu.mapapi.map.MapView
+import com.baidu.mapapi.map.MarkerOptions
+import com.baidu.mapapi.map.MyLocationData
 import com.baidu.mapapi.model.LatLng
 import com.baidu.mapapi.search.core.SearchResult
-import com.baidu.mapapi.search.geocode.*
+import com.baidu.mapapi.search.geocode.GeoCodeOption
+import com.baidu.mapapi.search.geocode.GeoCodeResult
+import com.baidu.mapapi.search.geocode.GeoCoder
+import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener
+import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult
 import com.bumptech.glide.Glide
-import com.qiuqiuqiu.weatherPredicate.service.CityWeather
+import com.qiuqiuqiu.weatherPredicate.model.CityWeather
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import com.qiuqiuqiu.weatherPredicate.service.QWeatherService
 
 private const val TAG = "MapUtils"
 
@@ -49,7 +61,8 @@ object MapUtils {
                         if (result != null && result.error == SearchResult.ERRORNO.NO_ERROR) {
                             val pt: LatLng = result.location
                             baiduMap?.clear()
-                            val bd = BitmapDescriptorFactory.fromResource(android.R.drawable.ic_menu_mylocation)
+                            val bd =
+                                BitmapDescriptorFactory.fromResource(android.R.drawable.ic_menu_mylocation)
                             val markerOpts = MarkerOptions().position(pt).icon(bd)
                             baiduMap?.addOverlay(markerOpts)
                             baiduMap?.setMapStatus(MapStatusUpdateFactory.newLatLngZoom(pt, 15f))
@@ -58,11 +71,20 @@ object MapUtils {
                                 coder.geocode(GeoCodeOption().address(address))
                                 return@runOnUiThread
                             } else {
-                                Toast.makeText(context, "未找到该地址，请检查输入", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "未找到该地址，请检查输入",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         }
                     } finally {
-                        mapView.postDelayed({ try { coder.destroy() } catch (_: Throwable) {} }, 300L)
+                        mapView.postDelayed({
+                            try {
+                                coder.destroy()
+                            } catch (_: Throwable) {
+                            }
+                        }, 300L)
                     }
                 }
             }
@@ -78,7 +100,10 @@ object MapUtils {
         } catch (e: Exception) {
             Log.e(TAG, "geocode call failed: ${e.message}", e)
             Toast.makeText(context, "查询失败: ${e.message}", Toast.LENGTH_SHORT).show()
-            try { coder.destroy() } catch (_: Throwable) {}
+            try {
+                coder.destroy()
+            } catch (_: Throwable) {
+            }
         }
     }
 
