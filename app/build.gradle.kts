@@ -124,7 +124,7 @@ dependencies {
 
     // 网络 / JSON / Retrofit / 加密
     implementation("com.squareup.okhttp3:okhttp:5.1.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0") // ⚠️ 建议与 okhttp 主版本对齐
+    implementation("com.squareup.okhttp3:logging-interceptor:5.1.0")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.google.code.gson:gson:2.13.1")
@@ -149,7 +149,6 @@ dependencies {
     // Play Services (location)
     implementation("com.google.android.gms:play-services-location:21.3.0")
 
-    // 其它（重复项已合并）
-    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0") // 已包含：如需移除请只保留一处
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }
 

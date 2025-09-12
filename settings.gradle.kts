@@ -21,6 +21,7 @@ pluginManagement {
         maven("https://maven.aliyun.com/repository/gradle-plugin")
         google()
         mavenCentral()
+        
         gradlePluginPortal()
     }
 }
@@ -29,6 +30,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url = uri("https://jitpack.io") }
     }
 }
 rootProject.name = "Weather App"

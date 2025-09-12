@@ -41,14 +41,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.qiuqiuqiu.weatherPredicate.LocalAppViewModel
 import com.qiuqiuqiu.weatherPredicate.model.CityType
 import com.qiuqiuqiu.weatherPredicate.model.LocationWeatherModel
 import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseCard
 import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
+import com.qiuqiuqiu.weatherPredicate.viewModel.AppViewModel
 import com.qiuqiuqiu.weatherPredicate.viewModel.CityEditViewModel
 
 @Composable
 fun CityEditScreen(navController: NavController) {
+    val appViewModel: AppViewModel = LocalAppViewModel.current
     val viewModel: CityEditViewModel = hiltViewModel()
     viewModel.refreshCities()
 
@@ -57,7 +60,7 @@ fun CityEditScreen(navController: NavController) {
             CityEditTopBar(
                 cancelClick = { navController.popBackStack() },
                 saveClick = {
-                    viewModel.saveEdit {
+                    viewModel.saveEdit(appViewModel) {
                         navController.popBackStack()
                     }
                 })

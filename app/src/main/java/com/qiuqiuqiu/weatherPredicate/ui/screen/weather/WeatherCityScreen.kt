@@ -27,6 +27,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -35,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -59,19 +59,18 @@ fun WeatherCityScreen(navController: NavController, location: Pair<Double, Doubl
     val appViewModel: AppViewModel = LocalAppViewModel.current
     val viewModel: WeatherViewModel = hiltViewModel()
     val weatherModel by viewModel.locationWeather.collectAsState()
-    viewModel.initLocation(CityLocationModel(CityType.Normal, location), false)
+
+    LaunchedEffect(Unit) {
+        viewModel.initLocation(
+            CityLocationModel(CityType.Normal, location),
+            isMain = false,
+            refresh = false
+        )
+    }
 
     val scrollState: ScrollState = rememberScrollState()
     val centerCardAlpha = rememberScrollAlpha(scrollState, 70, 300)
     val cityTextHide = rememberScrollThreshold(scrollState, 70)
-
-    val color = Color(
-        red = 0.8f,
-        green = 0.9f,
-        blue = 1f,
-        alpha = 1f,
-        colorSpace = ColorSpaces.Srgb
-    )
 
 //    Box(
 //        modifier = Modifier
@@ -91,8 +90,7 @@ fun WeatherCityScreen(navController: NavController, location: Pair<Double, Doubl
                     centerCardAlpha,
                     cityTextHide
                 )
-            },
-            containerColor = Color.Transparent
+            }
         ) { innerPadding ->
             LoadingContainer(isInit = viewModel.isInit.value) {
                 Box(modifier = Modifier.padding(innerPadding)) {
@@ -101,7 +99,8 @@ fun WeatherCityScreen(navController: NavController, location: Pair<Double, Doubl
                         scrollState = scrollState,
                         alpha = centerCardAlpha,
                         cityHide = cityTextHide,
-                        centerScreen = false
+                        centerScreen = false,
+                        navController = navController
                     )
 
                     WeatherCityBottomBar(

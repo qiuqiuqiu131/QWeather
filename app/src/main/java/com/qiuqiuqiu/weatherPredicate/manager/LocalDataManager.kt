@@ -11,6 +11,7 @@ import com.qiuqiuqiu.weatherPredicate.model.CityType
 import com.qiuqiuqiu.weatherPredicate.model.SearchHistory
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.first
+import kotlin.math.abs
 
 interface ILocalDataManager {
     suspend fun getCityList(): List<CityLocationModel>
@@ -58,7 +59,7 @@ class LocalDataManager @Inject constructor(private val context: Context) : ILoca
         val currentList = getCityList().toMutableList()
         val exist =
             currentList.firstOrNull {
-                it.location.first == city.first && it.location.second == city.second
+                abs(it.location.first - city.first) < 0.04 && abs(it.location.second - city.second) < 0.04
             }
         if (exist != null) return
 

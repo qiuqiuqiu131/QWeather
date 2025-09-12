@@ -9,9 +9,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.qiuqiuqiu.weatherPredicate.ui.screen.MainScreen
-import com.qiuqiuqiu.weatherPredicate.ui.screen.time.TourScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.time.GlobalTimeScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.time.SolarTermScreen
+import com.qiuqiuqiu.weatherPredicate.ui.screen.time.TourScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.CityEditScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.CityManageScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.WeatherCityScreen
@@ -81,7 +81,7 @@ fun MainApp(modifier: Modifier = Modifier) {
         }
 
         composable(
-            "WeatherDetail?pageName={pageName}&pageInfo={pageInfo}",
+            "WeatherDetail?pageName={pageName}&pageInfo={pageInfo}&longitude={longitude}&latitude={latitude}",
             arguments = listOf(),
             enterTransition = {
                 slideIntoContainer(
@@ -120,7 +120,9 @@ fun MainApp(modifier: Modifier = Modifier) {
             }) {
             val pageName = it.arguments?.getString("pageName")
             val pageInfo = it.arguments?.getString("pageInfo")
-            WeatherDetailScreen(navController, pageName, pageInfo)
+            val longitude = it.arguments?.getString("longitude")?.toDoubleOrNull() ?: 116.4074
+            val latitude = it.arguments?.getString("latitude")?.toDoubleOrNull() ?: 39.9042
+            WeatherDetailScreen(navController, Pair(longitude, latitude), pageName, pageInfo)
         }
 
         composable(

@@ -135,7 +135,7 @@ class QWeatherService @Inject constructor(@ApplicationContext private val contex
             )
             instance = QWeather.getInstance(context, "nq6r6xdaqp.re.qweatherapi.com")
                 .setTokenGenerator(jwt)
-                .setLogEnable(true)
+                .setLogEnable(false)
         } catch (e: Exception) {
             throw Exception("QWeather init failed")
         }

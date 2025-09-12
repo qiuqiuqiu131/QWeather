@@ -36,7 +36,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.qiuqiuqiu.weatherPredicate.LocalAppViewModel
+import com.qiuqiuqiu.weatherPredicate.model.CityLocationModel
+import com.qiuqiuqiu.weatherPredicate.model.CityType
 import com.qiuqiuqiu.weatherPredicate.tools.toTimeWithPeriod
 import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
 import com.qiuqiuqiu.weatherPredicate.ui.normal.ScrollableCenterRowList
@@ -52,21 +53,17 @@ import kotlinx.coroutines.launch
 @Composable
 fun WeatherDetailScreen(
     navController: NavController,
+    location: Pair<Double, Double>,
     pageName: String? = null,
     pageInfo: String? = null
 ) {
-    val appViewModel = LocalAppViewModel.current
-    val currentCity by appViewModel.currentCity.collectAsState()
-
     val viewModel: WeatherDetailViewModel = hiltViewModel()
     val weatherModel by viewModel.locationWeather.collectAsState()
 
     val defaultColor = MaterialTheme.colorScheme.background
     var topBarColor by remember { mutableStateOf(defaultColor) }
 
-    LaunchedEffect(currentCity) {
-        viewModel.initWeatherData(currentCity, pageName)
-    }
+    viewModel.initWeatherData(CityLocationModel(CityType.Normal, location), pageName)
 
     Box(
         modifier = Modifier

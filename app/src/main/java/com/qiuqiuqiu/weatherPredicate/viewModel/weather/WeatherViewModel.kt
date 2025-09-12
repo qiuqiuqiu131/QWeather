@@ -1,6 +1,7 @@
 package com.qiuqiuqiu.weatherPredicate.viewModel.weather
 
 import android.annotation.SuppressLint
+import android.location.Location
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -16,6 +17,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -41,69 +43,92 @@ class WeatherViewModel @Inject constructor(
     var isRefreshing: MutableState<Boolean> = mutableStateOf(false)
         private set
 
-    private var currentLocation: CityLocationModel? = null
+    private lateinit var currentLocation: CityLocationModel
+    private var pointLocation: Location? = null
 
     /**
      * 使用前必须调用
      */
     @SuppressLint("NewApi")
-    fun initLocation(location: CityLocationModel?, refresh: Boolean = true) {
-        currentLocation = location ?: currentLocation ?: defaultLocation
+    fun initLocation(
+        location: CityLocationModel?,
+        isMain: Boolean = true,
+        refresh: Boolean = true
+    ) {
+        if (location != null)
+            currentLocation = location
+        else
+            currentLocation = defaultLocation
 
         viewModelScope.launch(CoroutineExceptionHandler { _, e ->
             Log.e("Weather", "获取天气失败: ${e.stackTrace}")
         } + Dispatchers.IO) {
+            val startTime = LocalDateTime.now()
             // 判断当前位置是否在城市列表中，如果不存在，相当于删掉了位置，使用第一个城市
-            val list = localDataManager.getCityList()
-            if (currentLocation != null) {
-                if (list.firstOrNull {
-                        currentLocation!!.location.first == it.location.first && currentLocation!!.location.second == it.location.second
-                    } == null
-                ) {
-                    currentLocation = list.firstOrNull() ?: defaultLocation
-                }
-
-
-                // 判断当前位置是否为定位城市，且没有权限
-                if (currentLocation!!.type == CityType.Position && !locationService.hasLocationPermissions()) {
+            if (isMain) {
+                if (currentLocation.type == CityType.Position && !locationService.hasLocationPermissions()) {
                     // 未获得权限，删除城市列表中的定位Location
                     localDataManager.removePositionCity()
+                    val list = localDataManager.getCityList()
                     currentLocation =
                         list.firstOrNull({ it.type == CityType.Host }) ?: list.firstOrNull()
                                 ?: defaultLocation
                 }
+            }
 
-                val result =
-                    weatherManager.getCacheLocationWeather(currentLocation!!)
+
+            currentLocation.let {
+                // 先取缓存数据
+                val result = weatherManager.getCacheLocationWeather(it)
                 _locationWeather.update { result.first }
                 isInit.value = false
 
-                // 定位城市，且开启定位，则更新坐标
-                if (currentLocation!!.type == CityType.Position && locationService.isLocationEnabled()) {
-                    val location = locationService.getLastLocation()
-                    if (location != null) {
-                        currentLocation = CityLocationModel(
-                            CityType.Position,
-                            Pair(location.longitude, location.latitude)
-                        )
-                        localDataManager.addPositionCity(currentLocation!!)
+                Log.i(
+                    "Weather",
+                    "首次加载页面耗时: ${
+                        Duration.between(startTime, LocalDateTime.now()).toMillis()
+                    } ms"
+                )
 
-                        val weatherLoc =
-                            weatherManager.getCacheLocationWeather(currentLocation!!)
-                        _locationWeather.update { weatherLoc.first }
+                viewModelScope.launch(CoroutineExceptionHandler { _, e ->
+                    Log.e("Weather", "获取天气失败: ${e.stackTrace}")
+                } + Dispatchers.IO) {
+                    delay(200)
+                    // 定位城市，且开启定位，则更新坐标
+                    if (currentLocation.type == CityType.Position && locationService.isLocationEnabled()) {
+                        val location = locationService.getLastLocation()
+                        if (location != null && location != pointLocation) {
+                            currentLocation = CityLocationModel(
+                                CityType.Position,
+                                Pair(location.longitude, location.latitude)
+                            )
+                            localDataManager.addPositionCity(currentLocation)
+
+                            val weatherLoc =
+                                weatherManager.getCacheLocationWeather(it)
+                            _locationWeather.update { weatherLoc.first }
+                        }
+                        pointLocation = location
                     }
+                    // 如果命中缓存，再请求更新
+                    else if (refresh && !result.second
+                        && Duration.between(result.first.lastUpdateTime, LocalDateTime.now())
+                            .toMinutes() > 10
+                    ) {
+                        isRefreshing.value = true
+                        val weatherLocation =
+                            weatherManager.getNewLocationWeather(it)
+                        _locationWeather.update { weatherLocation }
+                        isRefreshing.value = false
+                    }
+                    Log.i(
+                        "Weather",
+                        "更新数据耗时: ${
+                            Duration.between(startTime, LocalDateTime.now()).toMillis()
+                        } ms"
+                    )
                 }
-                // 如果命中缓存，再请求更新
-                else if (refresh && !result.second
-                    && Duration.between(locationWeather.value.lastUpdateTime, LocalDateTime.now())
-                        .toMinutes() > 10
-                ) {
-                    isRefreshing.value = true
-                    val weatherLocation =
-                        weatherManager.getNewLocationWeather(currentLocation!!)
-                    _locationWeather.update { weatherLocation }
-                    isRefreshing.value = false
-                }
+
             }
         }
     }
@@ -118,7 +143,7 @@ class WeatherViewModel @Inject constructor(
         viewModelScope.launch(CoroutineExceptionHandler { _, e ->
             Log.e("Weather", "获取天气失败: ${e.message}")
         } + Dispatchers.IO) {
-            currentLocation?.let {
+            currentLocation.let {
                 val locationWeather =
                     weatherManager.getNewLocationWeather(it)
                 _locationWeather.update { locationWeather }

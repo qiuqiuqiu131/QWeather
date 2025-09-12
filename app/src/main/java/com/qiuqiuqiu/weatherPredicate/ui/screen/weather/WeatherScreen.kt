@@ -36,7 +36,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -85,9 +84,11 @@ fun WeatherScreen(navController: NavController) {
     val permissionLauncher =
         rememberLauncherForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
-        ) { viewModel.initLocation(currentCity) }
+        ) {
+            viewModel.initLocation(currentCity)
+        }
 
-    LaunchedEffect(currentCity) {
+    LaunchedEffect(Unit) {
         val hasPermissions = hasLocationPermissions(context)
         val isDenied = isLocationPermanentlyDenied(context)
         if (currentCity.type == CityType.Position && !hasPermissions && isDenied) {
@@ -122,7 +123,6 @@ fun WeatherScreen(navController: NavController) {
         onRefresh = { viewModel.refreshing() },
     ) {
         Scaffold(
-            containerColor = Color.Transparent,
             topBar = {
                 WeatherTopBar(
                     weatherModel.type,
@@ -246,7 +246,12 @@ fun WeatherCenterPage(
             cityHide,
             centerScreen,
             onCityClick = { navController?.navigate("CityManage") },
-            onClick = { navToWeatherDetail(navController, pageName = "实况天气") }
+            onClick = {
+                navToWeatherDetail(
+                    navController, pageName = "实况天气",
+                    location = weatherModel.location
+                )
+            }
         )
 
         Spacer(modifier = Modifier.height(50.dp))
@@ -255,7 +260,8 @@ fun WeatherCenterPage(
         weatherModel.indicesDailies?.let {
             WeatherStatusInfoCard(it, onIndicesClick = { name ->
                 navToWeatherDetail(
-                    navController, pageName = name.replace("指数", ""), pageInfo = name
+                    navController, pageName = name.replace("指数", ""), pageInfo = name,
+                    location = weatherModel.location
                 )
             })
         }
@@ -263,44 +269,68 @@ fun WeatherCenterPage(
         // 预警信息卡片
         weatherModel.warnings?.let {
             WarningInfoCard(it, onClick = {
-                navToWeatherDetail(navController, pageName = "预警信息")
+                navToWeatherDetail(
+                    navController, pageName = "预警信息",
+                    location = weatherModel.location
+                )
             })
         }
 
         // 每小时天气列表
         weatherModel.weatherHourlies?.let {
             HourlyWeatherCard(it, onClick = {
-                navToWeatherDetail(navController, pageName = "每日天气")
+                navToWeatherDetail(
+                    navController, pageName = "每日天气",
+                    location = weatherModel.location
+                )
             }, onItemClick = {
-                navToWeatherDetail(navController, pageName = "每日天气")
+                navToWeatherDetail(
+                    navController, pageName = "每日天气",
+                    location = weatherModel.location
+                )
             })
         }
 
         // 未来7天天气列表
         weatherModel.weatherDailies?.let {
             DailyWeatherCard(it, onClick = {
-                navToWeatherDetail(navController, pageName = "多日天气")
+                navToWeatherDetail(
+                    navController, pageName = "多日天气",
+                    location = weatherModel.location
+                )
             }, onItemClick = {
-                navToWeatherDetail(navController, pageName = "多日天气")
+                navToWeatherDetail(
+                    navController, pageName = "多日天气",
+                    location = weatherModel.location
+                )
             })
         }
 
         // 更多天气按钮
         MoreWeatherButton(onClick = {
-            navToWeatherDetail(navController, pageName = "多日天气")
+            navToWeatherDetail(
+                navController, pageName = "多日天气",
+                location = weatherModel.location
+            )
         })
 
         // 空气质量卡片
         weatherModel.airCurrent?.let {
             AirCurrentCard(it, onClick = {
-                navToWeatherDetail(navController, pageName = "空气质量")
+                navToWeatherDetail(
+                    navController, pageName = "空气质量",
+                    location = weatherModel.location
+                )
             })
         }
 
         // 天气指数卡片
         weatherModel.weatherNow?.let {
             WeatherIndexCard(it, weatherDaily?.uvIndex, onClick = {
-                navToWeatherDetail(navController, pageName = "实况天气")
+                navToWeatherDetail(
+                    navController, pageName = "实况天气",
+                    location = weatherModel.location
+                )
             })
         }
 
@@ -308,10 +338,14 @@ fun WeatherCenterPage(
         weatherModel.indicesDailies?.let {
             LifeIndexCard(it, onClick = {
                 navToWeatherDetail(
-                    navController, pageName = it.firstOrNull()?.name?.replace("指数", "")
+                    navController, pageName = it.firstOrNull()?.name?.replace("指数", ""),
+                    location = weatherModel.location
                 )
             }, onItemClick = { item ->
-                navToWeatherDetail(navController, pageName = item.name.replace("指数", ""))
+                navToWeatherDetail(
+                    navController, pageName = item.name.replace("指数", ""),
+                    location = weatherModel.location
+                )
             })
         }
 
@@ -319,10 +353,11 @@ fun WeatherCenterPage(
     }
 }
 
-private fun navToWeatherDetail(
+fun navToWeatherDetail(
     navController: NavController?,
     pageName: String? = null,
-    pageInfo: String? = null
+    pageInfo: String? = null,
+    location: Location? = null
 ) {
-    navController?.navigate("WeatherDetail?pageName=$pageName&pageInfo=$pageInfo")
+    navController?.navigate("WeatherDetail?pageName=$pageName&pageInfo=$pageInfo&longitude=${location?.lon}&latitude=${location?.lat}")
 }
