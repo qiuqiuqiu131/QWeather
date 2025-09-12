@@ -24,8 +24,7 @@ import com.qiuqiuqiu.weatherPredicate.tools.toMonthDay
 import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseCard
 import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseItem
 import com.qiuqiuqiu.weatherPredicate.ui.normal.CustomDivider
-import com.qiuqiuqiu.weatherPredicate.ui.theme.QWeatherFontFamily
-import com.qiuqiuqiu.weatherPredicate.ui.theme.getQWeatherIconUnicode
+import com.qiuqiuqiu.weatherPredicate.ui.normal.WeatherIcon
 import com.qweather.sdk.response.weather.WeatherDaily
 
 /** 未来7天天气列表 */
@@ -78,12 +77,7 @@ fun DailyWeatherItem(hw: WeatherDaily) {
 
         CustomDivider(modifier = Modifier.padding(4.dp))
 
-        Text(
-            text = hw.iconDay.getQWeatherIconUnicode(),
-            fontFamily = QWeatherFontFamily,
-            fontSize = 26.sp,
-            modifier = Modifier.padding(top = 6.dp, bottom = 10.dp)
-        )
+        WeatherIcon(hw.iconDay, modifier = Modifier.padding(top = 6.dp, bottom = 10.dp))
         Text(text = hw.textDay, style = MaterialTheme.typography.bodySmall)
 
         Text(
@@ -97,12 +91,7 @@ fun DailyWeatherItem(hw: WeatherDaily) {
             modifier = Modifier.padding(top = 6.dp, bottom = 6.dp)
         )
 
-        Text(
-            text = hw.iconNight.getQWeatherIconUnicode(),
-            fontFamily = QWeatherFontFamily,
-            fontSize = 26.sp,
-            modifier = Modifier.padding(top = 6.dp, bottom = 10.dp)
-        )
+        WeatherIcon(hw.iconNight, modifier = Modifier.padding(top = 6.dp, bottom = 10.dp))
         Text(text = hw.textNight, style = MaterialTheme.typography.bodySmall)
 
         CustomDivider(modifier = Modifier.padding(4.dp))

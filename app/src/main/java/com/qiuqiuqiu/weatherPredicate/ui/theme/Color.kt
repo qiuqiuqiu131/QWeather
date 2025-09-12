@@ -24,6 +24,9 @@ val md_theme_light_onPrimary = Color(0xFFFFFFFF)
 val md_theme_light_primaryContainer = Color(0xFF85A1CC)
 val md_theme_light_onPrimaryContainer = Color(0xFF0D47A1)
 
+
+val yellow = Color(0xFFFFC107)
+
 // === 极淡蓝色 === //
 val md_theme_light_secondary = Color(0xFFBBE2FF) // 辅助色
 val md_theme_light_onSecondary = Color(0xFF181818)

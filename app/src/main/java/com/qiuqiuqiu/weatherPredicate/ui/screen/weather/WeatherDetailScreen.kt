@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.qiuqiuqiu.weatherPredicate.LocalAppViewModel
+import com.qiuqiuqiu.weatherPredicate.tools.toTimeWithPeriod
 import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
 import com.qiuqiuqiu.weatherPredicate.ui.normal.ScrollableCenterRowList
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.detailPage.WeatherAirDetailPage
@@ -80,6 +81,12 @@ fun WeatherDetailScreen(
         )
         val coroutineScope = rememberCoroutineScope()
 
+        val switchPage: ((Int) -> Unit) = { index ->
+            if (viewModel.pageIndex.intValue != index && !pageState.isScrollInProgress) {
+                coroutineScope.launch { pageState.animateScrollToPage(index) }
+            }
+        }
+
         LaunchedEffect(pageState.targetPage) {
             if (viewModel.pageIndex.intValue != pageState.targetPage)
                 viewModel.pageIndex.intValue = pageState.targetPage
@@ -97,12 +104,7 @@ fun WeatherDetailScreen(
                         pageIndex = viewModel.pageIndex.intValue,
                         bgColor = topBarColor,
                         navBack = { navController.popBackStack() },
-                        onSelectionChanged = { index ->
-                            if (viewModel.pageIndex.intValue != index && !pageState.isScrollInProgress) {
-                                viewModel.pageIndex.intValue = index
-                                coroutineScope.launch { pageState.animateScrollToPage(index) }
-                            }
-                        }
+                        onSelectionChanged = switchPage
                     )
                 }
             }
@@ -123,26 +125,59 @@ fun WeatherDetailScreen(
                         when (pageName) {
                             in defaultPageNames -> {
                                 when (pageName) {
-                                    "每日天气" -> WeatherHourlyDetailPage(weatherModel.weatherHourlies)
-                                    "多日天气" -> WeatherDailyDetailPage(weatherModel.weatherDailiesMore)
-                                    "实况天气" -> WeatherCurrentDetailPage()
-                                    "空气质量" -> WeatherAirDetailPage()
+                                    "每日天气" -> WeatherHourlyDetailPage(
+                                        viewModel,
+                                        currentPageIndex = pageState.targetPage,
+                                        pageIndex = it,
+                                        onColorChanged = { color ->
+                                            topBarColor = color
+                                        }, onSwitchPage = { pageName ->
+                                            val index = viewModel.pageItems.value.indexOf(pageName)
+                                            switchPage(index)
+                                        })
+
+                                    "多日天气" -> WeatherDailyDetailPage(
+                                        weatherModel.weatherDailiesMore,
+                                        currentPageIndex = pageState.targetPage,
+                                        pageIndex = it,
+                                        onColorChanged = { color ->
+                                            topBarColor = color
+                                        })
+
+                                    "实况天气" -> WeatherCurrentDetailPage(
+                                        weatherNow = weatherModel.weatherNow,
+                                        weatherDaily = weatherModel.weatherDailies?.firstOrNull(),
+                                        lastUpdateTime = weatherModel.lastUpdateTime.toString()
+                                            .toTimeWithPeriod(),
+                                        currentPageIndex = pageState.targetPage,
+                                        pageIndex = it,
+                                        onColorChanged = { color ->
+                                            topBarColor = color
+                                        }, onSwitchPage = switchPage
+                                    )
+
+                                    "空气质量" -> WeatherAirDetailPage(
+                                        currentPageIndex = pageState.targetPage,
+                                        pageIndex = it,
+                                        onColorChanged = { color ->
+                                            topBarColor = color
+                                        })
+
                                     else -> Text(pageName)
                                 }
                             }
 
                             else -> WeatherIndicesPage(
-                                weatherModel.indicesDailies?.firstOrNull {
-                                    it.name.replace(
-                                        "指数",
-                                        ""
-                                    ) == pageName
-                                },
+                                weatherIndices = weatherModel.indicesDailiesMore?.firstOrNull {
+                                    it.first.replace("指数", "") == pageName
+                                }?.second, weatherModel.weatherDailies?.take(3),
                                 currentPageIndex = pageState.targetPage,
                                 pageIndex = it,
                                 onColorChanged = { color ->
                                     topBarColor = color
-                                })
+                                },
+                                onSwitchPage = switchPage
+                            )
                         }
                     }
                 }

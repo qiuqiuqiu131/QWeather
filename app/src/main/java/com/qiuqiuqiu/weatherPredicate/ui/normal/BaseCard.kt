@@ -62,11 +62,15 @@ fun BaseItem(
 fun BaseCard(
     modifier: Modifier = Modifier,
     title: String? = null,
+    bgColor: Color? = null,
     onClick: (() -> Unit)? = null,
     endCorner: @Composable (BoxScope.() -> Unit)? = null,
     content: @Composable (ColumnScope.() -> Unit)
 ) {
-    DefaultCard(modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)) {
+    DefaultCard(
+        bgColor = bgColor,
+        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+    ) {
         BaseItem(onClick = onClick) {
             Column(modifier = modifier) {
                 if (title != null || endCorner != null) {
@@ -149,9 +153,13 @@ fun SearchBaseCard(
 }
 
 @Composable
-fun DefaultCard(modifier: Modifier = Modifier, content: @Composable (ColumnScope.() -> Unit)) {
+fun DefaultCard(
+    modifier: Modifier = Modifier,
+    bgColor: Color? = null,
+    content: @Composable (ColumnScope.() -> Unit)
+) {
     val color1 = CardColors(
-        containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.7f),
+        containerColor = bgColor ?: MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.7f),
         contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
         disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.7f),
         disabledContentColor = MaterialTheme.colorScheme.onSecondaryContainer

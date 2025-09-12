@@ -23,6 +23,7 @@ fun ScrollableCenterRowList(
     itemCount: Int,
     itemIndex: Int,
     selectedItemChanged: (index: Int) -> Unit,
+    canScroll: Boolean = true,
     content: @Composable (index: Int, isSelected: Boolean) -> Unit
 ) {
     val listState = rememberLazyListState()
@@ -61,7 +62,7 @@ fun ScrollableCenterRowList(
         }
     }
 
-    LazyRow(state = listState, modifier = modifier) {
+    LazyRow(state = listState, modifier = modifier, userScrollEnabled = canScroll) {
         items(itemCount) { index ->
             Box(
                 Modifier

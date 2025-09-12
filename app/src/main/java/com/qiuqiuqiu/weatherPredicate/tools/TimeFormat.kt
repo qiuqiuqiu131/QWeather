@@ -5,6 +5,14 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+fun String.toDateString(): String {
+    return try {
+        this.substringBefore('T')
+    } catch (e: Exception) {
+        this
+    }
+}
+
 fun String.toTimeWithPeriod(): String {
     return try {
         val timePart = this.substringAfter('T').substringBefore('+')

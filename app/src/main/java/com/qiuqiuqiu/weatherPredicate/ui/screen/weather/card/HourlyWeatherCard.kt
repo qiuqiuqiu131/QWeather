@@ -12,13 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.qiuqiuqiu.weatherPredicate.tools.toTimeWithPeriod
 import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseCard
 import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseItem
 import com.qiuqiuqiu.weatherPredicate.ui.normal.CustomDivider
-import com.qiuqiuqiu.weatherPredicate.ui.theme.QWeatherFontFamily
-import com.qiuqiuqiu.weatherPredicate.ui.theme.getQWeatherIconUnicode
+import com.qiuqiuqiu.weatherPredicate.ui.normal.WeatherIcon
 import com.qweather.sdk.response.weather.WeatherHourly
 
 /** 24小时内天气列表 */
@@ -49,11 +47,9 @@ fun HourlyWeatherItem(hw: WeatherHourly) {
     ) {
         Text(text = hw.fxTime.toTimeWithPeriod(), style = MaterialTheme.typography.bodySmall)
         CustomDivider(modifier = Modifier.padding(4.dp))
-        Text(
-            text = hw.icon.getQWeatherIconUnicode(),
-            fontFamily = QWeatherFontFamily,
-            fontSize = 26.sp,
-            modifier = Modifier.padding(top = 6.dp, bottom = 10.dp)
+        WeatherIcon(
+            hw.icon, modifier = Modifier
+                .padding(top = 6.dp, bottom = 10.dp)
         )
         Text(text = hw.text, style = MaterialTheme.typography.bodySmall)
         Text(text = "${hw.temp}℃", style = MaterialTheme.typography.labelLarge)

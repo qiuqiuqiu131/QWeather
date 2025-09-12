@@ -16,6 +16,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -51,8 +52,20 @@ class WeatherDetailViewModel @Inject constructor(
             cityList = localDataManager.getCityList()
 
             val result = locationWeatherManager.getCacheLocationWeather(city)
-            result.first.weatherDailiesMore =
-                weatherService.getWeatherMoreDay(result.first.location!!.id)
+
+            // 获取拓展天气数据
+            val weatherDailiesTask =
+                async { weatherService.getWeatherMoreDay(result.first.location!!.id) }
+            val weatherHourliesTask =
+                async { weatherService.getWeather168Hour(result.first.location!!.id) }
+            val indicesDailiesTask = async {
+                weatherService.getWeatherIndices3Day(result.first.location!!.id).groupBy { it.name }
+                    .map { Pair(it.key, it.value.sortedBy { va -> va.date }) }
+            }
+            result.first.weatherDailiesMore = weatherDailiesTask.await()
+            result.first.weatherHourliesMore = weatherHourliesTask.await()
+            result.first.indicesDailiesMore = indicesDailiesTask.await()
+
             _locationWeather.update { result.first }
 
             pageItems.value =

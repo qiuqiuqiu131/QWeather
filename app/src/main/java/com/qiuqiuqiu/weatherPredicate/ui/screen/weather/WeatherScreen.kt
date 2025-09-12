@@ -245,13 +245,20 @@ fun WeatherCenterPage(
             alpha,
             cityHide,
             centerScreen,
-            onCityClick = { navController?.navigate("CityManage") }
+            onCityClick = { navController?.navigate("CityManage") },
+            onClick = { navToWeatherDetail(navController, pageName = "实况天气") }
         )
 
         Spacer(modifier = Modifier.height(50.dp))
 
         // 通知栏天气信息
-        weatherModel.indicesDailies?.let { WeatherStatusInfoCard(it) }
+        weatherModel.indicesDailies?.let {
+            WeatherStatusInfoCard(it, onIndicesClick = { name ->
+                navToWeatherDetail(
+                    navController, pageName = name.replace("指数", ""), pageInfo = name
+                )
+            })
+        }
 
         // 预警信息卡片
         weatherModel.warnings?.let {

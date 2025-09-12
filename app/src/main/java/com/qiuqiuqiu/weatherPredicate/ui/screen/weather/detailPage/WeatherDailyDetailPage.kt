@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -21,22 +20,33 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.qiuqiuqiu.weatherPredicate.tools.toDay
 import com.qiuqiuqiu.weatherPredicate.tools.toDayLabel
 import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseItem
 import com.qiuqiuqiu.weatherPredicate.ui.normal.CustomDivider
-import com.qiuqiuqiu.weatherPredicate.ui.theme.QWeatherFontFamily
-import com.qiuqiuqiu.weatherPredicate.ui.theme.getQWeatherIconUnicode
+import com.qiuqiuqiu.weatherPredicate.ui.normal.WeatherIcon
 import com.qweather.sdk.response.weather.WeatherDaily
 
 @Composable
-fun WeatherDailyDetailPage(weatherDailies: List<WeatherDaily>?, modifier: Modifier = Modifier) {
+fun WeatherDailyDetailPage(
+    weatherDailies: List<WeatherDaily>?, modifier: Modifier = Modifier,
+    currentPageIndex: Int,
+    pageIndex: Int,
+    onColorChanged: ((Color) -> Unit)? = null
+) {
+    val color = MaterialTheme.colorScheme.background
+    LaunchedEffect(currentPageIndex) {
+        if (currentPageIndex == pageIndex)
+            onColorChanged?.invoke(color)
+    }
+
     Column(
         modifier =
             modifier
@@ -53,8 +63,8 @@ fun WeatherDailyDetailCard(weatherDailies: List<WeatherDaily>?) {
                 Modifier
                     .background(MaterialTheme.colorScheme.background)
                     .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 8.dp)
-                    .height(385.dp),
+                    .padding(horizontal = 14.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
             items(weatherDailies) { hw ->
@@ -98,12 +108,7 @@ fun DailyDetailWeatherItem(hw: WeatherDaily) {
 
         CustomDivider(modifier = Modifier.padding(4.dp))
 
-        Text(
-            text = hw.iconDay.getQWeatherIconUnicode(),
-            fontFamily = QWeatherFontFamily,
-            fontSize = 26.sp,
-            modifier = Modifier.padding(top = 6.dp, bottom = 10.dp)
-        )
+        WeatherIcon(hw.iconDay, modifier = Modifier.padding(top = 6.dp, bottom = 10.dp))
         Text(text = hw.textDay, style = MaterialTheme.typography.bodySmall)
 
         Text(
@@ -117,12 +122,7 @@ fun DailyDetailWeatherItem(hw: WeatherDaily) {
             modifier = Modifier.padding(top = 12.dp, bottom = 16.dp)
         )
 
-        Text(
-            text = hw.iconNight.getQWeatherIconUnicode(),
-            fontFamily = QWeatherFontFamily,
-            fontSize = 26.sp,
-            modifier = Modifier.padding(top = 6.dp, bottom = 10.dp)
-        )
+        WeatherIcon(hw.iconNight, modifier = Modifier.padding(top = 6.dp, bottom = 10.dp))
         Text(text = hw.textNight, style = MaterialTheme.typography.bodySmall)
 
         CustomDivider(modifier = Modifier.padding(horizontal = 4.dp, vertical = 12.dp))

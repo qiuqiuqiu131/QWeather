@@ -78,6 +78,12 @@ interface IQWeatherService {
     suspend fun getWeatherIndices(locationId: String): List<IndicesDaily>
 
     /**
+     * 获取三天的生活指数
+     * @param locationId 位置ID，经纬度坐标/城市ID
+     */
+    suspend fun getWeatherIndices3Day(locationId: String): List<IndicesDaily>
+
+    /**
      * 获取实时预警
      * @param locationId 位置ID，经纬度坐标/城市ID
      */
@@ -272,6 +278,28 @@ class QWeatherService @Inject constructor(@ApplicationContext private val contex
             .lang(Lang.ZH_HANS)
         return suspendCancellableCoroutine { cont ->
             instance.indices1d(parameter, object : Callback<IndicesDailyResponse> {
+                override fun onSuccess(response: IndicesDailyResponse) {
+                    cont.resume(response.daily, null)
+                }
+
+                override fun onFailure(errorResponse: ErrorResponse) {
+                    Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
+                    cont.resumeWithException(Exception(errorResponse.toString()))
+                }
+
+                override fun onException(e: Throwable) {
+                    Log.e(TAG, "getWeatherNow onException: $e")
+                    cont.resumeWithException(e)
+                }
+            })
+        }
+    }
+
+    override suspend fun getWeatherIndices3Day(locationId: String): List<IndicesDaily> {
+        val parameter = IndicesParameter(locationId, Indices.ALL)
+            .lang(Lang.ZH_HANS)
+        return suspendCancellableCoroutine { cont ->
+            instance.indices3d(parameter, object : Callback<IndicesDailyResponse> {
                 override fun onSuccess(response: IndicesDailyResponse) {
                     cont.resume(response.daily, null)
                 }

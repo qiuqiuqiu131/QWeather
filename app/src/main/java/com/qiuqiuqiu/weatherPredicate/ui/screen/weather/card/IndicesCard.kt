@@ -148,7 +148,7 @@ fun TipItem(icon: ImageVector, content: String, name: String, onClick: (() -> Un
     }
 }
 
-private fun String.toUV(): String {
+fun String.toUV(): String {
     return when (this.toIntOrNull()) {
         in 0..2 -> "低"
         in 3..5 -> "中"

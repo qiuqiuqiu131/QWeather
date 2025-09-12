@@ -1,6 +1,5 @@
 package com.qiuqiuqiu.weatherPredicate.ui.screen.map
 
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -13,16 +12,17 @@ import com.baidu.mapapi.map.MapStatusUpdateFactory
 import com.baidu.mapapi.model.LatLng
 
 @Composable
-fun ChinaMapScreen() {
+fun ChinaMapScreen(modifier: Modifier = Modifier) {
     val viewModel: MapViewModel = hiltViewModel()
 
     val context = LocalContext.current
     val mapView = rememberMapViewWithLifecycle()
+    mapView.showZoomControls(false)
     val baiduMap = remember { mapView.map }
 
     // 初始设置为中国范围 + 禁止交互
     DisposableEffect(Unit) {
-        val chinaCenter = LatLng(35.0, 103.0)
+        val chinaCenter = LatLng(39.0, 105.0)
         baiduMap?.apply {
             setMapStatus(MapStatusUpdateFactory.newLatLngZoom(chinaCenter, 4.5f))
             uiSettings.apply {
@@ -44,6 +44,6 @@ fun ChinaMapScreen() {
     // 显示地图
     AndroidView(
         factory = { mapView },
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier,
     )
 }

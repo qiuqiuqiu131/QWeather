@@ -94,7 +94,10 @@ fun CityManageScreen(navController: NavController) {
                                 appViewModel.setCurrentCity(
                                     CityLocationModel(
                                         it.type,
-                                        Pair(it.location.lon.toDouble(), it.location.lat.toDouble())
+                                        location = Pair(
+                                            it.location.lon.toDouble(),
+                                            it.location.lat.toDouble()
+                                        )
                                     )
                                 )
                                 navController.navigate("Main") {

@@ -27,26 +27,37 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseCard
 import com.qweather.sdk.response.indices.IndicesDaily
 import kotlinx.coroutines.delay
+import kotlin.random.Random
 
 /** 通知栏显示的天气信息 */
 @Composable
-fun WeatherStatusInfoCard(indicesDaily: List<IndicesDaily>) {
+fun WeatherStatusInfoCard(
+    indicesDaily: List<IndicesDaily>,
+    modifier: Modifier = Modifier,
+    bgColor: Color? = null,
+    onIndicesClick: ((name: String) -> Unit)? = null
+) {
     val categories = indicesDaily.mapNotNull { it.text }.filter { it.isNotBlank() }
-    var currentIndex by remember { mutableStateOf(0) }
+    var currentIndex by remember { mutableIntStateOf(Random.nextInt(0, categories.size - 1)) }
 
-    if (categories.size != 0) {
-        BaseCard {
+    if (categories.isNotEmpty()) {
+        BaseCard(
+            bgColor = bgColor,
+            onClick = { onIndicesClick?.invoke(indicesDaily[currentIndex].name) },
+            modifier = modifier
+        ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

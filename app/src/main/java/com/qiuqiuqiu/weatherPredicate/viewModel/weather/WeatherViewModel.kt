@@ -48,67 +48,63 @@ class WeatherViewModel @Inject constructor(
      */
     @SuppressLint("NewApi")
     fun initLocation(location: CityLocationModel?, refresh: Boolean = true) {
-        var tLocation = location ?: defaultLocation
+        currentLocation = location ?: currentLocation ?: defaultLocation
 
         viewModelScope.launch(CoroutineExceptionHandler { _, e ->
             Log.e("Weather", "获取天气失败: ${e.stackTrace}")
         } + Dispatchers.IO) {
             // 判断当前位置是否在城市列表中，如果不存在，相当于删掉了位置，使用第一个城市
             val list = localDataManager.getCityList()
-            if (list.firstOrNull {
-                    it.location.first == tLocation.location.first &&
-                            it.location.second == tLocation.location.second
-                } == null) {
-                tLocation = list.firstOrNull() ?: defaultLocation
-            }
-
-            // 判断当前位置是否为定位城市，且没有权限
-            if (tLocation.type == CityType.Position && !locationService.hasLocationPermissions()) {
-                // 未获得权限，删除城市列表中的定位Location
-                localDataManager.removePositionCity()
-                tLocation =
-                    list.firstOrNull({ it.type == CityType.Host }) ?: list.firstOrNull()
-                            ?: defaultLocation
-            }
+            if (currentLocation != null) {
+                if (list.firstOrNull {
+                        currentLocation!!.location.first == it.location.first && currentLocation!!.location.second == it.location.second
+                    } == null
+                ) {
+                    currentLocation = list.firstOrNull() ?: defaultLocation
+                }
 
 
-            var isUpdated = false
-            if (currentLocation == null || tLocation.location.first != currentLocation!!.location.first || tLocation.location.second != currentLocation!!.location.second) {
+                // 判断当前位置是否为定位城市，且没有权限
+                if (currentLocation!!.type == CityType.Position && !locationService.hasLocationPermissions()) {
+                    // 未获得权限，删除城市列表中的定位Location
+                    localDataManager.removePositionCity()
+                    currentLocation =
+                        list.firstOrNull({ it.type == CityType.Host }) ?: list.firstOrNull()
+                                ?: defaultLocation
+                }
+
                 val result =
-                    weatherManager.getCacheLocationWeather(tLocation)
+                    weatherManager.getCacheLocationWeather(currentLocation!!)
                 _locationWeather.update { result.first }
-                isUpdated = result.second
-            }
-            isInit.value = false
+                isInit.value = false
 
-            // 定位城市，且开启定位，则更新坐标
-            if (tLocation.type == CityType.Position && locationService.isLocationEnabled()) {
-                val location = locationService.getLastLocation()
-                if (location != null) {
-                    tLocation = CityLocationModel(
-                        CityType.Position,
-                        Pair(location.longitude, location.latitude)
-                    )
-                    localDataManager.addPositionCity(tLocation)
+                // 定位城市，且开启定位，则更新坐标
+                if (currentLocation!!.type == CityType.Position && locationService.isLocationEnabled()) {
+                    val location = locationService.getLastLocation()
+                    if (location != null) {
+                        currentLocation = CityLocationModel(
+                            CityType.Position,
+                            Pair(location.longitude, location.latitude)
+                        )
+                        localDataManager.addPositionCity(currentLocation!!)
 
-                    val weatherLoc =
-                        weatherManager.getCacheLocationWeather(tLocation)
-                    _locationWeather.update { weatherLoc.first }
+                        val weatherLoc =
+                            weatherManager.getCacheLocationWeather(currentLocation!!)
+                        _locationWeather.update { weatherLoc.first }
+                    }
+                }
+                // 如果命中缓存，再请求更新
+                else if (refresh && !result.second
+                    && Duration.between(locationWeather.value.lastUpdateTime, LocalDateTime.now())
+                        .toMinutes() > 10
+                ) {
+                    isRefreshing.value = true
+                    val weatherLocation =
+                        weatherManager.getNewLocationWeather(currentLocation!!)
+                    _locationWeather.update { weatherLocation }
+                    isRefreshing.value = false
                 }
             }
-            // 如果命中缓存，再请求更新
-            else if (refresh && !isUpdated
-                && Duration.between(locationWeather.value.lastUpdateTime, LocalDateTime.now())
-                    .toMinutes() > 10
-            ) {
-                isRefreshing.value = true
-                val weatherLocation =
-                    weatherManager.getNewLocationWeather(tLocation)
-                _locationWeather.update { weatherLocation }
-                isRefreshing.value = false
-            }
-
-            currentLocation = tLocation
         }
     }
 
