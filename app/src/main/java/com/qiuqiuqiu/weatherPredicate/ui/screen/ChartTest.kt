@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -69,15 +70,27 @@ fun CustomLineChartViewPreview() {
         )
     }
 
-    val model = TimelyChartModel(data, HourlyDetailType.Pressure)
+    val model by remember {
+        mutableStateOf(
+            TimelyChartModel(
+                data,
+                "test",
+                type = HourlyDetailType.Pressure
+            )
+        )
+    }
 
     var locked by remember { mutableStateOf<ChartPoint?>(null) }
+    var index by remember { mutableIntStateOf(0) }
     Column(modifier = Modifier.statusBarsPadding()) {
         OutlinedCard(modifier = Modifier.padding(8.dp)) {
             CustomLineChartView(
                 chartModel = model,
-                onEntryLocked = { locked = data[it] },
-                selectedIndex = 0,
+                onEntryLocked = {
+                    locked = data[it]
+                    index = it
+                },
+                selectedIndex = index,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(300.dp)

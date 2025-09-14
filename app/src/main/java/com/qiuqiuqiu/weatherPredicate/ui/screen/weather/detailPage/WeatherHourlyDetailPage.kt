@@ -153,7 +153,7 @@ fun WeatherHourlyDetailPage(
                         CustomLineChartView(
                             it,
                             selectedIndex = viewModel.selectedEntry.intValue,
-                            modifier = Modifier.height(220.dp),
+                            modifier = Modifier.height(240.dp),
                             onEntryLocked = { entry ->
                                 viewModel.onEntryChanged(entry)
                             })
@@ -211,9 +211,12 @@ fun WeatherHourlyDetailPage(
 
 
         weatherModel.indicesDailies?.let {
+            val nestScrollConnection = remember { NullNestScrollConnection() }
             LazyRow(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 12.dp)
+                modifier = Modifier
+                    .padding(horizontal = 12.dp)
+                    .nestedScroll(nestScrollConnection)
             ) {
                 items(it) { indices ->
                     val data = indicesMapper(indices.type.toInt())
@@ -286,7 +289,7 @@ fun HourlyTipCard(
                         ) {
                             Text(
                                 text = OffsetDateTime.parse(it.fxTime)
-                                    .format(DateTimeFormatter.ofPattern("hh:mm")),
+                                    .format(DateTimeFormatter.ofPattern("HH:mm")),
                                 style = MaterialTheme.typography.labelMedium
                             )
                             Spacer(modifier = Modifier.width(4.dp))

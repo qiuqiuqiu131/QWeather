@@ -141,31 +141,109 @@ class WeatherDetailViewModel @Inject constructor(
 
     @SuppressLint("NewApi")
     private fun switchChartType(type: HourlyDetailType) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val data = _locationWeather.value.weatherHourliesMore?.map {
-                ChartPoint(
-                    OffsetDateTime.parse(it.fxTime),
-                    getWeatherIconBitmap(it.icon, context),
-                    when (type) {
-                        HourlyDetailType.Temp -> it.temp.toFloat()
-                        HourlyDetailType.Pop -> it.pop.toFloat()
-                        HourlyDetailType.Wind -> if (it.windScale.contains("-"))
-                            it.windScale.split("-").mapNotNull { s -> s.toIntOrNull() }.average()
-                                .toFloat()
-                        else
-                            it.windScale.toFloatOrNull() ?: 0f
+        viewModelScope.launch(Dispatchers.Default) {
+            val data = when (type) {
+                HourlyDetailType.Pressure -> {
+                    TimelyChartModel(
+                        _locationWeather.value.weatherHourliesMore?.map {
+                            ChartPoint(
+                                OffsetDateTime.parse(it.fxTime),
+                                getWeatherIconBitmap(it.icon, context),
+                                it.pressure.toFloat()
+                            )
+                        } ?: emptyList(),
+                        "气压",
+                        type = type
+                    )
+                }
 
-                        HourlyDetailType.Hum -> it.humidity.toFloat()
-                        HourlyDetailType.Cloud -> it.cloud.toFloat()
-                        HourlyDetailType.Pressure -> it.pressure.toFloat()
-                    }
-                )
-            }
-            if (!data.isNullOrEmpty()) {
-                chartModel.update {
-                    TimelyChartModel(data, type)
+                HourlyDetailType.Wind -> {
+                    TimelyChartModel(
+                        _locationWeather.value.weatherHourliesMore?.map {
+                            ChartPoint(
+                                OffsetDateTime.parse(it.fxTime),
+                                getWeatherIconBitmap(it.icon, context),
+                                if (it.windScale.contains("-"))
+                                    it.windScale.split("-").mapNotNull { s -> s.toIntOrNull() }
+                                        .average()
+                                        .toFloat()
+                                else
+                                    it.windScale.toFloatOrNull() ?: 0f
+                            )
+                        } ?: emptyList(),
+                        "平均风力",
+                        _locationWeather.value.weatherHourliesMore?.map {
+                            ChartPoint(
+                                OffsetDateTime.parse(it.fxTime),
+                                getWeatherIconBitmap(it.icon, context),
+                                if (it.windScale.contains("-"))
+                                    it.windScale.split("-").last().toFloat()
+                                else
+                                    it.windScale.toFloatOrNull() ?: 0f
+                            )
+                        } ?: emptyList(),
+                        "阵风",
+                        type = type
+                    )
+                }
+
+                HourlyDetailType.Temp -> {
+                    TimelyChartModel(
+                        _locationWeather.value.weatherHourliesMore?.map {
+                            ChartPoint(
+                                OffsetDateTime.parse(it.fxTime),
+                                getWeatherIconBitmap(it.icon, context),
+                                it.temp.toFloat()
+                            )
+                        } ?: emptyList(),
+                        "温度",
+                        type = type
+                    )
+                }
+
+                HourlyDetailType.Hum -> {
+                    TimelyChartModel(
+                        _locationWeather.value.weatherHourliesMore?.map {
+                            ChartPoint(
+                                OffsetDateTime.parse(it.fxTime),
+                                getWeatherIconBitmap(it.icon, context),
+                                it.humidity.toFloat()
+                            )
+                        } ?: emptyList(),
+                        "湿度",
+                        type = type
+                    )
+                }
+
+                HourlyDetailType.Pop -> {
+                    TimelyChartModel(
+                        _locationWeather.value.weatherHourliesMore?.map {
+                            ChartPoint(
+                                OffsetDateTime.parse(it.fxTime),
+                                getWeatherIconBitmap(it.icon, context),
+                                it.pop.toFloat()
+                            )
+                        } ?: emptyList(),
+                        "降水概率",
+                        type = type
+                    )
+                }
+
+                HourlyDetailType.Cloud -> {
+                    TimelyChartModel(
+                        _locationWeather.value.weatherHourliesMore?.map {
+                            ChartPoint(
+                                OffsetDateTime.parse(it.fxTime),
+                                getWeatherIconBitmap(it.icon, context),
+                                it.cloud.toFloat()
+                            )
+                        } ?: emptyList(),
+                        "云量",
+                        type = type
+                    )
                 }
             }
+            chartModel.update { data }
         }
     }
 
@@ -174,7 +252,7 @@ class WeatherDetailViewModel @Inject constructor(
     fun onEntryChanged(entry: Int) {
         if (entry == selectedEntry.intValue) return
         selectedEntry.intValue = entry
-        chartModel.value?.data[entry]?.time?.toLocalDate()?.let { localDate ->
+        chartModel.value?.data1[entry]?.time?.toLocalDate()?.let { localDate ->
             val index = dates.value?.indexOfFirst { date -> date == localDate }
             if (index != null && index >= 0)
                 selectedDate.intValue = index
@@ -187,7 +265,7 @@ class WeatherDetailViewModel @Inject constructor(
         selectedDate.intValue = index
         val localDate = dates.value?.get(index)
         val entryIndex =
-            chartModel.value?.data?.let { dt ->
+            chartModel.value?.data1?.let { dt ->
                 dt.indexOfFirst { it.time.toLocalDate() == localDate && it.time.hour == 0 }
                     .let { res ->
                         if (res >= 0) res else dt.indexOfFirst { it.time.toLocalDate() == localDate }

@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
@@ -69,7 +70,8 @@ class CustomLineRendererWithIcon(
     private val chartPoints: List<ChartPoint>,
     private val onIntersectionUpdate: ((Entry) -> Unit)? = null,
     private val lineColor: Int = Color.RED,
-    private val intersectionCircleColor: Int = Color.GRAY,
+    private val intersectionCircleColor1: Int = Color.GRAY,
+    private val intersectionCircleColor2: Int = Color.GRAY,
     private val lineWidth: Float = 10f,
     private val intersectionCircleRadius: Float = 15f,
     private val intersectionCircleStroke: Float = 5f,
@@ -84,8 +86,13 @@ class CustomLineRendererWithIcon(
         strokeWidth = lineWidth
         style = Paint.Style.STROKE
     }
-    private val intersectionPaint = Paint().apply {
-        color = intersectionCircleColor
+    private val intersectionPaint1 = Paint().apply {
+        color = intersectionCircleColor1
+        style = Paint.Style.FILL
+        isAntiAlias = true
+    }
+    private val intersectionPaint2 = Paint().apply {
+        color = intersectionCircleColor2
         style = Paint.Style.FILL
         isAntiAlias = true
     }
@@ -108,46 +115,57 @@ class CustomLineRendererWithIcon(
         val viewPortHandler = mViewPortHandler
         val data = mChart.data
         if (data != null && data.dataSetCount > 0) {
-            val dataSet = data.getDataSetByIndex(0) as ILineDataSet
-            val transformer = mChart.getTransformer(dataSet.axisDependency)
-            val entryToShow = highlightEntry ?: run {
-                val centerX =
-                    viewPortHandler.contentLeft() + viewPortHandler.contentWidth() * lineRatio
-                val pixels = floatArrayOf(centerX, 0f)
-                transformer.pixelsToValue(pixels)
-                val centerXValue = pixels[0]
-                findClosestEntry(dataSet, centerXValue)
+            // 计算垂直线的像素位置和 xValue
+            val centerX = viewPortHandler.contentLeft() + viewPortHandler.contentWidth() * lineRatio
+            val pixels = floatArrayOf(centerX, 0f)
+            val firstDataSet = data.getDataSetByIndex(0)
+            val transformer = mChart.getTransformer(firstDataSet.axisDependency)
+            transformer.pixelsToValue(pixels)
+            val centerXValue = pixels[0]
+
+            var updatedEntry: Entry? = null
+
+            // 遍历所有数据集
+            for (dataSetIndex in 0 until data.dataSetCount) {
+                val dataSet = data.getDataSetByIndex(dataSetIndex) as ILineDataSet
+                val t = mChart.getTransformer(dataSet.axisDependency)
+                val entry = highlightEntry ?: findClosestEntry(dataSet, centerXValue)
+                entry?.let {
+                    val point = floatArrayOf(it.x, it.y)
+                    t.pointValuesToPixel(point)
+                    val left = viewPortHandler.contentLeft()
+                    val right = viewPortHandler.contentRight()
+                    if (point[0] in left..right) {
+                        // 只画一次垂直线
+                        if (dataSetIndex == 0) {
+                            canvas.drawLine(
+                                point[0],
+                                viewPortHandler.contentTop(),
+                                point[0],
+                                viewPortHandler.contentBottom(),
+                                linePaint
+                            )
+                        }
+                        canvas.drawCircle(
+                            point[0],
+                            point[1],
+                            intersectionCircleRadius,
+                            if (dataSetIndex % 2 == 0) intersectionPaint1 else intersectionPaint2
+                        )
+                        canvas.drawCircle(
+                            point[0],
+                            point[1],
+                            intersectionCircleRadius,
+                            intersectionStrokePaint
+                        )
+                    }
+                    // 只更新第一个数据集的 entry
+                    if (dataSetIndex == 0) updatedEntry = it
+                }
             }
-            entryToShow?.let { entry ->
-                val point = floatArrayOf(entry.x, entry.y)
-                transformer.pointValuesToPixel(point)
-                val left = viewPortHandler.contentLeft()
-                val right = viewPortHandler.contentRight()
-                if (point[0] in left..right) { // 判断是否在可见范围
-                    canvas.drawLine(
-                        point[0],
-                        viewPortHandler.contentTop(),
-                        point[0],
-                        viewPortHandler.contentBottom(),
-                        linePaint
-                    )
-                    canvas.drawCircle(
-                        point[0],
-                        point[1],
-                        intersectionCircleRadius,
-                        intersectionPaint
-                    )
-                    canvas.drawCircle(
-                        point[0],
-                        point[1],
-                        intersectionCircleRadius,
-                        intersectionStrokePaint
-                    )
-                }
-                if (currentSelectedEntry != entry) {
-                    currentSelectedEntry = entry
-                    onIntersectionUpdate?.invoke(entry)
-                }
+            if (currentSelectedEntry != updatedEntry) {
+                currentSelectedEntry = updatedEntry
+                onIntersectionUpdate?.invoke(updatedEntry!!)
             }
         }
     }
@@ -188,15 +206,15 @@ class CustomLineRendererWithIcon(
 
 // 生成 LineData
 fun generateLineDataFromChartPoints(
-    data: List<ChartPoint>,
+    chartModel: TimelyChartModel,
     primaryColor: Int,
     secondaryColor: Int,
     endColor: Int
 ): LineData {
-    val entries = data.mapIndexed { idx, point ->
+    val entries1 = chartModel.data1.mapIndexed { idx, point ->
         Entry(idx.toFloat(), point.value)
     }
-    val dataSet = LineDataSet(entries, "数据").apply {
+    val dataSet1 = LineDataSet(entries1, chartModel.dataName1).apply {
         color = primaryColor
         valueTextColor = Color.BLACK
         lineWidth = 2.5f
@@ -211,7 +229,25 @@ fun generateLineDataFromChartPoints(
         )
         fillDrawable = gradientDrawable
     }
-    return LineData(dataSet)
+
+    if (chartModel.data2 != null) {
+        val entries2 = chartModel.data2.mapIndexed { idx, point ->
+            Entry(idx.toFloat(), point.value)
+        }
+        val dataSet2 = LineDataSet(entries2, chartModel.dataName2).apply {
+            color = secondaryColor
+            valueTextColor = Color.BLACK
+            lineWidth = 2.5f
+            circleRadius = 0f
+            setDrawValues(false)
+            setDrawCircles(false)
+            mode = LineDataSet.Mode.CUBIC_BEZIER
+            enableDashedLine(20f, 10f, 0f)
+        }
+        return LineData(dataSet1, dataSet2)
+    } else {
+        return LineData(dataSet1)
+    }
 }
 
 // Composable 适配新数据结构
@@ -252,9 +288,8 @@ fun CustomLineChartView(
                     false // 让 chart 正常处理事件
                 }
 
-
                 xAxis.apply {
-                    valueFormatter = ChartPointTimeFormatter(chartModel.data)
+                    valueFormatter = ChartPointTimeFormatter(chartModel.data1)
                     position = XAxis.XAxisPosition.BOTTOM
                     textColor = 0X66000000.toInt()
                     axisLineColor = 0X11000000.toInt()
@@ -279,15 +314,24 @@ fun CustomLineChartView(
                 }
 
                 axisRight.isEnabled = false
-                legend.isEnabled = false
+
+                if (chartModel.data2 != null) {
+                    legend.isEnabled = true
+                    legend.textSize = 12f
+                    legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM // 位置
+                    legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
+                    legend.form = Legend.LegendForm.LINE
+                }
+
 
                 val customRenderer = CustomLineRendererWithIcon(
                     this,
-                    chartPoints = chartModel.data,
+                    chartPoints = chartModel.data1,
                     lineColor = 0X33000000.toInt(),
                     lineWidth = 6f,
                     intersectionCircleStroke = 7f,
-                    intersectionCircleColor = chartModel.type.primaryColor,
+                    intersectionCircleColor1 = chartModel.type.primaryColor,
+                    intersectionCircleColor2 = chartModel.type.secondaryColor,
                     onIntersectionUpdate = { entry ->
                         val idx = entry.x.toInt()
                         onEntryLocked.invoke(idx)
@@ -301,7 +345,7 @@ fun CustomLineChartView(
 
                 dataRef =
                     generateLineDataFromChartPoints(
-                        chartModel.data,
+                        chartModel,
                         chartModel.type.primaryColor,
                         chartModel.type.secondaryColor,
                         chartModel.type.endColor
@@ -394,13 +438,23 @@ fun CustomLineChartView(
                         }
                     }
 
+                    if (chartModel.data2 != null) {
+                        legend.isEnabled = true
+                        legend.textSize = 12f
+                        legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM // 位置
+                        legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
+                        legend.form = Legend.LegendForm.LINE
+                    } else
+                        legend.isEnabled = false
+
                     val customRenderer = CustomLineRendererWithIcon(
                         this,
-                        chartPoints = chartModel.data,
+                        chartPoints = chartModel.data1,
                         lineColor = 0X33000000.toInt(),
                         lineWidth = 6f,
                         intersectionCircleStroke = 7f,
-                        intersectionCircleColor = chartModel.type.primaryColor,
+                        intersectionCircleColor1 = chartModel.type.primaryColor,
+                        intersectionCircleColor2 = chartModel.type.secondaryColor,
                         onIntersectionUpdate = { entry ->
                             val idx = entry.x.toInt()
                             onEntryLocked.invoke(idx)
@@ -414,7 +468,7 @@ fun CustomLineChartView(
 
                     dataRef =
                         generateLineDataFromChartPoints(
-                            chartModel.data,
+                            chartModel,
                             chartModel.type.primaryColor,
                             chartModel.type.secondaryColor,
                             chartModel.type.endColor
@@ -426,7 +480,7 @@ fun CustomLineChartView(
                     moveViewToX(0f)
                     invalidate()
                 }
-                Log.i("Chart", "Chart data updated, entry count: ${chartModel.data.size}")
+                Log.i("Chart", "Chart data updated, entry count: ${chartModel.data1.size}")
             }
 
             rendererRef?.let {

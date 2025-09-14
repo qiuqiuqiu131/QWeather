@@ -328,7 +328,7 @@ fun WeatherCenterPage(
         weatherModel.weatherNow?.let {
             WeatherIndexCard(it, weatherDaily?.uvIndex, onClick = {
                 navToWeatherDetail(
-                    navController, pageName = "实况天气",
+                    navController, pageName = "每日天气",
                     location = weatherModel.location
                 )
             })

@@ -1,5 +1,7 @@
 package com.qiuqiuqiu.weatherPredicate.ui.screen.weather
 
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -79,8 +81,15 @@ fun WeatherDetailScreen(
         val coroutineScope = rememberCoroutineScope()
 
         val switchPage: ((Int) -> Unit) = { index ->
-            if (viewModel.pageIndex.intValue != index && !pageState.isScrollInProgress) {
-                coroutineScope.launch { pageState.animateScrollToPage(index) }
+            if (viewModel.pageIndex.intValue != index) {
+                coroutineScope.launch {
+                    pageState.animateScrollToPage(
+                        index, animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioNoBouncy,
+                            stiffness = Spring.StiffnessLow,
+                        )
+                    )
+                }
             }
         }
 
