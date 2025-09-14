@@ -3,18 +3,38 @@ package com.qiuqiuqiu.weatherPredicate.ui.normal
 import android.annotation.SuppressLint
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+
+class NullNestScrollConnection : NestedScrollConnection {
+    override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+        return Offset.Zero
+    }
+
+    override fun onPostScroll(
+        consumed: Offset,
+        available: Offset,
+        source: NestedScrollSource
+    ): Offset {
+        return available
+    }
+}
 
 @SuppressLint("FrequentlyChangingValue")
 @Composable
@@ -28,6 +48,7 @@ fun ScrollableCenterRowList(
 ) {
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+    val nestScrollConnection = remember { NullNestScrollConnection() }
 
     LaunchedEffect(itemIndex) {
         if (itemCount > 0 && listState.layoutInfo.visibleItemsInfo.isNotEmpty()) {
@@ -62,7 +83,13 @@ fun ScrollableCenterRowList(
         }
     }
 
-    LazyRow(state = listState, modifier = modifier, userScrollEnabled = canScroll) {
+
+    LazyRow(
+        state = listState,
+        horizontalArrangement = Arrangement.Center,
+        modifier = modifier.nestedScroll(nestScrollConnection),
+        userScrollEnabled = canScroll
+    ) {
         items(itemCount) { index ->
             Box(
                 Modifier

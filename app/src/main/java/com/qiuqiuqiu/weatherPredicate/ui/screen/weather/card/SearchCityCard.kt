@@ -30,7 +30,7 @@ fun SearchCityCard(cities: List<Location>, onClick: ((Location) -> Unit)? = null
             itemsIndexed(cities) { index, it ->
                 SearchCityItem(it, onClick = onClick)
                 if (index != size - 1)
-                    CustomDivider(modifier = Modifier.alpha(0.7f))
+                    CustomDivider(modifier = Modifier.alpha(0.4f))
             }
         }
     }

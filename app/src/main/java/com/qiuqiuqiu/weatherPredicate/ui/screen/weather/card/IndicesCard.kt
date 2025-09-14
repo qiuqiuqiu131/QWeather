@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -68,11 +69,13 @@ fun LifeIndexCard(
         ) {
             val newIndices = indices.filter { it.name.length <= 8 }
             items(newIndices) { it ->
+                // val data = indicesMapper(it.type.toInt())
                 TipItem(
                     it.name.toMaterialIcon(),
                     it.category,
                     it.name,
-                    onClick = { onItemClick?.invoke(it) }
+                    onClick = { onItemClick?.invoke(it) },
+                    // data.nightColor
                 )
             }
         }
@@ -122,7 +125,13 @@ fun WeatherIndexCard(weather: WeatherNow, uvIndex: String?, onClick: (() -> Unit
 }
 
 @Composable
-fun TipItem(icon: ImageVector, content: String, name: String, onClick: (() -> Unit)? = null) {
+fun TipItem(
+    icon: ImageVector,
+    content: String,
+    name: String,
+    onClick: (() -> Unit)? = null,
+    color: Color = MaterialTheme.colorScheme.onSecondary,
+) {
     BaseItem(innerModifier = Modifier.padding(vertical = 8.dp), onClick = onClick) {
         Column(
             modifier = Modifier.width(85.dp),
@@ -131,6 +140,7 @@ fun TipItem(icon: ImageVector, content: String, name: String, onClick: (() -> Un
             Icon(
                 imageVector = icon,
                 contentDescription = null,
+                tint = color,
                 modifier = Modifier
                     .size(40.dp)
                     .padding(top = 6.dp, bottom = 8.dp)

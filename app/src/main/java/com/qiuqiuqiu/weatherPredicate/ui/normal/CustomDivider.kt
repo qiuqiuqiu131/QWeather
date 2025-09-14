@@ -9,6 +9,6 @@ import androidx.compose.ui.Modifier
 fun CustomDivider(modifier: Modifier = Modifier) {
     HorizontalDivider(
         modifier = modifier,
-        color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.7f)
+        color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.5f)
     )
 }

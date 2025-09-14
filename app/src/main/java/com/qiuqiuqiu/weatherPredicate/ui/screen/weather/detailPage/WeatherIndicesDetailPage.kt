@@ -1,5 +1,6 @@
 package com.qiuqiuqiu.weatherPredicate.ui.screen.weather.detailPage
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
@@ -41,14 +43,18 @@ import androidx.compose.ui.unit.sp
 import com.qiuqiuqiu.weatherPredicate.tools.toMaterialFillIcon
 import com.qiuqiuqiu.weatherPredicate.ui.normal.IconList
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.WeatherDailyInfoCard
+import com.qiuqiuqiu.weatherPredicate.viewModel.weather.WeatherDetailViewModel
 import com.qweather.sdk.response.indices.IndicesDaily
 import com.qweather.sdk.response.weather.WeatherDaily
+import java.time.LocalDate
 import kotlin.math.max
 
+@SuppressLint("NewApi")
 @Composable
 fun WeatherIndicesPage(
     weatherIndices: List<IndicesDaily>?,
     weatherDailies: List<WeatherDaily>?,
+    viewModel: WeatherDetailViewModel,
     modifier: Modifier = Modifier,
     currentPageIndex: Int,
     pageIndex: Int,
@@ -66,13 +72,16 @@ fun WeatherIndicesPage(
         if (weatherIndices != null) {
             val currentIndices = weatherIndices[currentIndex]
             val indicesData = indicesMapper(currentIndices.type.toInt())
-            val color = if (isSystemInDarkTheme()) indicesData.nightColor else indicesData.dayColor
+            val colorBg =
+                if (isSystemInDarkTheme()) indicesData.nightColor else indicesData.dayColor
+            val colorIcon =
+                if (isSystemInDarkTheme()) indicesData.dayColor else indicesData.nightColor
             val level = currentIndices.level.toInt()
             LaunchedEffect(currentPageIndex) {
                 if (currentPageIndex == pageIndex)
-                    onColorChanged?.invoke(color)
+                    onColorChanged?.invoke(colorBg)
             }
-            Card(
+            ElevatedCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp),
@@ -84,7 +93,7 @@ fun WeatherIndicesPage(
                         bottomEnd = 36.dp
                     ),
                 colors = CardDefaults.cardColors()
-                    .copy(containerColor = color)
+                    .copy(containerColor = colorBg)
             ) {
                 Row(modifier = Modifier.padding(start = 26.dp, top = 20.dp, end = 8.dp)) {
                     Column(
@@ -114,15 +123,10 @@ fun WeatherIndicesPage(
                                     selected = (index == currentIndex),
                                     colors = SegmentedButtonDefaults.colors()
                                         .copy(
-                                            activeContainerColor = MaterialTheme.colorScheme.surfaceContainer.copy(
-                                                alpha = 0.7f
-                                            ),
-                                            inactiveContentColor = MaterialTheme.colorScheme.onSecondary.copy(
-                                                alpha = 0.6f
-                                            ),
-                                            inactiveContainerColor = MaterialTheme.colorScheme.surfaceContainer.copy(
-                                                alpha = 0.4f
-                                            )
+                                            activeContainerColor = MaterialTheme.colorScheme.primary,
+                                            activeContentColor = MaterialTheme.colorScheme.background,
+                                            inactiveContentColor = MaterialTheme.colorScheme.onSecondary,
+                                            inactiveContainerColor = MaterialTheme.colorScheme.surfaceContainer
                                         ),
                                     icon = {},
                                     label = {
@@ -182,6 +186,7 @@ fun WeatherIndicesPage(
                         Icon(
                             currentIndices.name.toMaterialFillIcon(),
                             null,
+                            tint = colorIcon,
                             modifier = Modifier
                                 .size(60.dp)
                                 .alpha(0.9f)
@@ -196,18 +201,18 @@ fun WeatherIndicesPage(
                     }
                 }
             }
-        }
 
-        if (weatherDailies != null) {
-            WeatherDailyInfoCard(
-                weatherDailies[currentIndex],
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
-                onClick = {
-                    onSwitchPage?.invoke(1)
-                }
-            )
+            if (weatherDailies != null) {
+                WeatherDailyInfoCard(
+                    weatherDailies[currentIndex],
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+                    onClick = { type ->
+                        viewModel.moveToHourlyPage(type, LocalDate.parse(currentIndices.date))
+                        onSwitchPage?.invoke(1)
+                    }
+                )
+            }
         }
-
     }
 }
 

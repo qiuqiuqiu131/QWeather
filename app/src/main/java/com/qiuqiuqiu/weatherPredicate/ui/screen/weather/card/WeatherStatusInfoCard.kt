@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseCard
@@ -47,6 +48,8 @@ fun WeatherStatusInfoCard(
     indicesDaily: List<IndicesDaily>,
     modifier: Modifier = Modifier,
     bgColor: Color? = null,
+    icon: ImageVector = Icons.Outlined.NotificationsActive,
+    iconColor: Color = MaterialTheme.colorScheme.onSecondary,
     onIndicesClick: ((name: String) -> Unit)? = null
 ) {
     val categories = indicesDaily.mapNotNull { it.text }.filter { it.isNotBlank() }
@@ -131,8 +134,9 @@ fun WeatherStatusInfoCard(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = Icons.Outlined.NotificationsActive,
+                            imageVector = icon,
                             contentDescription = null,
+                            tint = iconColor,
                             modifier = Modifier
                                 .graphicsLayer { this.rotationZ = rotation }
                                 .size(20.dp)

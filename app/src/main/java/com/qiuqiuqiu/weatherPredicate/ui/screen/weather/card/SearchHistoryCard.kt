@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -67,13 +67,11 @@ fun SearchHistoryItem(
     history: SearchHistory,
     onClick: ((SearchHistory) -> Unit)? = null
 ) {
-    Card(
+    ElevatedCard(
         shape = RoundedCornerShape(16.dp),
-        colors = CardColors(
+        colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainer,
-            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-            disabledContainerColor = MaterialTheme.colorScheme.onSurface,
-            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
         ),
         modifier = Modifier
             .padding(horizontal = 4.dp, vertical = 4.dp)
@@ -81,7 +79,6 @@ fun SearchHistoryItem(
             .pointerInput(Unit) {
                 detectTapGestures(onTap = { onClick?.invoke(history) })
             }
-
     ) {
         Text(
             text = history.name,

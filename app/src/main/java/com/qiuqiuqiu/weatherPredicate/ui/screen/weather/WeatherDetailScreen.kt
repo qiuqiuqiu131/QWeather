@@ -170,6 +170,7 @@ fun WeatherDetailScreen(
                                 }?.second, weatherModel.weatherDailies?.take(3),
                                 currentPageIndex = pageState.targetPage,
                                 pageIndex = it,
+                                viewModel = viewModel,
                                 onColorChanged = { color ->
                                     topBarColor = color
                                 },
