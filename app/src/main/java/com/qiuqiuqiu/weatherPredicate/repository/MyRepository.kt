@@ -1,7 +1,5 @@
 package com.qiuqiuqiu.weatherPredicate.repository
 
-import android.content.ContentValues.TAG
-import android.util.Log
 import com.qiuqiuqiu.weatherPredicate.model.JieQiResponse
 import com.qiuqiuqiu.weatherPredicate.model.TimeResponse
 import com.qiuqiuqiu.weatherPredicate.model.TouristSpotResponse
@@ -27,8 +25,8 @@ class JieQiRepository @Inject constructor(
     private val api: TianApiCities,
     private val apiKeyProvider: ApiKeyProvider
 ) {
-    suspend fun getJieQi(word: String,year:String): JieQiResponse? {
-        val response = api.getJieQi(apiKeyProvider.key,word,year)
+    suspend fun getJieQi(word: String, year: String): JieQiResponse? {
+        val response = api.getJieQi(apiKeyProvider.key, word, year)
         return response
     }
 }
@@ -55,7 +53,7 @@ class TourRepository @Inject constructor(
         page: String? = "1"
     ): TouristSpotResponse? {
         // 三种条件只能选其一
-     //   Log.d(TAG, "getTourSpot params -> word='${word.orEmpty()}', province='${province.orEmpty()}', city='${city.orEmpty()}', num=$num, page='$page'")
+        //   Log.d(TAG, "getTourSpot params -> word='${word.orEmpty()}', province='${province.orEmpty()}', city='${city.orEmpty()}', num=$num, page='$page'")
         val nonEmptyFields = listOf(word, province, city).count { !it.isNullOrBlank() }
         if (nonEmptyFields == 0) return null // 没有搜索条件
         if (nonEmptyFields > 1) throw IllegalArgumentException("只能选择一种搜索条件")
@@ -75,12 +73,37 @@ class TourRepository @Inject constructor(
     }
 
 
-    suspend fun getTourSpotByType(type: TourSearchType, query: String, num: Int = 10, page: String? = "1"): TouristSpotResponse? {
+    suspend fun getTourSpotByType(
+        type: TourSearchType,
+        query: String,
+        num: Int = 10,
+        page: String? = "1"
+    ): TouristSpotResponse? {
         val q = query.trim().takeIf { it.isNotEmpty() }
         return when (type) {
-            TourSearchType.NAME -> getTourSpot(word = q, province = null, city = null, num = num, page = page)
-            TourSearchType.PROVINCE -> getTourSpot(word = null, province = q, city = null, num = num, page = page)
-            TourSearchType.CITY -> getTourSpot(word = null, province = null, city = q, num = num, page = page)
+            TourSearchType.NAME -> getTourSpot(
+                word = q,
+                province = null,
+                city = null,
+                num = num,
+                page = page
+            )
+
+            TourSearchType.PROVINCE -> getTourSpot(
+                word = null,
+                province = q,
+                city = null,
+                num = num,
+                page = page
+            )
+
+            TourSearchType.CITY -> getTourSpot(
+                word = null,
+                province = null,
+                city = q,
+                num = num,
+                page = page
+            )
         }
     }
 }

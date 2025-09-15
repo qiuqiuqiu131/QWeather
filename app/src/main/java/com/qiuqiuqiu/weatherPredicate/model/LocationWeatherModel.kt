@@ -1,5 +1,6 @@
 package com.qiuqiuqiu.weatherPredicate.model
 
+import com.qweather.sdk.response.air.v1.AirHourly
 import com.qweather.sdk.response.air.v1.AirV1CurrentResponse
 import com.qweather.sdk.response.geo.Location
 import com.qweather.sdk.response.indices.IndicesDaily
@@ -23,4 +24,5 @@ data class LocationWeatherModel(
     var weatherDailiesMore: List<WeatherDaily>? = null,
     var indicesDailiesMore: List<Pair<String, List<IndicesDaily>>>? = null,
     var weatherHourliesMore: List<WeatherHourly>? = null,
+    var airHourlies: List<AirHourly>? = null,
 )

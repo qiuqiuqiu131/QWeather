@@ -163,6 +163,7 @@ fun WeatherDetailScreen(
                                     )
 
                                     "空气质量" -> WeatherAirDetailPage(
+                                        model = weatherModel,
                                         currentPageIndex = pageState.targetPage,
                                         pageIndex = it,
                                         onColorChanged = { color ->
@@ -173,18 +174,21 @@ fun WeatherDetailScreen(
                                 }
                             }
 
-                            else -> WeatherIndicesPage(
-                                weatherIndices = weatherModel.indicesDailiesMore?.firstOrNull {
-                                    it.first.replace("指数", "") == pageName
-                                }?.second, weatherModel.weatherDailies?.take(3),
-                                currentPageIndex = pageState.targetPage,
-                                pageIndex = it,
-                                viewModel = viewModel,
-                                onColorChanged = { color ->
-                                    topBarColor = color
-                                },
-                                onSwitchPage = switchPage
-                            )
+                            else -> {
+                                WeatherIndicesPage(
+                                    weatherIndices = weatherModel.indicesDailiesMore?.firstOrNull {
+                                        it.first.replace("指数", "") == pageName
+                                    }?.second, weatherModel.weatherDailies?.take(3),
+                                    currentPageIndex = pageState.targetPage,
+                                    pageIndex = it,
+                                    viewModel = viewModel,
+                                    detailModel = hiltViewModel(key = "$it$pageInfo"),
+                                    onColorChanged = { color ->
+                                        topBarColor = color
+                                    },
+                                    onSwitchPage = switchPage
+                                )
+                            }
                         }
                     }
                 }

@@ -21,6 +21,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -33,6 +37,7 @@ import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseItem
 import com.qiuqiuqiu.weatherPredicate.ui.normal.CustomDivider
 import com.qiuqiuqiu.weatherPredicate.ui.normal.WeatherIcon
 import com.qweather.sdk.response.weather.WeatherDaily
+import kotlinx.coroutines.delay
 
 @Composable
 fun WeatherDailyDetailPage(
@@ -41,18 +46,26 @@ fun WeatherDailyDetailPage(
     pageIndex: Int,
     onColorChanged: ((Color) -> Unit)? = null
 ) {
+    var showChart by remember { mutableStateOf(false) }
     val color = MaterialTheme.colorScheme.background
     LaunchedEffect(currentPageIndex) {
-        if (currentPageIndex == pageIndex)
+        if (currentPageIndex == pageIndex) {
             onColorChanged?.invoke(color)
+            if (!showChart) {
+                delay(200)
+                showChart = true
+            }
+        }
     }
 
-    Column(
-        modifier =
-            modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-    ) { WeatherDailyDetailCard(weatherDailies) }
+    if (showChart) {
+        Column(
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+        ) { WeatherDailyDetailCard(weatherDailies) }
+    }
 }
 
 @Composable

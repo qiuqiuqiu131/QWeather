@@ -15,7 +15,11 @@ import com.qweather.sdk.parameter.geo.GeoCityTopParameter
 import com.qweather.sdk.parameter.indices.IndicesParameter
 import com.qweather.sdk.parameter.warning.WarningNowParameter
 import com.qweather.sdk.parameter.weather.WeatherParameter
+import com.qweather.sdk.response.air.v1.AirDaily
+import com.qweather.sdk.response.air.v1.AirHourly
 import com.qweather.sdk.response.air.v1.AirV1CurrentResponse
+import com.qweather.sdk.response.air.v1.AirV1DailyResponse
+import com.qweather.sdk.response.air.v1.AirV1HourlyResponse
 import com.qweather.sdk.response.error.ErrorResponse
 import com.qweather.sdk.response.geo.GeoCityLookupResponse
 import com.qweather.sdk.response.geo.GeoCityTopResponse
@@ -94,6 +98,18 @@ interface IQWeatherService {
      * @param locationId 经纬度坐标
      */
     suspend fun getAirCurrent(longitude: Double, latitude: Double): AirV1CurrentResponse
+
+    /**
+     * 获取逐小时空气质量
+     * @param locationId 经纬度坐标
+     */
+    suspend fun getAirHourly(longitude: Double, latitude: Double): List<AirHourly>
+
+    /**
+     * 获取逐日空气质量
+     * @param locationId 经纬度坐标
+     */
+    suspend fun getAirDaily(longitude: Double, latitude: Double): List<AirDaily>
 
     /**
      * 获取城市信息
@@ -345,6 +361,54 @@ class QWeatherService @Inject constructor(@ApplicationContext private val contex
             instance.airCurrent(parameter, object : Callback<AirV1CurrentResponse> {
                 override fun onSuccess(response: AirV1CurrentResponse) {
                     cont.resume(response, null)
+                }
+
+                override fun onFailure(errorResponse: ErrorResponse) {
+                    Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
+                    cont.resumeWithException(Exception(errorResponse.toString()))
+                }
+
+                override fun onException(e: Throwable) {
+                    Log.e(TAG, "getWeatherNow onException: $e")
+                    cont.resumeWithException(e)
+                }
+            })
+        }
+    }
+
+    override suspend fun getAirHourly(
+        longitude: Double,
+        latitude: Double
+    ): List<AirHourly> {
+        val parameter = AirV1Parameter(latitude, longitude).setLang(Lang.ZH_HANS)
+        return suspendCancellableCoroutine { cont ->
+            instance.airHourly(parameter, object : Callback<AirV1HourlyResponse> {
+                override fun onSuccess(response: AirV1HourlyResponse) {
+                    cont.resume(response.hours, null)
+                }
+
+                override fun onFailure(errorResponse: ErrorResponse) {
+                    Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
+                    cont.resumeWithException(Exception(errorResponse.toString()))
+                }
+
+                override fun onException(e: Throwable) {
+                    Log.e(TAG, "getWeatherNow onException: $e")
+                    cont.resumeWithException(e)
+                }
+            })
+        }
+    }
+
+    override suspend fun getAirDaily(
+        longitude: Double,
+        latitude: Double
+    ): List<AirDaily> {
+        val parameter = AirV1Parameter(latitude, longitude).setLang(Lang.ZH_HANS)
+        return suspendCancellableCoroutine { cont ->
+            instance.airDaily(parameter, object : Callback<AirV1DailyResponse> {
+                override fun onSuccess(response: AirV1DailyResponse) {
+                    cont.resume(response.days, null)
                 }
 
                 override fun onFailure(errorResponse: ErrorResponse) {

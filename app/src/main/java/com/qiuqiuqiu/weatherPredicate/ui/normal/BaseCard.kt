@@ -63,6 +63,7 @@ fun BaseCard(
     modifier: Modifier = Modifier,
     title: String? = null,
     bgColor: Color? = null,
+    pressColor: Color? = null,
     onClick: (() -> Unit)? = null,
     endCorner: @Composable (BoxScope.() -> Unit)? = null,
     content: @Composable (ColumnScope.() -> Unit)
@@ -71,7 +72,10 @@ fun BaseCard(
         bgColor = bgColor,
         modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
     ) {
-        BaseItem(onClick = onClick) {
+        BaseItem(
+            onClick = onClick,
+            bgColor = pressColor ?: MaterialTheme.colorScheme.tertiaryContainer
+        ) {
             Column(modifier = modifier) {
                 if (title != null || endCorner != null) {
                     Box(

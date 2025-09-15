@@ -15,6 +15,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -27,6 +31,7 @@ import com.qiuqiuqiu.weatherPredicate.ui.screen.map.ChinaMapScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.WeatherDailyInfoCard
 import com.qweather.sdk.response.weather.WeatherDaily
 import com.qweather.sdk.response.weather.WeatherNow
+import kotlinx.coroutines.delay
 
 @Composable
 fun WeatherCurrentDetailPage(
@@ -39,83 +44,90 @@ fun WeatherCurrentDetailPage(
     onColorChanged: ((Color) -> Unit)? = null,
     onSwitchPage: ((index: Int) -> Unit)? = null
 ) {
+    var showChart by remember { mutableStateOf(false) }
     LaunchedEffect(currentPageIndex) {
-        if (currentPageIndex == pageIndex)
+        if (currentPageIndex == pageIndex) {
             onColorChanged?.invoke(Color.Transparent)
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(modifier = Modifier.height(170.dp))
-        weatherNow?.let {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 4.dp)
-                    .height(75.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-
-                Text(fontWeight = FontWeight.Light, fontSize = 70.sp, text = it.temp)
-                Box(modifier = Modifier.fillMaxHeight()) {
-                    Text(
-                        "℃",
-                        style = MaterialTheme.typography.labelLarge,
-                        modifier = Modifier
-                            .padding(top = 4.dp)
-                            .align(alignment = Alignment.TopStart)
-                    )
-
-                    Text(
-                        text = it.text,
-                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
-                        modifier = Modifier
-                            .padding(start = 4.dp, bottom = 4.dp)
-                            .align(alignment = Alignment.BottomStart)
-                    )
-                }
+            if (!showChart) {
+                delay(300)
+                showChart = true
             }
         }
-
-        Row(
-            modifier = Modifier
-                .padding(horizontal = 14.dp)
-                .fillMaxWidth()
-        ) {
-            Text(
-                text = "实时指数",
-                style = MaterialTheme.typography.labelMedium,
-                modifier = Modifier.alpha(0.4f)
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Text(
-                text = if (!lastUpdateTime.isNullOrBlank()) "更新于 $lastUpdateTime" else "",
-                style = MaterialTheme.typography.labelMedium,
-                modifier = Modifier.alpha(0.4f)
-            )
-        }
-
-        weatherDaily?.let {
-            WeatherDailyInfoCard(
-                weatherDaily,
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                onClick = { onSwitchPage?.invoke(1) }
-            )
-        }
-
-        DefaultCard(modifier = Modifier.padding(vertical = 4.dp, horizontal = 12.dp)) {
-            ChinaMapScreen(
-                modifier = Modifier
-                    .height(230.dp)
-            )
-        }
-
-
-        Spacer(modifier = Modifier.height(100.dp))
     }
 
+    if (showChart) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.height(170.dp))
+            weatherNow?.let {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 4.dp)
+                        .height(75.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+
+                    Text(fontWeight = FontWeight.Light, fontSize = 70.sp, text = it.temp)
+                    Box(modifier = Modifier.fillMaxHeight()) {
+                        Text(
+                            "℃",
+                            style = MaterialTheme.typography.labelLarge,
+                            modifier = Modifier
+                                .padding(top = 4.dp)
+                                .align(alignment = Alignment.TopStart)
+                        )
+
+                        Text(
+                            text = it.text,
+                            style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
+                            modifier = Modifier
+                                .padding(start = 4.dp, bottom = 4.dp)
+                                .align(alignment = Alignment.BottomStart)
+                        )
+                    }
+                }
+            }
+
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 14.dp)
+                    .fillMaxWidth()
+            ) {
+                Text(
+                    text = "实时指数",
+                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier.alpha(0.4f)
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Text(
+                    text = if (!lastUpdateTime.isNullOrBlank()) "更新于 $lastUpdateTime" else "",
+                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier.alpha(0.4f)
+                )
+            }
+
+            weatherDaily?.let {
+                WeatherDailyInfoCard(
+                    weatherDaily,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    onClick = { onSwitchPage?.invoke(1) }
+                )
+            }
+
+            DefaultCard(modifier = Modifier.padding(vertical = 4.dp, horizontal = 12.dp)) {
+                ChinaMapScreen(
+                    modifier = Modifier
+                        .height(230.dp)
+                )
+            }
+
+
+            Spacer(modifier = Modifier.height(100.dp))
+        }
+    }
 }

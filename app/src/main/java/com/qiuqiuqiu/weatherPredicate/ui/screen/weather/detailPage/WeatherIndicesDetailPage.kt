@@ -1,6 +1,7 @@
 package com.qiuqiuqiu.weatherPredicate.ui.screen.weather.detailPage
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,14 +22,17 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -41,11 +45,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.qiuqiuqiu.weatherPredicate.tools.toMaterialFillIcon
+import com.qiuqiuqiu.weatherPredicate.ui.normal.CustomLineChartView
+import com.qiuqiuqiu.weatherPredicate.ui.normal.DefaultCard
 import com.qiuqiuqiu.weatherPredicate.ui.normal.IconList
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.WeatherDailyInfoCard
 import com.qiuqiuqiu.weatherPredicate.viewModel.weather.WeatherDetailViewModel
+import com.qiuqiuqiu.weatherPredicate.viewModel.weather.WeatherIndicesDetailViewModel
 import com.qweather.sdk.response.indices.IndicesDaily
 import com.qweather.sdk.response.weather.WeatherDaily
+import kotlinx.coroutines.delay
 import java.time.LocalDate
 import kotlin.math.max
 
@@ -55,6 +63,7 @@ fun WeatherIndicesPage(
     weatherIndices: List<IndicesDaily>?,
     weatherDailies: List<WeatherDaily>?,
     viewModel: WeatherDetailViewModel,
+    detailModel: WeatherIndicesDetailViewModel,
     modifier: Modifier = Modifier,
     currentPageIndex: Int,
     pageIndex: Int,
@@ -63,156 +72,214 @@ fun WeatherIndicesPage(
 ) {
     var currentIndex by remember { mutableIntStateOf(0) }
     val radioGroup = listOf("今天", "明天", "后天")
+    var showChart by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-    ) {
-        if (weatherIndices != null) {
-            val currentIndices = weatherIndices[currentIndex]
-            val indicesData = indicesMapper(currentIndices.type.toInt())
-            val colorBg =
-                if (isSystemInDarkTheme()) indicesData.nightColor else indicesData.dayColor
-            val colorIcon =
-                if (isSystemInDarkTheme()) indicesData.dayColor else indicesData.nightColor
-            val level = currentIndices.level.toInt()
-            LaunchedEffect(currentPageIndex) {
-                if (currentPageIndex == pageIndex)
-                    onColorChanged?.invoke(colorBg)
+    val chartModel = detailModel.chartModel.collectAsState()
+
+    if (!weatherIndices.isNullOrEmpty()) {
+        val currentIndices = weatherIndices[currentIndex]
+        val indicesData = indicesMapper(currentIndices.type.toInt())
+        val colorBg =
+            if (isSystemInDarkTheme()) indicesData.nightColor else indicesData.dayColor
+        val colorIcon =
+            if (isSystemInDarkTheme()) indicesData.dayColor else indicesData.nightColor
+        val level = currentIndices.level.toInt()
+
+        LaunchedEffect(currentPageIndex) {
+            if (currentPageIndex == pageIndex) {
+                onColorChanged?.invoke(colorBg)
+                detailModel.initChartModel(weatherIndices.first(), viewModel)
+                if (!showChart) {
+                    delay(300)
+                    showChart = true
+                }
             }
-            ElevatedCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp),
-                shape =
-                    RoundedCornerShape(
-                        topStart = 0.dp,
-                        topEnd = 0.dp,
-                        bottomStart = 36.dp,
-                        bottomEnd = 36.dp
-                    ),
-                colors = CardDefaults.cardColors()
-                    .copy(containerColor = colorBg)
-            ) {
-                Row(modifier = Modifier.padding(start = 26.dp, top = 20.dp, end = 8.dp)) {
-                    Column(
-                        modifier = Modifier
-                            .weight(1.7f)
-                            .fillMaxHeight()
-                    ) {
-                        SingleChoiceSegmentedButtonRow(
-                            space = 0.dp,
-                            modifier = Modifier.padding(bottom = 8.dp)
+        }
+
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+            if (showChart) {
+                ElevatedCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    shape =
+                        RoundedCornerShape(
+                            topStart = 0.dp,
+                            topEnd = 0.dp,
+                            bottomStart = 36.dp,
+                            bottomEnd = 36.dp
+                        ),
+                    colors = CardDefaults.cardColors()
+                        .copy(containerColor = colorBg)
+                ) {
+                    Row(modifier = Modifier.padding(start = 26.dp, top = 20.dp, end = 8.dp)) {
+                        Column(
+                            modifier = Modifier
+                                .weight(1.7f)
+                                .fillMaxHeight()
                         ) {
-                            radioGroup.forEachIndexed { index, string ->
-                                SegmentedButton(
-                                    shape = SegmentedButtonDefaults.itemShape(
-                                        index = index,
-                                        count = radioGroup.size
-                                    ),
-                                    border = SegmentedButtonDefaults.borderStroke(
-                                        MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
-                                        width = 0.dp
-                                    ),
-                                    onClick = {
-                                        currentIndex = index
-                                    },
-                                    modifier = Modifier
-                                        .height(30.dp),
-                                    selected = (index == currentIndex),
-                                    colors = SegmentedButtonDefaults.colors()
-                                        .copy(
-                                            activeContainerColor = MaterialTheme.colorScheme.primary,
-                                            activeContentColor = MaterialTheme.colorScheme.background,
-                                            inactiveContentColor = MaterialTheme.colorScheme.onSecondary,
-                                            inactiveContainerColor = MaterialTheme.colorScheme.surfaceContainer
+                            SingleChoiceSegmentedButtonRow(
+                                space = 0.dp,
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            ) {
+                                radioGroup.forEachIndexed { index, string ->
+                                    SegmentedButton(
+                                        shape = SegmentedButtonDefaults.itemShape(
+                                            index = index,
+                                            count = radioGroup.size
                                         ),
-                                    icon = {},
-                                    label = {
-                                        Text(
-                                            text = string,
-                                            style = MaterialTheme.typography.labelSmall.copy(
-                                                fontWeight = FontWeight.SemiBold
+                                        border = SegmentedButtonDefaults.borderStroke(
+                                            MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
+                                            width = 0.dp
+                                        ),
+                                        onClick = {
+                                            currentIndex = index
+                                        },
+                                        modifier = Modifier
+                                            .height(30.dp),
+                                        selected = (index == currentIndex),
+                                        colors = SegmentedButtonDefaults.colors()
+                                            .copy(
+                                                activeContainerColor = MaterialTheme.colorScheme.primary,
+                                                activeContentColor = MaterialTheme.colorScheme.background,
+                                                inactiveContentColor = MaterialTheme.colorScheme.onSecondary,
+                                                inactiveContainerColor = MaterialTheme.colorScheme.surfaceContainer
+                                            ),
+                                        icon = {},
+                                        label = {
+                                            Text(
+                                                text = string,
+                                                style = MaterialTheme.typography.labelSmall.copy(
+                                                    fontWeight = FontWeight.SemiBold
+                                                )
                                             )
+                                        })
+                                }
+                            }
+                            Text(
+                                text = currentIndices.category,
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                            Card(
+                                modifier = Modifier.padding(bottom = 8.dp, top = 2.dp),
+                                colors = CardDefaults.cardColors().copy(
+                                    containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.6f)
+                                )
+                            ) {
+                                IconList(
+                                    itemNumber = 5,
+                                    activeNumber = max(5 - (level * 5 / indicesData.maxLevel), 1),
+                                    iconSize = 22.dp,
+                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 0.dp),
+                                    icon = {
+                                        val size = if (it) 20.dp else 19.5.dp
+                                        val tint =
+                                            if (it) Color(0xFFFFC107) else Color.Gray.copy(alpha = 0.4f)
+                                        androidx.compose.material.Icon(
+                                            Icons.Rounded.Star,
+                                            null,
+                                            tint = tint,
+                                            modifier = Modifier.size(size)
                                         )
                                     })
                             }
-                        }
-                        Text(
-                            text = currentIndices.category,
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                        Card(
-                            modifier = Modifier.padding(bottom = 8.dp, top = 2.dp),
-                            colors = CardDefaults.cardColors().copy(
-                                containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.6f)
+
+                            Text(
+                                text = currentIndices.text,
+                                style = MaterialTheme.typography.bodySmall,
+                                maxLines = 3,
+                                lineHeight = 17.sp,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.alpha(0.8f)
                             )
+                        }
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
                         ) {
-                            IconList(
-                                itemNumber = 5,
-                                activeNumber = max(5 - (level * 5 / indicesData.maxLevel), 1),
-                                iconSize = 22.dp,
-                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 0.dp),
-                                icon = {
-                                    val size = if (it) 20.dp else 19.5.dp
-                                    val tint =
-                                        if (it) Color(0xFFFFC107) else Color.Gray.copy(alpha = 0.4f)
-                                    androidx.compose.material.Icon(
-                                        Icons.Rounded.Star,
-                                        null,
-                                        tint = tint,
-                                        modifier = Modifier.size(size)
-                                    )
-                                })
+                            Icon(
+                                currentIndices.name.toMaterialFillIcon(),
+                                null,
+                                tint = colorIcon,
+                                modifier = Modifier
+                                    .size(60.dp)
+                                    .alpha(0.9f)
+                            )
+                            Text(
+                                text = currentIndices.name,
+                                fontWeight = FontWeight.SemiBold,
+                                textAlign = TextAlign.Center,
+                                fontSize = 18.sp,
+                                modifier = Modifier.padding(bottom = 14.dp, top = 6.dp)
+                            )
+                        }
+                    }
+                }
+
+                if (weatherDailies != null) {
+                    WeatherDailyInfoCard(
+                        weatherDailies[currentIndex],
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+                        onClick = { type ->
+                            viewModel.moveToHourlyPage(type, LocalDate.parse(currentIndices.date))
+                            onSwitchPage?.invoke(1)
+                        }
+                    )
+                }
+
+                chartModel.value?.let { model ->
+                    DefaultCard(
+                        bgColor = MaterialTheme.colorScheme.background,
+                        modifier = Modifier
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(vertical = 12.dp, horizontal = 10.dp),
+                        ) {
+                            Text(
+                                text = model.type.text,
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.padding(start = 4.dp)
+                            )
+                            OutlinedCard(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 8.dp),
+                                colors = CardDefaults.outlinedCardColors(
+                                    containerColor = Color.Transparent,
+                                    contentColor = MaterialTheme.colorScheme.surface,
+                                ),
+                                border = BorderStroke(
+                                    1.dp,
+                                    MaterialTheme.colorScheme.surface.copy(0.6f)
+                                )
+                            ) {
+                                CustomLineChartView(
+                                    chartModel = model,
+                                    showLabel = true,
+                                    selectedIndex = detailModel.selectedIndex.intValue,
+                                    onEntryLocked = {
+                                        detailModel.selectedIndex.intValue = it
+                                    },
+                                    modifier = Modifier.height(200.dp),
+                                )
+                            }
                         }
 
-                        Text(
-                            text = currentIndices.text,
-                            style = MaterialTheme.typography.bodySmall,
-                            maxLines = 3,
-                            lineHeight = 17.sp,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.alpha(0.8f)
-                        )
-                    }
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Icon(
-                            currentIndices.name.toMaterialFillIcon(),
-                            null,
-                            tint = colorIcon,
-                            modifier = Modifier
-                                .size(60.dp)
-                                .alpha(0.9f)
-                        )
-                        Text(
-                            text = currentIndices.name,
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Center,
-                            fontSize = 18.sp,
-                            modifier = Modifier.padding(bottom = 14.dp, top = 6.dp)
-                        )
                     }
                 }
             }
-
-            if (weatherDailies != null) {
-                WeatherDailyInfoCard(
-                    weatherDailies[currentIndex],
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
-                    onClick = { type ->
-                        viewModel.moveToHourlyPage(type, LocalDate.parse(currentIndices.date))
-                        onSwitchPage?.invoke(1)
-                    }
-                )
-            }
         }
+
     }
 }
 

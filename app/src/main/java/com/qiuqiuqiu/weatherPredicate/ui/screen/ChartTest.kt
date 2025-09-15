@@ -90,6 +90,7 @@ fun CustomLineChartViewPreview() {
                     locked = data[it]
                     index = it
                 },
+                showLabel = true,
                 selectedIndex = index,
                 modifier = Modifier
                     .fillMaxWidth()

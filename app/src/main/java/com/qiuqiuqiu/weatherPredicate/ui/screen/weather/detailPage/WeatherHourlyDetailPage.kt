@@ -30,7 +30,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -50,6 +52,7 @@ import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.WeatherStatusInfoCa
 import com.qiuqiuqiu.weatherPredicate.viewModel.weather.HourlyDetailType
 import com.qiuqiuqiu.weatherPredicate.viewModel.weather.WeatherDetailViewModel
 import com.qweather.sdk.response.weather.WeatherHourly
+import kotlinx.coroutines.delay
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 
@@ -65,11 +68,18 @@ fun WeatherHourlyDetailPage(
 ) {
     val weatherModel by viewModel.locationWeather.collectAsState()
     val chartModel by viewModel.chartModel.collectAsState()
+    var showChart by remember { mutableStateOf(false) }
 
     val color = MaterialTheme.colorScheme.background
+
     LaunchedEffect(currentPageIndex) {
-        if (currentPageIndex == pageIndex)
+        if (currentPageIndex == pageIndex) {
             onColorChanged?.invoke(color)
+            if (!showChart) {
+                delay(400)
+                showChart = true
+            }
+        }
     }
 
     Column(
@@ -77,129 +87,137 @@ fun WeatherHourlyDetailPage(
             modifier
                 .fillMaxSize()
     ) {
-        viewModel.dates.value?.let {
-            ScrollableCenterRowList(
-                itemCount = it.size,
-                itemIndex = viewModel.selectedDate.intValue,
-                canScroll = true,
-                selectedItemChanged = { index ->
-                    viewModel.onDateChanged(index)
-                }, modifier = Modifier
-                    .background(color)
-                    .padding(start = 8.dp, end = 8.dp, bottom = 4.dp)
-            ) { index, isSelected ->
-                Column(
-                    modifier = Modifier.padding(vertical = 12.dp, horizontal = 3.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        style = MaterialTheme.typography.labelMedium,
-                        text = it[index].toString().toDayLabel(),
-                    )
-                    Card(
-                        shape = RoundedCornerShape(15.dp),
-                        colors = CardDefaults.cardColors().copy(
-                            containerColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
-                            contentColor = MaterialTheme.colorScheme.background
-                        ),
-                        modifier = Modifier
-                            .padding(top = 4.dp)
-                            .size(30.dp),
+        if (showChart) {
+            viewModel.dates.value?.let {
+                ScrollableCenterRowList(
+                    itemCount = it.size,
+                    itemIndex = viewModel.selectedDate.intValue,
+                    canScroll = true,
+                    selectedItemChanged = { index ->
+                        viewModel.onDateChanged(index)
+                    }, modifier = Modifier
+                        .background(color)
+                        .padding(start = 8.dp, end = 8.dp, bottom = 4.dp)
+                ) { index, isSelected ->
+                    Column(
+                        modifier = Modifier.padding(vertical = 12.dp, horizontal = 3.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            style = MaterialTheme.typography.titleSmall.copy(fontSize = 15.sp),
-                            text = it[index].dayOfMonth.toString(),
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .padding(top = 5.dp),
-                            color = if (isSelected) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.onSecondaryContainer
+                            style = MaterialTheme.typography.labelMedium,
+                            text = it[index].toString().toDayLabel(),
                         )
+                        Card(
+                            shape = RoundedCornerShape(15.dp),
+                            colors = CardDefaults.cardColors().copy(
+                                containerColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
+                                contentColor = MaterialTheme.colorScheme.background
+                            ),
+                            modifier = Modifier
+                                .padding(top = 4.dp)
+                                .size(30.dp),
+                        ) {
+                            Text(
+                                style = MaterialTheme.typography.titleSmall.copy(fontSize = 15.sp),
+                                text = it[index].dayOfMonth.toString(),
+                                modifier = Modifier
+                                    .align(Alignment.CenterHorizontally)
+                                    .padding(top = 5.dp),
+                                color = if (isSelected) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
                     }
                 }
             }
-        }
 
-        chartModel?.let {
-            Spacer(modifier = Modifier.height(4.dp))
-            val nestScrollConnection = remember { NullNestScrollConnection() }
-            DefaultCard(
-                bgColor = MaterialTheme.colorScheme.background,
-                modifier = Modifier
-                    .padding(horizontal = 12.dp, vertical = 6.dp)
-                    .nestedScroll(nestScrollConnection)
-            ) {
-                Column(
+            chartModel?.let {
+                Spacer(modifier = Modifier.height(4.dp))
+                val nestScrollConnection = remember { NullNestScrollConnection() }
+                DefaultCard(
+                    bgColor = MaterialTheme.colorScheme.background,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                        .nestedScroll(nestScrollConnection)
                 ) {
-                    HourlyTipCard(
-                        weatherModel.weatherHourliesMore?.get(viewModel.selectedEntry.intValue),
-                        viewModel.selectedHourlyType.value,
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 12.dp)
-                    )
-
-                    OutlinedCard(
-                        modifier = Modifier.padding(horizontal = 0.dp, vertical = 0.dp),
-                        colors = CardDefaults.outlinedCardColors(
-                            containerColor = Color.Transparent,
-                            contentColor = MaterialTheme.colorScheme.surface,
-                        ),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.surface.copy(0.6f))
+                            .padding(horizontal = 8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        CustomLineChartView(
-                            it,
-                            selectedIndex = viewModel.selectedEntry.intValue,
-                            modifier = Modifier.height(240.dp),
-                            onEntryLocked = { entry ->
-                                viewModel.onEntryChanged(entry)
-                            })
-                    }
+                        HourlyTipCard(
+                            weatherModel.weatherHourliesMore?.get(viewModel.selectedEntry.intValue),
+                            viewModel.selectedHourlyType.value,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 12.dp)
+                        )
 
-                    ScrollableCenterRowList(
-                        itemCount = viewModel.hourlyTypes.size,
-                        itemIndex = viewModel.selectedHourlyType.value.intValue,
-                        selectedItemChanged = { index ->
-                            viewModel.onSwitchChartType(index)
-                        },
-                        modifier = Modifier
-                            .padding(vertical = 12.dp)
-                            .fillMaxWidth()
-                    ) { index, isSelected ->
-                        val type =
-                            viewModel.hourlyTypes.firstOrNull { ind -> ind.intValue == index }
-                        type?.let { tp ->
-                            Card(
-                                colors = CardDefaults.cardColors().copy(
-                                    containerColor = if (isSelected) Color(type.primaryColor) else MaterialTheme.colorScheme.surface.copy(
-                                        0.7f
-                                    )
-                                ),
-                                shape = RoundedCornerShape(18.dp)
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 5.dp)
-                                ) {
-                                    Icon(
-                                        tp.icon,
-                                        null,
-                                        modifier = Modifier.size(16.dp),
-                                        tint =
-                                            if (isSelected) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.onSecondaryContainer.copy(
-                                                alpha = 0.5f
-                                            )
-                                    )
-                                    if (isSelected) {
-                                        Text(
-                                            text = tp.text,
-                                            style = MaterialTheme.typography.labelMedium,
-                                            color = MaterialTheme.colorScheme.background,
-                                            modifier = Modifier.padding(start = 4.dp)
+                        OutlinedCard(
+                            modifier = Modifier.padding(horizontal = 0.dp, vertical = 0.dp),
+                            colors = CardDefaults.outlinedCardColors(
+                                containerColor = Color.Transparent,
+                                contentColor = MaterialTheme.colorScheme.surface,
+                            ),
+                            border = BorderStroke(
+                                1.dp,
+                                MaterialTheme.colorScheme.surface.copy(0.6f)
+                            )
+                        ) {
+                            CustomLineChartView(
+                                it,
+                                selectedIndex = viewModel.selectedEntry.intValue,
+                                modifier = Modifier.height(240.dp),
+                                onEntryLocked = { entry ->
+                                    viewModel.onEntryChanged(entry)
+                                })
+                        }
+
+                        ScrollableCenterRowList(
+                            itemCount = viewModel.hourlyTypes.size,
+                            itemIndex = viewModel.selectedHourlyType.value.intValue,
+                            selectedItemChanged = { index ->
+                                viewModel.onSwitchChartType(index)
+                            },
+                            modifier = Modifier
+                                .padding(vertical = 12.dp)
+                                .fillMaxWidth()
+                        ) { index, isSelected ->
+                            val type =
+                                viewModel.hourlyTypes.firstOrNull { ind -> ind.intValue == index }
+                            type?.let { tp ->
+                                Card(
+                                    colors = CardDefaults.cardColors().copy(
+                                        containerColor = if (isSelected) Color(type.primaryColor) else MaterialTheme.colorScheme.surface.copy(
+                                            0.7f
                                         )
+                                    ),
+                                    shape = RoundedCornerShape(18.dp)
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.padding(
+                                            horizontal = 6.dp,
+                                            vertical = 5.dp
+                                        )
+                                    ) {
+                                        Icon(
+                                            tp.icon,
+                                            null,
+                                            modifier = Modifier.size(16.dp),
+                                            tint =
+                                                if (isSelected) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.onSecondaryContainer.copy(
+                                                    alpha = 0.5f
+                                                )
+                                        )
+                                        if (isSelected) {
+                                            Text(
+                                                text = tp.text,
+                                                style = MaterialTheme.typography.labelMedium,
+                                                color = MaterialTheme.colorScheme.background,
+                                                modifier = Modifier.padding(start = 4.dp)
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -207,41 +225,42 @@ fun WeatherHourlyDetailPage(
                     }
                 }
             }
-        }
 
+            weatherModel.indicesDailies?.let {
 
-        weatherModel.indicesDailies?.let {
-            val nestScrollConnection = remember { NullNestScrollConnection() }
-            LazyRow(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .padding(horizontal = 12.dp)
-                    .nestedScroll(nestScrollConnection)
-            ) {
-                items(it) { indices ->
-                    val data = indicesMapper(indices.type.toInt())
-                    val color = if (isSystemInDarkTheme()) data.dayColor else data.nightColor
-                    DetailTipItem(
-                        indices.name.toMaterialFillIcon(),
-                        indices.category,
-                        color,
-                        indices.name,
-                        onClick = {
-                            onSwitchPage?.invoke(indices.name.replace("指数", ""))
-                        })
+                WeatherStatusInfoCard(
+                    it, bgColor = MaterialTheme.colorScheme.background,
+                    pressColor = MaterialTheme.colorScheme.surfaceContainer,
+                    icon = Icons.Default.NotificationsActive,
+                    iconColor = Color(0xFFFFC107),
+                    onIndicesClick = { name ->
+                        onSwitchPage?.invoke(name.replace("指数", ""))
+                    }, modifier = Modifier.padding(vertical = 1.dp)
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                val nestScrollConnection = remember { NullNestScrollConnection() }
+                LazyRow(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .padding(horizontal = 12.dp)
+                        .nestedScroll(nestScrollConnection)
+                ) {
+                    items(it) { indices ->
+                        val data = indicesMapper(indices.type.toInt())
+                        val color = if (isSystemInDarkTheme()) data.dayColor else data.nightColor
+                        DetailTipItem(
+                            indices.name.toMaterialFillIcon(),
+                            indices.category,
+                            color,
+                            indices.name,
+                            onClick = {
+                                onSwitchPage?.invoke(indices.name.replace("指数", ""))
+                            })
+                    }
                 }
             }
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            WeatherStatusInfoCard(
-                it, bgColor = MaterialTheme.colorScheme.background,
-                icon = Icons.Default.NotificationsActive,
-                iconColor = Color(0xFFFFC107),
-                onIndicesClick = { name ->
-                    onSwitchPage?.invoke(name.replace("指数", ""))
-                }, modifier = Modifier.padding(vertical = 1.dp)
-            )
         }
     }
 }
@@ -526,6 +545,10 @@ fun HourlyTipCard(
                             )
                         }
                     }
+                }
+
+                else -> {
+
                 }
             }
         }

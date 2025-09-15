@@ -1,6 +1,5 @@
 package com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card
 
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -11,7 +10,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DeviceThermostat
 import androidx.compose.material.icons.filled.WbSunny
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -25,11 +23,11 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseItem
 import com.qiuqiuqiu.weatherPredicate.ui.normal.NullNestScrollConnection
 import com.qiuqiuqiu.weatherPredicate.viewModel.weather.HourlyDetailType
 import com.qweather.sdk.response.weather.WeatherDaily
@@ -151,50 +149,43 @@ fun DetailTipItem(
     name: String,
     onClick: (() -> Unit)? = null
 ) {
-    val color1 = CardColors(
-        containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
-        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-        disabledContainerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
-        disabledContentColor = MaterialTheme.colorScheme.onSecondaryContainer
-    )
-
     ElevatedCard(
         modifier = Modifier
-            .padding(4.dp)
-            .pointerInput(Unit) {
-                detectTapGestures { onClick?.invoke() }
-            },
+            .padding(4.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.background,
             contentColor = MaterialTheme.colorScheme.onSecondaryContainer
         )
     ) {
-        Column(
-            modifier = Modifier
-                .padding(4.dp, vertical = 8.dp)
-                .width(58.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = color,
+        BaseItem(onClick = onClick, bgColor = MaterialTheme.colorScheme.surfaceContainer) {
+            Column(
                 modifier = Modifier
-                    .size(36.dp)
-                    .padding(top = 6.dp, bottom = 6.dp)
-            )
-            Text(text = content, style = MaterialTheme.typography.labelLarge, fontSize = 13.sp)
-            Text(
-                text = name,
-                style = MaterialTheme.typography.bodySmall,
-                lineHeight = 10.sp,
-                fontSize = 10.sp,
-                softWrap = false,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.alpha(0.6f)
-            )
+                    .padding(4.dp, vertical = 8.dp)
+                    .width(58.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = color,
+                    modifier = Modifier
+                        .size(36.dp)
+                        .padding(top = 6.dp, bottom = 6.dp)
+                )
+                Text(text = content, style = MaterialTheme.typography.labelLarge, fontSize = 13.sp)
+                Text(
+                    text = name,
+                    style = MaterialTheme.typography.bodySmall,
+                    lineHeight = 10.sp,
+                    fontSize = 10.sp,
+                    softWrap = false,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.alpha(0.6f)
+                )
+            }
         }
+
     }
 }

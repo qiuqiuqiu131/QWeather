@@ -48,6 +48,7 @@ fun WeatherStatusInfoCard(
     indicesDaily: List<IndicesDaily>,
     modifier: Modifier = Modifier,
     bgColor: Color? = null,
+    pressColor: Color? = null,
     icon: ImageVector = Icons.Outlined.NotificationsActive,
     iconColor: Color = MaterialTheme.colorScheme.onSecondary,
     onIndicesClick: ((name: String) -> Unit)? = null
@@ -58,6 +59,7 @@ fun WeatherStatusInfoCard(
     if (categories.isNotEmpty()) {
         BaseCard(
             bgColor = bgColor,
+            pressColor = pressColor,
             onClick = { onIndicesClick?.invoke(indicesDaily[currentIndex].name) },
             modifier = modifier
         ) {

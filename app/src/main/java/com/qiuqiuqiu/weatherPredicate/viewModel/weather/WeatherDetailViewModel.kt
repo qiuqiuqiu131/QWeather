@@ -72,18 +72,25 @@ class WeatherDetailViewModel @Inject constructor(
 
             val result = locationWeatherManager.getCacheLocationWeather(city)
 
-            // 获取拓展天气数据
-            val weatherDailiesTask =
-                async { weatherService.getWeatherMoreDay(result.first.location!!.id) }
-            val weatherHourliesTask =
-                async { weatherService.getWeather168Hour(result.first.location!!.id) }
-            val indicesDailiesTask = async {
-                weatherService.getWeatherIndices3Day(result.first.location!!.id).groupBy { it.name }
-                    .map { Pair(it.key, it.value.sortedBy { va -> va.date }) }
+            result.first.apply {
+                // 获取拓展天气数据
+                val weatherDailiesTask =
+                    async { weatherService.getWeatherMoreDay(location!!.id) }
+                val weatherHourliesTask =
+                    async { weatherService.getWeather168Hour(location!!.id) }
+                val indicesDailiesTask = async {
+                    weatherService.getWeatherIndices3Day(location!!.id).groupBy { it.name }
+                        .map { Pair(it.key, it.value.sortedBy { va -> va.date }) }
+                }
+                val airHourliesTask = async {
+                    weatherService.getAirHourly(location!!.lon.toDouble(), location.lat.toDouble())
+                }
+
+                weatherDailiesMore = weatherDailiesTask.await()
+                weatherHourliesMore = weatherHourliesTask.await()
+                indicesDailiesMore = indicesDailiesTask.await()
+                airHourlies = airHourliesTask.await()
             }
-            result.first.weatherDailiesMore = weatherDailiesTask.await()
-            result.first.weatherHourliesMore = weatherHourliesTask.await()
-            result.first.indicesDailiesMore = indicesDailiesTask.await()
 
             _locationWeather.update { result.first }
 
@@ -101,13 +108,15 @@ class WeatherDetailViewModel @Inject constructor(
             if (pageName != null && isInit.value)
                 pageIndex.intValue = pageItems.value.indexOf(pageName).let { if (it < 0) 0 else it }
 
+            chartModelCache.clear()
             switchChartType(selectedHourlyType.value)
 
             isInit.value = false
         }
     }
 
-    val hourlyTypes = HourlyDetailType.values().toList()
+    val hourlyTypes =
+        HourlyDetailType.entries.filterNot { detailType -> detailType == HourlyDetailType.Air }
 
     var selectedHourlyType = mutableStateOf(hourlyTypes[0])
         private set
@@ -128,6 +137,8 @@ class WeatherDetailViewModel @Inject constructor(
     var selectedEntry = mutableIntStateOf(0)
         private set
 
+    private val chartModelCache: MutableMap<HourlyDetailType, TimelyChartModel?> = mutableMapOf()
+
     fun moveToHourlyPage(type: HourlyDetailType, date: LocalDate) {
         onSwitchChartType(type.intValue)
         onDateChanged(dates.value?.indexOfFirst { it == date } ?: 0)
@@ -142,108 +153,7 @@ class WeatherDetailViewModel @Inject constructor(
     @SuppressLint("NewApi")
     private fun switchChartType(type: HourlyDetailType) {
         viewModelScope.launch(Dispatchers.Default) {
-            val data = when (type) {
-                HourlyDetailType.Pressure -> {
-                    TimelyChartModel(
-                        _locationWeather.value.weatherHourliesMore?.map {
-                            ChartPoint(
-                                OffsetDateTime.parse(it.fxTime),
-                                getWeatherIconBitmap(it.icon, context),
-                                it.pressure.toFloat()
-                            )
-                        } ?: emptyList(),
-                        "气压",
-                        type = type
-                    )
-                }
-
-                HourlyDetailType.Wind -> {
-                    TimelyChartModel(
-                        _locationWeather.value.weatherHourliesMore?.map {
-                            ChartPoint(
-                                OffsetDateTime.parse(it.fxTime),
-                                getWeatherIconBitmap(it.icon, context),
-                                if (it.windScale.contains("-"))
-                                    it.windScale.split("-").mapNotNull { s -> s.toIntOrNull() }
-                                        .average()
-                                        .toFloat()
-                                else
-                                    it.windScale.toFloatOrNull() ?: 0f
-                            )
-                        } ?: emptyList(),
-                        "平均风力",
-                        _locationWeather.value.weatherHourliesMore?.map {
-                            ChartPoint(
-                                OffsetDateTime.parse(it.fxTime),
-                                getWeatherIconBitmap(it.icon, context),
-                                if (it.windScale.contains("-"))
-                                    it.windScale.split("-").last().toFloat()
-                                else
-                                    it.windScale.toFloatOrNull() ?: 0f
-                            )
-                        } ?: emptyList(),
-                        "阵风",
-                        type = type
-                    )
-                }
-
-                HourlyDetailType.Temp -> {
-                    TimelyChartModel(
-                        _locationWeather.value.weatherHourliesMore?.map {
-                            ChartPoint(
-                                OffsetDateTime.parse(it.fxTime),
-                                getWeatherIconBitmap(it.icon, context),
-                                it.temp.toFloat()
-                            )
-                        } ?: emptyList(),
-                        "温度",
-                        type = type
-                    )
-                }
-
-                HourlyDetailType.Hum -> {
-                    TimelyChartModel(
-                        _locationWeather.value.weatherHourliesMore?.map {
-                            ChartPoint(
-                                OffsetDateTime.parse(it.fxTime),
-                                getWeatherIconBitmap(it.icon, context),
-                                it.humidity.toFloat()
-                            )
-                        } ?: emptyList(),
-                        "湿度",
-                        type = type
-                    )
-                }
-
-                HourlyDetailType.Pop -> {
-                    TimelyChartModel(
-                        _locationWeather.value.weatherHourliesMore?.map {
-                            ChartPoint(
-                                OffsetDateTime.parse(it.fxTime),
-                                getWeatherIconBitmap(it.icon, context),
-                                it.pop.toFloat()
-                            )
-                        } ?: emptyList(),
-                        "降水概率",
-                        type = type
-                    )
-                }
-
-                HourlyDetailType.Cloud -> {
-                    TimelyChartModel(
-                        _locationWeather.value.weatherHourliesMore?.map {
-                            ChartPoint(
-                                OffsetDateTime.parse(it.fxTime),
-                                getWeatherIconBitmap(it.icon, context),
-                                it.cloud.toFloat()
-                            )
-                        } ?: emptyList(),
-                        "云量",
-                        type = type
-                    )
-                }
-            }
-            chartModel.update { data }
+            chartModel.update { getTimelyChartModel(type) }
         }
     }
 
@@ -268,11 +178,145 @@ class WeatherDetailViewModel @Inject constructor(
             chartModel.value?.data1?.let { dt ->
                 dt.indexOfFirst { it.time.toLocalDate() == localDate && it.time.hour == 0 }
                     .let { res ->
-                        if (res >= 0) res else dt.indexOfFirst { it.time.toLocalDate() == localDate }
+                        if (res >= 0) res else dt.indexOfFirst { it.time.toLocalDate() == localDate } + 1
                     }
             }
         if (entryIndex != null && entryIndex >= 0)
             selectedEntry.intValue = entryIndex
+    }
+
+    @SuppressLint("NewApi")
+    fun getTimelyChartModel(type: HourlyDetailType): TimelyChartModel {
+        if (chartModelCache[type] == null) {
+            val data = when (type) {
+                HourlyDetailType.Pressure -> {
+                    TimelyChartModel(
+                        _locationWeather.value.weatherHourliesMore?.map {
+                            ChartPoint(
+                                OffsetDateTime.parse(it.fxTime),
+                                getWeatherIconBitmap(
+                                    it.icon,
+                                    context
+                                ),
+                                it.pressure.toFloat()
+                            )
+                        } ?: emptyList(),
+                        "气压",
+                        type = type
+                    )
+                }
+
+                HourlyDetailType.Wind -> {
+                    TimelyChartModel(
+                        _locationWeather.value.weatherHourliesMore?.map {
+                            ChartPoint(
+                                OffsetDateTime.parse(it.fxTime),
+                                getWeatherIconBitmap(
+                                    it.icon,
+                                    context
+                                ),
+                                if (it.windScale.contains("-"))
+                                    it.windScale.split("-").mapNotNull { s -> s.toIntOrNull() }
+                                        .average()
+                                        .toFloat()
+                                else
+                                    it.windScale.toFloatOrNull() ?: 0f
+                            )
+                        } ?: emptyList(),
+                        "平均风力",
+                        _locationWeather.value.weatherHourliesMore?.map {
+                            ChartPoint(
+                                OffsetDateTime.parse(it.fxTime),
+                                getWeatherIconBitmap(
+                                    it.icon,
+                                    context
+                                ),
+                                if (it.windScale.contains("-"))
+                                    it.windScale.split("-").last().toFloat()
+                                else
+                                    it.windScale.toFloatOrNull() ?: 0f
+                            )
+                        } ?: emptyList(),
+                        "阵风",
+                        type = type
+                    )
+                }
+
+                HourlyDetailType.Temp -> {
+                    TimelyChartModel(
+                        _locationWeather.value.weatherHourliesMore?.map {
+                            ChartPoint(
+                                OffsetDateTime.parse(it.fxTime),
+                                getWeatherIconBitmap(
+                                    it.icon,
+                                    context
+                                ),
+                                it.temp.toFloat()
+                            )
+                        } ?: emptyList(),
+                        "温度",
+                        type = type
+                    )
+                }
+
+                HourlyDetailType.Hum -> {
+                    TimelyChartModel(
+                        _locationWeather.value.weatherHourliesMore?.map {
+                            ChartPoint(
+                                OffsetDateTime.parse(it.fxTime),
+                                getWeatherIconBitmap(
+                                    it.icon,
+                                    context
+                                ),
+                                it.humidity.toFloat()
+                            )
+                        } ?: emptyList(),
+                        "湿度",
+                        type = type
+                    )
+                }
+
+                HourlyDetailType.Pop -> {
+                    TimelyChartModel(
+                        _locationWeather.value.weatherHourliesMore?.map {
+                            ChartPoint(
+                                OffsetDateTime.parse(it.fxTime),
+                                getWeatherIconBitmap(
+                                    it.icon,
+                                    context
+                                ),
+                                it.pop.toFloat()
+                            )
+                        } ?: emptyList(),
+                        "降水概率",
+                        type = type
+                    )
+                }
+
+                HourlyDetailType.Cloud -> {
+                    TimelyChartModel(
+                        _locationWeather.value.weatherHourliesMore?.map {
+                            ChartPoint(
+                                OffsetDateTime.parse(it.fxTime),
+                                getWeatherIconBitmap(
+                                    it.icon,
+                                    context
+                                ),
+                                it.cloud.toFloat()
+                            )
+                        } ?: emptyList(),
+                        "云量",
+                        type = type
+                    )
+                }
+
+                else -> {
+                    TimelyChartModel(emptyList(), "", type = type)
+                }
+            }
+            chartModelCache[type] = data
+        }
+        return chartModelCache[type]!!
     }
 }
 
@@ -345,5 +389,13 @@ enum class HourlyDetailType(
         0xAA2196F3.toInt(),
         0x202196F3.toInt(), "",
         Icons.Default.Speed
+    ),
+    Air(
+        6,
+        "空气质量",
+        0xFF4CAF50.toInt(),
+        0xAA4CAF50.toInt(),
+        0x204CAF50.toInt(), "",
+        Icons.Default.Air
     )
 }

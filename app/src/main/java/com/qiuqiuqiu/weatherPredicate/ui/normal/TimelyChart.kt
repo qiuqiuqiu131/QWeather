@@ -37,7 +37,7 @@ import java.time.format.DateTimeFormatter
 // 数据结构
 data class ChartPoint(
     val time: OffsetDateTime,
-    val icon: Bitmap,
+    val icon: Bitmap? = null,
     val value: Float
 )
 
@@ -68,13 +68,17 @@ class ChartPointTimeFormatter(private val data: List<ChartPoint>) : ValueFormatt
 class CustomLineRendererWithIcon(
     chart: LineChart,
     private val chartPoints: List<ChartPoint>,
+    private val formatter: ChartPointTimeFormatter,
     private val onIntersectionUpdate: ((Entry) -> Unit)? = null,
     private val lineColor: Int = Color.RED,
+    private val yAxisUnit: String = "",
     private val intersectionCircleColor1: Int = Color.GRAY,
     private val intersectionCircleColor2: Int = Color.GRAY,
     private val lineWidth: Float = 10f,
     private val intersectionCircleRadius: Float = 15f,
     private val intersectionCircleStroke: Float = 5f,
+    private val showLabel: Boolean = false,
+    private val longLine: Boolean = true,
     var highlightEntry: Entry? = null,
     var lineRatio: Float = 0.1f
 ) : LineChartRenderer(chart, chart.animator, chart.viewPortHandler) {
@@ -103,6 +107,12 @@ class CustomLineRendererWithIcon(
         isAntiAlias = true
     }
 
+    private val labelPaint = Paint().apply {
+        color = Color.WHITE
+        textSize = 36f
+        isAntiAlias = true
+    }
+
     override fun drawExtras(c: Canvas?) {
         super.drawExtras(c)
         c?.let {
@@ -111,11 +121,11 @@ class CustomLineRendererWithIcon(
         }
     }
 
+
     private fun drawCenterLineAndIntersection(canvas: Canvas) {
         val viewPortHandler = mViewPortHandler
         val data = mChart.data
         if (data != null && data.dataSetCount > 0) {
-            // 计算垂直线的像素位置和 xValue
             val centerX = viewPortHandler.contentLeft() + viewPortHandler.contentWidth() * lineRatio
             val pixels = floatArrayOf(centerX, 0f)
             val firstDataSet = data.getDataSetByIndex(0)
@@ -125,7 +135,6 @@ class CustomLineRendererWithIcon(
 
             var updatedEntry: Entry? = null
 
-            // 遍历所有数据集
             for (dataSetIndex in 0 until data.dataSetCount) {
                 val dataSet = data.getDataSetByIndex(dataSetIndex) as ILineDataSet
                 val t = mChart.getTransformer(dataSet.axisDependency)
@@ -136,11 +145,10 @@ class CustomLineRendererWithIcon(
                     val left = viewPortHandler.contentLeft()
                     val right = viewPortHandler.contentRight()
                     if (point[0] in left..right) {
-                        // 只画一次垂直线
                         if (dataSetIndex == 0) {
                             canvas.drawLine(
                                 point[0],
-                                viewPortHandler.contentTop(),
+                                if (longLine) viewPortHandler.contentTop() else point[1],
                                 point[0],
                                 viewPortHandler.contentBottom(),
                                 linePaint
@@ -158,8 +166,16 @@ class CustomLineRendererWithIcon(
                             intersectionCircleRadius,
                             intersectionStrokePaint
                         )
+                        // 绘制 label
+                        if (showLabel && dataSetIndex == 0) {
+                            val timeLabel = formatter.getFormattedValue(it.x)
+                            val label = "$timeLabel  ${String.format("%.0f", it.y)}$yAxisUnit"
+                            drawLabelCard(
+                                canvas, label, point, viewPortHandler,
+                                labelPaint
+                            )
+                        }
                     }
-                    // 只更新第一个数据集的 entry
                     if (dataSetIndex == 0) updatedEntry = it
                 }
             }
@@ -168,6 +184,57 @@ class CustomLineRendererWithIcon(
                 onIntersectionUpdate?.invoke(updatedEntry!!)
             }
         }
+    }
+
+    fun drawLabelCard(
+        canvas: Canvas,
+        label: String,
+        point: FloatArray,
+        viewPortHandler: com.github.mikephil.charting.utils.ViewPortHandler,
+        labelPaint: Paint
+    ) {
+        val textWidth = labelPaint.measureText(label)
+        val textHeight = labelPaint.fontMetrics.run { bottom - top }
+        val padding = 24f
+        val radius = 18f
+
+        val chartCenterX =
+            (viewPortHandler.contentLeft() + viewPortHandler.contentRight()) / 2 + 100
+        val topQuarter = viewPortHandler.contentTop() + viewPortHandler.contentHeight() / 4
+
+        // 默认在点右上方
+        var bgLeft = point[0] + 20
+        var bgTop = point[1] - 20 - textHeight - padding / 2
+        var bgRight = bgLeft + textWidth + padding
+        var bgBottom = point[1] - 20 + padding / 2
+
+        // 顶部1/4区域，label显示在下方
+        if (point[1] < topQuarter) {
+            bgTop = point[1] + 20 - padding / 2
+            bgBottom = bgTop + textHeight + padding
+        }
+
+        // 点在中心右侧，label显示在左侧
+        if (point[0] > chartCenterX) {
+            bgLeft = point[0] - textWidth - padding - 20
+            bgRight = bgLeft + textWidth + padding
+        }
+
+        val bgPaint = Paint().apply {
+            color = intersectionCircleColor1
+            style = Paint.Style.FILL
+            isAntiAlias = true
+            setShadowLayer(8f, 0f, 2f, 0x22000000)
+        }
+
+        canvas.drawRoundRect(bgLeft, bgTop, bgRight, bgBottom, radius, radius, bgPaint)
+
+        val centerX = (bgLeft + bgRight) / 2
+        val centerY = (bgTop + bgBottom) / 2
+        val textX = centerX - textWidth / 2
+        val textY = centerY - (labelPaint.fontMetrics.ascent + labelPaint.fontMetrics.descent) / 2
+
+        canvas.drawText(label, textX, textY, labelPaint)
     }
 
     private fun drawIconsOnTop(canvas: Canvas) {
@@ -183,6 +250,7 @@ class CustomLineRendererWithIcon(
             transformer.pointValuesToPixel(point)
             if (point[0] < left || point[0] > right) continue // 只绘制可见区域
             val chartPoint = chartPoints.getOrNull(i) ?: continue
+            if (chartPoint.icon == null) continue
             val iconBitmap = chartPoint.icon
             val iconX = point[0] - iconBitmap.width / 2
             canvas.drawBitmap(iconBitmap, iconX, topY, null)
@@ -218,7 +286,6 @@ fun generateLineDataFromChartPoints(
         color = primaryColor
         valueTextColor = Color.BLACK
         lineWidth = 2.5f
-        circleRadius = 0f
         setDrawValues(false)
         setDrawCircles(false)
         mode = LineDataSet.Mode.CUBIC_BEZIER
@@ -238,7 +305,6 @@ fun generateLineDataFromChartPoints(
             color = secondaryColor
             valueTextColor = Color.BLACK
             lineWidth = 2.5f
-            circleRadius = 0f
             setDrawValues(false)
             setDrawCircles(false)
             mode = LineDataSet.Mode.CUBIC_BEZIER
@@ -256,6 +322,9 @@ fun CustomLineChartView(
     chartModel: TimelyChartModel,
     selectedIndex: Int,
     modifier: Modifier = Modifier,
+    showLabel: Boolean = false,
+    longLine: Boolean = true,
+    drawYGrid: Boolean = true,
     onEntryLocked: (Int) -> Unit = {}
 ) {
     var rendererRef: CustomLineRendererWithIcon? by remember { mutableStateOf(null) }
@@ -304,7 +373,7 @@ fun CustomLineChartView(
                     textSize = 10f
                     axisLineColor = 0X22000000.toInt()
                     gridColor = 0X22000000.toInt()
-                    setDrawGridLines(true)
+                    setDrawGridLines(drawYGrid)
                     setLabelCount(6, true)
                     valueFormatter = object : ValueFormatter() {
                         override fun getFormattedValue(value: Float): String {
@@ -321,14 +390,19 @@ fun CustomLineChartView(
                     legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM // 位置
                     legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
                     legend.form = Legend.LegendForm.LINE
-                }
+                } else
+                    legend.isEnabled = false
 
 
                 val customRenderer = CustomLineRendererWithIcon(
                     this,
                     chartPoints = chartModel.data1,
+                    formatter = ChartPointTimeFormatter(chartModel.data1),
                     lineColor = 0X33000000.toInt(),
                     lineWidth = 6f,
+                    longLine = longLine,
+                    yAxisUnit = model.type.yAxisUnit,
+                    showLabel = showLabel,
                     intersectionCircleStroke = 7f,
                     intersectionCircleColor1 = chartModel.type.primaryColor,
                     intersectionCircleColor2 = chartModel.type.secondaryColor,
@@ -379,7 +453,9 @@ fun CustomLineChartView(
                         val y = me.y
                         val h = chart.getHighlightByTouchPoint(x, y)
                         if (h != null) {
-                            val entry = chart.data.getEntryForHighlight(h)
+                            var entry = chart.data.getEntryForHighlight(h)
+                            entry =
+                                dataRef?.getDataSetByIndex(0)?.getEntryForXValue(entry.x, entry.y)
                             rendererRef?.highlightEntry = entry
                             val visibleRange = chart.highestVisibleX - chart.lowestVisibleX
                             val targetCenterX = entry.x - visibleRange / 2f
@@ -429,7 +505,7 @@ fun CustomLineChartView(
                         textSize = 10f
                         axisLineColor = 0X22000000.toInt()
                         gridColor = 0X22000000.toInt()
-                        setDrawGridLines(true)
+                        setDrawGridLines(drawYGrid)
                         setLabelCount(6, true)
                         valueFormatter = object : ValueFormatter() {
                             override fun getFormattedValue(value: Float): String {
@@ -452,6 +528,10 @@ fun CustomLineChartView(
                         chartPoints = chartModel.data1,
                         lineColor = 0X33000000.toInt(),
                         lineWidth = 6f,
+                        longLine = longLine,
+                        yAxisUnit = chartModel.type.yAxisUnit,
+                        formatter = ChartPointTimeFormatter(chartModel.data1),
+                        showLabel = showLabel,
                         intersectionCircleStroke = 7f,
                         intersectionCircleColor1 = chartModel.type.primaryColor,
                         intersectionCircleColor2 = chartModel.type.secondaryColor,
