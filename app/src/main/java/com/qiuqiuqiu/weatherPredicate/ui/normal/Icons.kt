@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -13,7 +14,7 @@ import com.qiuqiuqiu.weatherPredicate.ui.theme.QWeatherFontFamily
 import com.qiuqiuqiu.weatherPredicate.ui.theme.getQWeatherIconUnicode
 
 @Composable
-fun WeatherIcon(id: String, modifier: Modifier = Modifier) {
+fun WeatherIcon(id: String, modifier: Modifier = Modifier, imageSize: Dp = 30.dp) {
     val useFont = false
     Box(modifier = modifier) {
         if (useFont)
@@ -25,7 +26,7 @@ fun WeatherIcon(id: String, modifier: Modifier = Modifier) {
         else
             AsyncImage(
                 model = getWeatherURL(id), null,
-                modifier = Modifier.size(30.dp)
+                modifier = Modifier.size(imageSize)
             )
     }
 }

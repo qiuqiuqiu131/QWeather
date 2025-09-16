@@ -14,13 +14,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseItem
 import com.qiuqiuqiu.weatherPredicate.ui.normal.CustomDivider
 import com.qiuqiuqiu.weatherPredicate.ui.normal.InfinitePageContainer
 import com.qiuqiuqiu.weatherPredicate.ui.normal.SearchBaseCard
-import com.qiuqiuqiu.weatherPredicate.ui.theme.QWeatherFontFamily
-import com.qiuqiuqiu.weatherPredicate.ui.theme.getQWeatherIconUnicode
+import com.qiuqiuqiu.weatherPredicate.ui.normal.WeatherIcon
 import com.qweather.sdk.response.geo.Location
 import com.qweather.sdk.response.weather.WeatherDaily
 
@@ -85,18 +83,10 @@ fun CityItem(city: Pair<Int, Pair<Location, WeatherDaily>>, onClick: ((Location)
                 modifier = Modifier.weight(2f)
             ) {
                 val isEqual = weather.textDay == weather.textNight
-                Text(
-                    text = weather.iconDay.getQWeatherIconUnicode(),
-                    fontSize = 22.sp,
-                    fontFamily = QWeatherFontFamily
-                )
+                WeatherIcon(id = weather.iconDay, imageSize = 26.dp)
                 if (!isEqual) {
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = weather.iconNight.getQWeatherIconUnicode(),
-                        fontSize = 22.sp,
-                        fontFamily = QWeatherFontFamily
-                    )
+                    WeatherIcon(id = weather.iconNight, imageSize = 26.dp)
                 } else
                     Spacer(modifier = Modifier.width(10.dp))
 

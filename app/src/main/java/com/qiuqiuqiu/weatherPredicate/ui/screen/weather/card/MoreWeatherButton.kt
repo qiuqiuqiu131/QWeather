@@ -78,12 +78,11 @@ fun MoreWeatherButton(onClick: (() -> Unit)? = null) {
                 modifier =
                     Modifier
                         .fillMaxSize()
-                        .padding(start = 8.dp)
                         .background(
                             color =
                                 if (isPressed)
                                     MaterialTheme.colorScheme
-                                        .tertiaryContainer.copy(0.6f)
+                                        .secondaryContainer.copy(0.3f)
                                 else Color.Transparent,
                             shape = RoundedCornerShape(8.dp)
                         )
@@ -92,7 +91,9 @@ fun MoreWeatherButton(onClick: (() -> Unit)? = null) {
                 Icon(
                     imageVector = Icons.Outlined.CalendarMonth,
                     null,
-                    modifier = Modifier.size(18.dp)
+                    modifier = Modifier
+                        .size(18.dp)
+                        .padding(start = 8.dp)
                 )
                 Text(
                     text = "查看更多天气",
