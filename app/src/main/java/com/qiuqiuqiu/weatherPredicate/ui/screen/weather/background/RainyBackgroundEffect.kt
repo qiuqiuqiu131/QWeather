@@ -52,7 +52,8 @@ data class Raindrop(
 @Composable
 fun RainyWindowBackground(
     modifier: Modifier = Modifier,
-    type: RainType = RainType.MODERATE
+    type: RainType = RainType.MODERATE,
+    isDay: Boolean = true
 ) {
     val raindropCount = getRaindropCount(type)
     val raindrops = remember {
@@ -89,7 +90,8 @@ fun RainyWindowBackground(
 
             drawRect(
                 brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xFF2E4459), Color(0xFF597596))
+                    colors = if (isDay) listOf(Color(0xFF2E4459), Color(0xFF597596))
+                    else listOf(Color(0xFF181D23), Color(0xFF384452))
                 ),
                 size = size
             )

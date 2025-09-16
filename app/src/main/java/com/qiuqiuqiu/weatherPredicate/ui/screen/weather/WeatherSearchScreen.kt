@@ -53,6 +53,7 @@ import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.SearchHistoryCard
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.TopCityCard
 import com.qiuqiuqiu.weatherPredicate.viewModel.AppViewModel
 import com.qiuqiuqiu.weatherPredicate.viewModel.weather.WeatherSearchViewModel
+import java.time.LocalDateTime
 
 @Composable
 fun WeatherSearchScreen(navController: NavController) {
@@ -77,7 +78,10 @@ fun WeatherSearchScreen(navController: NavController) {
     }
 
     if (appViewModel.currentBg.value != null)
-        WeatherBackground(appViewModel.currentBg.value!!, modifier = Modifier.fillMaxSize())
+        WeatherBackground(
+            appViewModel.currentBg.value!!, modifier = Modifier.fillMaxSize(),
+            isDay = LocalDateTime.now().hour in 6..18
+        )
     else
         Box(
             modifier = Modifier

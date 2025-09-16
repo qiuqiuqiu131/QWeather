@@ -2,6 +2,7 @@ package com.qiuqiuqiu.weatherPredicate.viewModel
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import com.qiuqiuqiu.weatherPredicate.manager.ILocalDataManager
 import com.qiuqiuqiu.weatherPredicate.model.CityLocationModel
@@ -19,6 +20,16 @@ class AppViewModel @Inject constructor(
     val localDataManager: ILocalDataManager,
     val locationService: ILocationService
 ) : ViewModel() {
+    var naviBarIconColor: MutableState<Color?> = mutableStateOf(null)
+    var naviBarIndicatorColor: MutableState<Color?> = mutableStateOf(null)
+    var naviBarContainerColor: MutableState<Color?> = mutableStateOf(null)
+
+    fun clearNaviBarColor() {
+        naviBarIconColor.value = null
+        naviBarContainerColor.value = null
+        naviBarIndicatorColor.value = null
+    }
+
     var currentCity: MutableStateFlow<CityLocationModel> = MutableStateFlow(defaultLocation)
         private set
 

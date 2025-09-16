@@ -5,21 +5,20 @@ import androidx.compose.ui.Modifier
 
 fun getWeatherBackgroundType(id: String): String {
     val cloudCodes = setOf(
-        "101",
-        "102",
-        "103",
         "104",
-        "151",
-        "152",
-        "153",
         "500",
         "501",
+        "502",
         "509",
         "510",
+        "511",
+        "512",
+        "513",
         "514",
         "515"
     )
     val sunnyCodes = setOf("100", "150")
+    val sunnyCloudyCodes = setOf("101", "102", "103", "151", "152", "153")
     val drizzleCodes = setOf("309")
     val lightRainCodes = setOf("305", "314")
     val moderateRainCodes = setOf("306", "315", "399")
@@ -48,6 +47,7 @@ fun getWeatherBackgroundType(id: String): String {
 
     return when {
         sunnyCodes.contains(id) -> "sunny"
+        sunnyCloudyCodes.contains(id) -> "sunnyCloudy"
         cloudCodes.contains(id) -> "cloudy"
         drizzleCodes.contains(id) -> "rain_drizzle"
         lightRainCodes.contains(id) -> "rain_light"
@@ -62,17 +62,48 @@ fun getWeatherBackgroundType(id: String): String {
 }
 
 @Composable
-fun WeatherBackground(id: String, modifier: Modifier = Modifier) {
+fun WeatherBackground(id: String, modifier: Modifier = Modifier, isDay: Boolean = true) {
     when (getWeatherBackgroundType(id)) {
-        "sunny" -> SunnyLensFlareBackground(modifier = modifier)
-        "cloudy" -> CloudyAnimationBackground(modifier = modifier)
-        "rain_drizzle" -> RainyWindowBackground(type = RainType.DRIZZLE, modifier = modifier)
-        "rain_light" -> RainyWindowBackground(type = RainType.LIGHT, modifier = modifier)
-        "rain_moderate" -> RainyWindowBackground(type = RainType.MODERATE, modifier = modifier)
-        "rain_heavy" -> RainyWindowBackground(type = RainType.HEAVY, modifier = modifier)
-        "rain_storm" -> RainyWindowBackground(type = RainType.STORM, modifier = modifier)
-        "rain_severe" -> RainyWindowBackground(type = RainType.SEVERE, modifier = modifier)
-        "snow" -> CloudyAnimationBackground(modifier = modifier) // 可自定义雪背景
-        else -> CloudyAnimationBackground(modifier = modifier)
+        "sunny" -> SunnyLensFlareBackground(modifier = modifier, isCloudy = false)
+        "sunnyCloudy" -> SunnyLensFlareBackground(modifier = modifier, isCloudy = true)
+        "cloudy" -> CloudyAnimationBackground(modifier = modifier, isDay = isDay)
+        "rain_drizzle" -> RainyWindowBackground(
+            type = RainType.DRIZZLE,
+            modifier = modifier,
+            isDay = isDay
+        )
+
+        "rain_light" -> RainyWindowBackground(
+            type = RainType.LIGHT,
+            modifier = modifier,
+            isDay = isDay
+        )
+
+        "rain_moderate" -> RainyWindowBackground(
+            type = RainType.MODERATE,
+            modifier = modifier,
+            isDay = isDay
+        )
+
+        "rain_heavy" -> RainyWindowBackground(
+            type = RainType.HEAVY,
+            modifier = modifier,
+            isDay = isDay
+        )
+
+        "rain_storm" -> RainyWindowBackground(
+            type = RainType.STORM,
+            modifier = modifier,
+            isDay = isDay
+        )
+
+        "rain_severe" -> RainyWindowBackground(
+            type = RainType.SEVERE,
+            modifier = modifier,
+            isDay = isDay
+        )
+
+        "snow" -> CloudyAnimationBackground(modifier = modifier, isDay = isDay) // 可自定义雪背景
+        else -> CloudyAnimationBackground(modifier = modifier, isDay = isDay)
     }
 }

@@ -1,5 +1,6 @@
 package com.qiuqiuqiu.weatherPredicate.ui.screen.weather
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -54,7 +55,9 @@ import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.background.WeatherBackgr
 import com.qiuqiuqiu.weatherPredicate.viewModel.AppViewModel
 import com.qiuqiuqiu.weatherPredicate.viewModel.weather.WeatherViewModel
 import com.qweather.sdk.response.geo.Location
+import java.time.LocalDateTime
 
+@SuppressLint("NewApi")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeatherCityScreen(navController: NavController, location: Pair<Double, Double>) {
@@ -75,11 +78,17 @@ fun WeatherCityScreen(navController: NavController, location: Pair<Double, Doubl
     val cityTextHide = rememberScrollThreshold(scrollState, 70)
 
     if (weatherModel.weatherNow != null)
-        WeatherBackground(weatherModel.weatherNow!!.icon)
+        WeatherBackground(
+            weatherModel.weatherNow!!.icon,
+            modifier = Modifier.fillMaxSize(),
+            isDay = LocalDateTime.now().hour in 6..18
+        )
     else
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background))
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+        )
 
     PullToRefreshBox(
         isRefreshing = viewModel.isRefreshing.value,

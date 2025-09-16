@@ -43,7 +43,12 @@ data class CloudLayer(
 @SuppressLint("ConfigurationScreenWidthHeight")
 @Preview
 @Composable
-fun CloudyAnimationBackground(modifier: Modifier = Modifier) {
+fun CloudyAnimationBackground(
+    modifier: Modifier = Modifier,
+    isDay: Boolean = true
+) {
+    val alpha1 = if (isDay) 0.4f else 0.2f
+    val alpha2 = if (isDay) 0.2f else 0.1f
     // cloud2底层大云
     val bgCloudsLayer = remember {
         listOf(
@@ -51,7 +56,7 @@ fun CloudyAnimationBackground(modifier: Modifier = Modifier) {
                 resId = R.drawable.cloud2,
                 baseY = 0.4f,
                 sizeRatio = 3.5f,
-                alpha = 0.2f,
+                alpha = alpha2,
                 startX = 0f,
                 speed = 0f
             ),
@@ -59,7 +64,7 @@ fun CloudyAnimationBackground(modifier: Modifier = Modifier) {
                 resId = R.drawable.cloud2,
                 baseY = 1f,
                 sizeRatio = 3f,
-                alpha = 0.2f,
+                alpha = alpha2,
                 startX = -1.5f,
                 speed = 0f
             ),
@@ -67,7 +72,7 @@ fun CloudyAnimationBackground(modifier: Modifier = Modifier) {
                 resId = R.drawable.cloud2,
                 baseY = 1.8f,
                 sizeRatio = 3f,
-                alpha = 0.2f,
+                alpha = alpha2,
                 startX = 1.5f,
                 speed = 0f
             )
@@ -76,7 +81,7 @@ fun CloudyAnimationBackground(modifier: Modifier = Modifier) {
 
     val groupCount = 3
     val configuration = LocalConfiguration.current
-    val screenWidth = configuration.screenWidthDp.toFloat() // dp 单位的 float
+    val screenWidth = configuration.screenWidthDp.toFloat() * 1.3f // dp 单位的 float
 
     val infiniteTransition = rememberInfiniteTransition(label = "cloudStackFloat")
     val floatProgress by infiniteTransition.animateFloat(
@@ -96,7 +101,7 @@ fun CloudyAnimationBackground(modifier: Modifier = Modifier) {
                     resId = R.drawable.cloud1,
                     baseY = 0.05f,
                     sizeRatio = 2f,
-                    alpha = 0.4f,
+                    alpha = alpha1,
                     startX = (i - 1) * (screenWidth),
                     speed = 1.2f
                 ),
@@ -104,8 +109,16 @@ fun CloudyAnimationBackground(modifier: Modifier = Modifier) {
                     resId = R.drawable.cloud3,
                     baseY = 0.3f,
                     sizeRatio = 2.5f,
-                    alpha = 0.4f,
-                    startX = (i - 1) * (screenWidth) - 180f,
+                    alpha = alpha1,
+                    startX = (i - 1) * (screenWidth) - 160f,
+                    speed = 1.1f
+                ),
+                CloudLayer(
+                    resId = R.drawable.cloud3,
+                    baseY = 0.2f,
+                    sizeRatio = 2.5f,
+                    alpha = alpha1,
+                    startX = (i - 1) * (screenWidth) + 160f,
                     speed = 1.1f
                 )
             )
@@ -120,7 +133,8 @@ fun CloudyAnimationBackground(modifier: Modifier = Modifier) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             drawRect(
                 brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xFF546F88), Color(0xFF839AB4))
+                    colors = if (isDay) listOf(Color(0xFF546F88), Color(0xFF839AB4))
+                    else listOf(Color(0xFF2A2F36), Color(0xFF40454B))
                 ),
                 size = size
             )

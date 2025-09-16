@@ -1,6 +1,7 @@
 package com.qiuqiuqiu.weatherPredicate.ui.screen.weather
 
 import android.Manifest
+import android.annotation.SuppressLint
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ScrollState
@@ -70,7 +71,9 @@ import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.WeatherStatusInfoCa
 import com.qiuqiuqiu.weatherPredicate.viewModel.AppViewModel
 import com.qiuqiuqiu.weatherPredicate.viewModel.weather.WeatherViewModel
 import com.qweather.sdk.response.geo.Location
+import java.time.LocalDateTime
 
+@SuppressLint("NewApi")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeatherScreen(navController: NavController) {
@@ -116,7 +119,11 @@ fun WeatherScreen(navController: NavController) {
 
 
     if (weatherModel.weatherNow != null)
-        WeatherBackground(weatherModel.weatherNow!!.icon)
+        WeatherBackground(
+            weatherModel.weatherNow!!.icon,
+            modifier = Modifier.fillMaxSize(),
+            isDay = LocalDateTime.now().hour in 6..18
+        )
     else
         Box(
             modifier = Modifier
@@ -139,6 +146,7 @@ fun WeatherScreen(navController: NavController) {
                     onCityClick = { navController.navigate("CityManage") }
                 )
             },
+            modifier = Modifier.padding(bottom = 50.dp),
             containerColor = Color.Transparent,
             contentColor = MaterialTheme.colorScheme.onSecondary
         ) { innerPadding ->
@@ -360,7 +368,7 @@ fun WeatherCenterPage(
             })
         }
 
-        Spacer(modifier = Modifier.height(100.dp))
+        Spacer(modifier = Modifier.height(50.dp))
     }
 }
 
