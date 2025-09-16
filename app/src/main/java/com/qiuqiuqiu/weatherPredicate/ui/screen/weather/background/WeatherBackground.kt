@@ -64,8 +64,13 @@ fun getWeatherBackgroundType(id: String): String {
 @Composable
 fun WeatherBackground(id: String, modifier: Modifier = Modifier, isDay: Boolean = true) {
     when (getWeatherBackgroundType(id)) {
-        "sunny" -> SunnyLensFlareBackground(modifier = modifier, isCloudy = false)
-        "sunnyCloudy" -> SunnyLensFlareBackground(modifier = modifier, isCloudy = true)
+        "sunny" -> SunnyLensFlareBackground(modifier = modifier, isCloudy = false, isDay = isDay)
+        "sunnyCloudy" -> SunnyLensFlareBackground(
+            modifier = modifier,
+            isCloudy = true,
+            isDay = isDay
+        )
+
         "cloudy" -> CloudyAnimationBackground(modifier = modifier, isDay = isDay)
         "rain_drizzle" -> RainyWindowBackground(
             type = RainType.DRIZZLE,

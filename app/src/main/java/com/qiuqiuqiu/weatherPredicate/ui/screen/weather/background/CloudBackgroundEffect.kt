@@ -45,10 +45,10 @@ data class CloudLayer(
 @Composable
 fun CloudyAnimationBackground(
     modifier: Modifier = Modifier,
-    isDay: Boolean = true
+    isDay: Boolean = false
 ) {
-    val alpha1 = if (isDay) 0.4f else 0.2f
-    val alpha2 = if (isDay) 0.2f else 0.1f
+    val alpha1 = if (isDay) 0.4f else 0.15f
+    val alpha2 = if (isDay) 0.2f else 0.08f
     // cloud2底层大云
     val bgCloudsLayer = remember {
         listOf(
@@ -134,7 +134,7 @@ fun CloudyAnimationBackground(
             drawRect(
                 brush = Brush.verticalGradient(
                     colors = if (isDay) listOf(Color(0xFF546F88), Color(0xFF839AB4))
-                    else listOf(Color(0xFF2A2F36), Color(0xFF40454B))
+                    else listOf(Color(0xFF181A21), Color(0xFF25282C))
                 ),
                 size = size
             )

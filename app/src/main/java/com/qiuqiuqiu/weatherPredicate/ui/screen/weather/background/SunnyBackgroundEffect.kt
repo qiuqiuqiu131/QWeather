@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,20 +30,41 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
 import com.qiuqiuqiu.weatherPredicate.R
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
 
 @SuppressLint("ConfigurationScreenWidthHeight")
+@Composable
+fun SunnyLensFlareBackground(
+    modifier: Modifier = Modifier,
+    isDay: Boolean = false,
+    isCloudy: Boolean = true
+) {
+    if (isDay) {
+        DaySunnyBackground(modifier, isCloudy = isCloudy)
+    } else {
+        NightSunnyBackground(modifier, isCloudy = isCloudy)
+    }
+
+    if (isCloudy) {
+        CloudyBackground(modifier, isDay = isDay)
+    }
+
+}
+
 @Preview
 @Composable
-fun SunnyLensFlareBackground(modifier: Modifier = Modifier, isCloudy: Boolean = true) {
-    // 创建无限动画过渡
+fun DaySunnyBackground(modifier: Modifier = Modifier, isCloudy: Boolean = false) {
+// 创建无限动画过渡
     val infiniteTransition = rememberInfiniteTransition(label = "lensFlareAnimation")
 
     // 控制光晕角度偏转的动画值（0f 到 1f，代表角度变化）
@@ -242,70 +264,166 @@ fun SunnyLensFlareBackground(modifier: Modifier = Modifier, isCloudy: Boolean = 
 
         }
     }
+}
 
-    if (isCloudy) {
-        val groupCount = 3
-        val configuration = LocalConfiguration.current
-        val screenWidth = configuration.screenWidthDp.toFloat() // dp 单位的 float
+data class Star(
+    val position: Offset,
+    val radius: Float,
+    val baseAlpha: Float,
+    val twinkleSpeed: Float,
+    val twinkleOffset: Float
+)
 
-        val infinite2Transition = rememberInfiniteTransition(label = "cloudStackFloat")
-        val floatProgress by infinite2Transition.animateFloat(
-            initialValue = 0f,
-            targetValue = 1f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(60000, easing = LinearEasing),
-                repeatMode = RepeatMode.Restart
-            ),
-            label = "cloudStackFloatProgress"
-        )
-
-        val cloudSmallLayers = remember {
-            List(groupCount) { i ->
-                listOf(
-                    CloudLayer(
-                        resId = R.drawable.cloud3,
-                        baseY = 0.1f + Random.nextFloat() * 0.2f,
-                        sizeRatio = 2.8f,
-                        alpha = 0.7f,
-                        startX = (i - 1) * (screenWidth),
-                        speed = 1.1f
-                    ),
-                )
-            }.flatten()
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .clipToBounds()
-        ) {
-            cloudSmallLayers.forEachIndexed { idx, layer ->
-                // 计算云层横向偏移，让云层从右侧屏幕外进入，左侧屏幕外消失
-                val totalDistance = screenWidth * 3 // 左右各留一个云宽
-                val offsetX =
-                    ((layer.startX - floatProgress * totalDistance) % totalDistance) + screenWidth
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = (layer.baseY * 400).dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = layer.resId),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .offset(x = offsetX.dp, y = 0.dp)
-                            .graphicsLayer(
-                                scaleX = layer.sizeRatio,
-                                scaleY = layer.sizeRatio,
-                                transformOrigin = TransformOrigin(0.5f, 0.5f)
-                            )
-                            .alpha(layer.alpha),
-                        contentScale = ContentScale.Fit
-                    )
-                }
-            }
+@Preview
+@Composable
+fun NightSunnyBackground(modifier: Modifier = Modifier, isCloudy: Boolean = false) {
+    // 星星数量
+    val starCount = 100
+    // 屏幕尺寸
+    val size = remember { mutableStateOf(IntSize.Zero) }
+    // 随机生成星星参数
+    val stars = remember {
+        List(starCount) {
+            Star(
+                position = Offset(
+                    x = (Math.random().toFloat() * 0.9f), // 屏幕宽度百分比
+                    y = (Math.random().toFloat() * 0.7f)  // 屏幕高度百分比
+                ),
+                radius = (0.25f + Math.random().toFloat() * 1.5f), // 星星半径
+                baseAlpha = (0.4f + Math.random().toFloat() * 0.6f), // 基础透明度
+                twinkleSpeed = (1f + Math.random().toFloat() * 3f), // 闪烁速度
+                twinkleOffset = Math.random().toFloat() * 2f * Math.PI.toFloat() // 闪烁相位
+            )
         }
     }
 
+    // 无限动画进度
+    val infiniteTransition = rememberInfiniteTransition(label = "starTwinkle")
+    val twinkleProgress by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 2f * Math.PI.toFloat(),
+        animationSpec = infiniteRepeatable(
+            animation = tween(4000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "twinkleProgress"
+    )
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .clipToBounds()
+    ) {
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .onSizeChanged { size.value = it }
+        ) {
+            // 绘制夜空背景
+            drawRect(
+                brush = Brush.verticalGradient(
+                    colors = listOf(Color(0xFF000A1F), Color(0xFF0E2248))
+                ),
+                size = size.value.toSize()
+            )
+
+            if (!isCloudy) {
+                // 绘制星星
+                stars.forEach { star ->
+                    // 计算星星闪烁的当前透明度
+                    val twinkle = 0.5f + 0.5f * sin(
+                        twinkleProgress * star.twinkleSpeed + star.twinkleOffset
+                    )
+                    val alpha = star.baseAlpha * (0.7f + 0.6f * twinkle)
+
+                    // 屏幕坐标
+                    val px = star.position.x * size.value.width
+                    val py = star.position.y * size.value.height
+
+                    // 径向渐变，中心亮，外圈透明
+                    drawCircle(
+                        brush = Brush.radialGradient(
+                            colors = listOf(
+                                Color.White.copy(alpha = alpha),
+                                Color.White.copy(alpha = alpha * 0.3f),
+                                Color.Transparent
+                            ),
+                            center = Offset(px, py),
+                            radius = star.radius * 4f
+                        ),
+                        radius = star.radius * 4f,
+                        center = Offset(px, py)
+                    )
+                }
+            }
+
+        }
+    }
+}
+
+@SuppressLint("ConfigurationScreenWidthHeight")
+@Composable
+fun CloudyBackground(modifier: Modifier = Modifier, isDay: Boolean = true) {
+    val groupCount = 3
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.toFloat() // dp 单位的 float
+
+    val infinite2Transition = rememberInfiniteTransition(label = "cloudStackFloat")
+    val floatProgress by infinite2Transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(60000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "cloudStackFloatProgress"
+    )
+
+    val cloudSmallLayers = remember {
+        List(groupCount) { i ->
+            listOf(
+                CloudLayer(
+                    resId = R.drawable.cloud3,
+                    baseY = 0.1f + Random.nextFloat() * 0.2f,
+                    sizeRatio = 2.8f,
+                    alpha = if (isDay) 0.7f else 0.3f,
+                    startX = (i - 1) * (screenWidth),
+                    speed = 1.1f
+                ),
+            )
+        }.flatten()
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .clipToBounds()
+    ) {
+        cloudSmallLayers.forEachIndexed { idx, layer ->
+            // 计算云层横向偏移，让云层从右侧屏幕外进入，左侧屏幕外消失
+            val totalDistance = screenWidth * 3 // 左右各留一个云宽
+            val offsetX =
+                ((layer.startX - floatProgress * totalDistance) % totalDistance) + screenWidth
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = (layer.baseY * 400).dp)
+            ) {
+                Image(
+                    painter = painterResource(id = layer.resId),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .offset(x = offsetX.dp, y = 0.dp)
+                        .graphicsLayer(
+                            scaleX = layer.sizeRatio,
+                            scaleY = layer.sizeRatio,
+                            transformOrigin = TransformOrigin(0.5f, 0.5f)
+                        )
+                        .alpha(layer.alpha),
+                    contentScale = ContentScale.Fit
+                )
+            }
+        }
+    }
 }

@@ -122,7 +122,7 @@ fun WeatherScreen(navController: NavController) {
         WeatherBackground(
             weatherModel.weatherNow!!.icon,
             modifier = Modifier.fillMaxSize(),
-            isDay = LocalDateTime.now().hour in 6..18
+            isDay = LocalDateTime.now().hour in 6..17
         )
     else
         Box(

@@ -1,6 +1,7 @@
 package com.qiuqiuqiu.weatherPredicate.ui.screen.weather
 
 import android.Manifest
+import android.annotation.SuppressLint
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -55,6 +56,7 @@ import com.qiuqiuqiu.weatherPredicate.viewModel.AppViewModel
 import com.qiuqiuqiu.weatherPredicate.viewModel.weather.WeatherSearchViewModel
 import java.time.LocalDateTime
 
+@SuppressLint("NewApi")
 @Composable
 fun WeatherSearchScreen(navController: NavController) {
     val scrollState = rememberScrollState()
@@ -80,7 +82,7 @@ fun WeatherSearchScreen(navController: NavController) {
     if (appViewModel.currentBg.value != null)
         WeatherBackground(
             appViewModel.currentBg.value!!, modifier = Modifier.fillMaxSize(),
-            isDay = LocalDateTime.now().hour in 6..18
+            isDay = LocalDateTime.now().hour in 6..17
         )
     else
         Box(
