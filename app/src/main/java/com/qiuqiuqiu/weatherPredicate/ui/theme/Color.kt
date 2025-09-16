@@ -29,7 +29,7 @@ val yellow = Color(0xFFFFC107)
 
 // === 极淡蓝色 === //
 val md_theme_light_secondary = Color(0xFFBBE2FF) // 辅助色
-val md_theme_light_onSecondary = Color(0xFF181818)
+val md_theme_light_onSecondary = Color(0xFFFFFFFF)
 val md_theme_light_secondaryContainer = Color(0xFFE8F2FD)
 val md_theme_light_onSecondaryContainer = Color(0xFF000000)
 

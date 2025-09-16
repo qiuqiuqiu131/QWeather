@@ -68,7 +68,7 @@ fun AirCurrentCard(airCurrent: AirV1CurrentResponse, onClick: (() -> Unit)? = nu
                         .size(75.dp)
                         .alpha(0.6f),
                     color = Color(indices.color.red, indices.color.green, indices.color.blue),
-                    trackColor = MaterialTheme.colorScheme.surface
+                    trackColor = MaterialTheme.colorScheme.surfaceContainer
                 )
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,

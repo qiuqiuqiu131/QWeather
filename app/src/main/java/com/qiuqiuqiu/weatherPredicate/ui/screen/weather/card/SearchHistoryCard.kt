@@ -7,9 +7,6 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,6 +18,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.qiuqiuqiu.weatherPredicate.model.SearchHistory
+import com.qiuqiuqiu.weatherPredicate.ui.normal.DefaultCard
 import com.qiuqiuqiu.weatherPredicate.ui.normal.SearchBaseCard
 
 @Composable
@@ -67,12 +65,8 @@ fun SearchHistoryItem(
     history: SearchHistory,
     onClick: ((SearchHistory) -> Unit)? = null
 ) {
-    ElevatedCard(
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-        ),
+    DefaultCard(
+        bgColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f),
         modifier = Modifier
             .padding(horizontal = 4.dp, vertical = 4.dp)
             .widthIn(max = 120.dp)

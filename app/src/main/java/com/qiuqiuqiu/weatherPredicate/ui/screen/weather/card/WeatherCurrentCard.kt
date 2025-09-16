@@ -99,7 +99,7 @@ fun WeatherCurrentCard(
             Row(
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier
-                    .padding(start = 8.dp, top = 4.dp)
+                    .padding(start = 12.dp, top = 4.dp)
                     .alpha(1 - alpha.value)
             ) {
                 Text(fontWeight = FontWeight.Light, fontSize = 90.sp, text = it.temp)

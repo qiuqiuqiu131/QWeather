@@ -60,7 +60,11 @@ fun InfinitePageContainer(pages: List<@Composable () -> Unit>, modifier: Modifie
             val index = page % pageCount
             pages[index]()
         }
-        PagerIndicator(size = pageCount, index = realIndex, modifier = Modifier.padding(8.dp))
+        PagerIndicator(
+            size = pageCount, index = realIndex, modifier = Modifier.padding(8.dp),
+            selectedColor = MaterialTheme.colorScheme.surfaceContainer,
+            unselectedColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.4f)
+        )
     }
 }
 
@@ -136,7 +140,9 @@ fun AutoInfinitePageContainer(
         PagerIndicator(
             size = pageCount,
             index = realIndex,
-            modifier = Modifier.padding(bottom = 8.dp)
+            modifier = Modifier.padding(bottom = 8.dp),
+            selectedColor = MaterialTheme.colorScheme.surfaceContainer,
+            unselectedColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.4f)
         )
     }
 }

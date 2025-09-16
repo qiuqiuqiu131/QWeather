@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -49,6 +50,7 @@ import com.qiuqiuqiu.weatherPredicate.model.CityType
 import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
 import com.qiuqiuqiu.weatherPredicate.ui.normal.rememberScrollAlpha
 import com.qiuqiuqiu.weatherPredicate.ui.normal.rememberScrollThreshold
+import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.background.WeatherBackground
 import com.qiuqiuqiu.weatherPredicate.viewModel.AppViewModel
 import com.qiuqiuqiu.weatherPredicate.viewModel.weather.WeatherViewModel
 import com.qweather.sdk.response.geo.Location
@@ -72,11 +74,12 @@ fun WeatherCityScreen(navController: NavController, location: Pair<Double, Doubl
     val centerCardAlpha = rememberScrollAlpha(scrollState, 70, 300)
     val cityTextHide = rememberScrollThreshold(scrollState, 70)
 
-//    Box(
-//        modifier = Modifier
-//            .background(color)
-//            .fillMaxSize()
-//    )
+    if (weatherModel.weatherNow != null)
+        WeatherBackground(weatherModel.weatherNow!!.icon)
+    else
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background))
 
     PullToRefreshBox(
         isRefreshing = viewModel.isRefreshing.value,
@@ -90,9 +93,14 @@ fun WeatherCityScreen(navController: NavController, location: Pair<Double, Doubl
                     centerCardAlpha,
                     cityTextHide
                 )
-            }
+            },
+            containerColor = Color.Transparent,
+            contentColor = MaterialTheme.colorScheme.onSecondary
         ) { innerPadding ->
-            LoadingContainer(isInit = viewModel.isInit.value) {
+            LoadingContainer(
+                isInit = viewModel.isInit.value,
+                color = MaterialTheme.colorScheme.secondaryContainer
+            ) {
                 Box(modifier = Modifier.padding(innerPadding)) {
                     WeatherCenterPage(
                         weatherModel = weatherModel,
@@ -143,9 +151,9 @@ fun WeatherCityBottomBar(
                                 MaterialTheme.colorScheme.background
                                     .copy(alpha = 0f), // 顶部透明
                                 MaterialTheme.colorScheme.background
-                                    .copy(alpha = 0.85f), // 中间半透明
-                                MaterialTheme.colorScheme
-                                    .background // 底部不透明
+                                    .copy(alpha = 0.4f), // 中间半透明
+                                MaterialTheme.colorScheme.background
+                                    .copy(alpha = 0.6f)// 底部不透明
                             ),
                         startY = 0f,
                         endY = with(density) { boxHeight.toPx() }

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
@@ -39,7 +40,7 @@ fun BaseItem(
         modifier =
             modifier
                 .background(
-                    color = if (isPressed) bgColor.copy(alpha = 1f) else Color.Transparent,
+                    color = if (isPressed) bgColor.copy(alpha = 0.3f) else Color.Transparent,
                     shape = RoundedCornerShape(8.dp)
                 )
                 .pointerInput(Unit) {
@@ -162,6 +163,25 @@ fun DefaultCard(
     bgColor: Color? = null,
     content: @Composable (ColumnScope.() -> Unit)
 ) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = bgColor
+                ?: MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.15f),
+            contentColor = MaterialTheme.colorScheme.onSecondary
+        )
+    ) {
+        content()
+    }
+}
+
+@Composable
+fun DefaultElevatedCard(
+    modifier: Modifier = Modifier,
+    bgColor: Color? = null,
+    content: @Composable (ColumnScope.() -> Unit)
+) {
     ElevatedCard(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
@@ -172,16 +192,4 @@ fun DefaultCard(
     ) {
         content()
     }
-
-//    Card(
-//        modifier = modifier,
-//        shape = RoundedCornerShape(16.dp),
-//        colors = CardDefaults.cardColors(
-//            containerColor = bgColor
-//                ?: MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f),
-//            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-//        )
-//    ) {
-//        content()
-//    }
 }

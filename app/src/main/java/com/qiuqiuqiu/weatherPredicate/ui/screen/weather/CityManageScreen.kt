@@ -47,8 +47,8 @@ import com.qiuqiuqiu.weatherPredicate.LocalAppViewModel
 import com.qiuqiuqiu.weatherPredicate.model.CityLocationModel
 import com.qiuqiuqiu.weatherPredicate.model.CityType
 import com.qiuqiuqiu.weatherPredicate.model.LocationWeatherModel
-import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseCard
-import com.qiuqiuqiu.weatherPredicate.ui.normal.DefaultCard
+import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseItem
+import com.qiuqiuqiu.weatherPredicate.ui.normal.DefaultElevatedCard
 import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
 import com.qiuqiuqiu.weatherPredicate.viewModel.AppViewModel
 import com.qiuqiuqiu.weatherPredicate.viewModel.CityManageViewModel
@@ -210,7 +210,7 @@ fun SearchButton(
     enable: Boolean = true,
     onClick: (() -> Unit)? = null
 ) {
-    DefaultCard(modifier = modifier) {
+    DefaultElevatedCard(modifier = modifier) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -245,121 +245,126 @@ fun SearchButton(
 
 @Composable
 fun CityCard(weather: LocationWeatherModel, onClick: (() -> Unit)? = null) {
-    BaseCard(
-        modifier = Modifier.height(110.dp),
-        onClick = onClick
+    DefaultElevatedCard(
+        modifier = Modifier
+            .padding(horizontal = 12.dp, vertical = 4.dp)
+            .height(110.dp),
     )
     {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp)
-        ) {
-            Column(
+        BaseItem(onClick = onClick) {
+            Row(
                 modifier = Modifier
-                    .weight(2.5f)
                     .fillMaxSize()
+                    .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp)
             ) {
-                weather.location?.let {
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(vertical = 4.dp)
-                    ) {
-                        if (weather.type == CityType.Position) {
-                            Icon(
-                                Icons.Default.LocationOn,
-                                null,
-                                modifier = Modifier
-                                    .size(28.dp)
-                                    .alpha(0.9f)
-                            )
-                        } else if (weather.type == CityType.Host) {
-                            Icon(
-                                Icons.Rounded.Home,
-                                null,
-                                modifier = Modifier
-                                    .size(28.dp)
-                                    .alpha(0.9f)
+                Column(
+                    modifier = Modifier
+                        .weight(2.5f)
+                        .fillMaxSize()
+                ) {
+                    weather.location?.let {
+                        Row(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(vertical = 4.dp)
+                        ) {
+                            if (weather.type == CityType.Position) {
+                                Icon(
+                                    Icons.Default.LocationOn,
+                                    null,
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .alpha(0.9f)
+                                )
+                            } else if (weather.type == CityType.Host) {
+                                Icon(
+                                    Icons.Rounded.Home,
+                                    null,
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .alpha(0.9f)
+                                )
+                            }
+                            Text(
+                                style = MaterialTheme.typography.titleLarge.copy(
+                                    fontSize = 21.sp,
+                                    fontWeight = FontWeight.Medium
+                                ),
+                                softWrap = false,
+                                overflow = TextOverflow.Ellipsis,
+                                text = "${it.adm1} " +
+                                        (if (it.adm2.equals(it.name)) "" else it.adm2 + " ") +
+                                        "${it.name}",
+                                modifier = Modifier.padding(horizontal = 4.dp)
                             )
                         }
-                        Text(
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontSize = 21.sp,
-                                fontWeight = FontWeight.Medium
-                            ),
-                            softWrap = false,
-                            overflow = TextOverflow.Ellipsis,
-                            text = "${it.adm1} " +
-                                    (if (it.adm2.equals(it.name)) "" else it.adm2 + " ") +
-                                    "${it.name}",
-                            modifier = Modifier.padding(horizontal = 4.dp)
-                        )
+
                     }
 
-                }
-
-                if (weather.warnings != null && weather.warnings.isNotEmpty()) {
-                    val warning = weather.warnings.first()
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            Icons.Default.Warning,
-                            null,
-                            modifier = Modifier
-                                .size(20.dp)
-                                .padding(end = 4.dp)
-                        )
-                        Text(
-                            style = MaterialTheme.typography.bodyMedium,
-                            text = "${warning.typeName}${warning.level}预警",
-                            modifier = Modifier.height(20.dp),
-                            softWrap = false, overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                } else {
-                    weather.weatherNow?.let {
-                        Text(
-                            style = MaterialTheme.typography.bodyMedium,
-                            text = it.text,
-                            modifier = Modifier.height(20.dp),
-                            softWrap = false, overflow = TextOverflow.Ellipsis
-                        )
+                    if (weather.warnings != null && weather.warnings.isNotEmpty()) {
+                        val warning = weather.warnings.first()
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                Icons.Default.Warning,
+                                null,
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .padding(end = 4.dp)
+                            )
+                            Text(
+                                style = MaterialTheme.typography.bodyMedium,
+                                text = "${warning.typeName}${warning.level}预警",
+                                modifier = Modifier.height(20.dp),
+                                softWrap = false, overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    } else {
+                        weather.weatherNow?.let {
+                            Text(
+                                style = MaterialTheme.typography.bodyMedium,
+                                text = it.text,
+                                modifier = Modifier.height(20.dp),
+                                softWrap = false, overflow = TextOverflow.Ellipsis
+                            )
+                        }
                     }
                 }
-            }
 
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxSize(),
-                horizontalAlignment = Alignment.End
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.Top,
+                Column(
                     modifier = Modifier
                         .weight(1f)
-                        .fillMaxHeight()
+                        .fillMaxSize(),
+                    horizontalAlignment = Alignment.End
                 ) {
-                    weather.weatherNow?.let {
-                        Text(
-                            style = MaterialTheme.typography.titleLarge.copy(fontSize = 34.sp),
-                            text = weather.weatherNow!!.temp,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.Top,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                    ) {
+                        weather.weatherNow?.let {
+                            Text(
+                                style = MaterialTheme.typography.titleLarge.copy(fontSize = 34.sp),
+                                text = weather.weatherNow!!.temp,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
+
+                        Text(text = "℃", style = MaterialTheme.typography.titleMedium)
                     }
 
-                    Text(text = "℃", style = MaterialTheme.typography.titleMedium)
-                }
-
-                weather.weatherDailies?.let {
-                    val weatherDay = it.first()
-                    Text(
-                        style = MaterialTheme.typography.bodyMedium,
-                        text = "${weatherDay.tempMax}/${weatherDay.tempMin}℃",
-                        modifier = Modifier.alpha(0.6f)
-                    )
+                    weather.weatherDailies?.let {
+                        val weatherDay = it.first()
+                        Text(
+                            style = MaterialTheme.typography.bodyMedium,
+                            text = "${weatherDay.tempMax}/${weatherDay.tempMin}℃",
+                            modifier = Modifier.alpha(0.6f)
+                        )
+                    }
                 }
             }
         }
+
     }
 }

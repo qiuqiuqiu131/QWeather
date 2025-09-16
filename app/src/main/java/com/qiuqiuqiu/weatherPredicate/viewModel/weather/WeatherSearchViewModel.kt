@@ -54,6 +54,7 @@ class WeatherSearchViewModel @Inject constructor(
             val model = searchCityManager.getTopCities()
             searchCityModel.update { model }
             searchHistories.value = localDataManager.getSearchHistories()
+            delay(300)
             viewModelScope.launch(Dispatchers.Main) {
                 isInit.value = false
             }

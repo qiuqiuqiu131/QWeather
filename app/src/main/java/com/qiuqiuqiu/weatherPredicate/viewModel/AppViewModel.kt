@@ -1,5 +1,7 @@
 package com.qiuqiuqiu.weatherPredicate.viewModel
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.qiuqiuqiu.weatherPredicate.manager.ILocalDataManager
 import com.qiuqiuqiu.weatherPredicate.model.CityLocationModel
@@ -29,6 +31,8 @@ class AppViewModel @Inject constructor(
             }
         }
     }
+
+    var currentBg: MutableState<String?> = mutableStateOf(null)
 
     fun setCurrentCity(location: CityLocationModel) {
         currentCity.value = location

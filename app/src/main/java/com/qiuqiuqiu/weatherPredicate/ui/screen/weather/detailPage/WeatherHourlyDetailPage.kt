@@ -43,12 +43,12 @@ import androidx.compose.ui.unit.sp
 import com.qiuqiuqiu.weatherPredicate.tools.toDayLabel
 import com.qiuqiuqiu.weatherPredicate.tools.toMaterialFillIcon
 import com.qiuqiuqiu.weatherPredicate.ui.normal.CustomLineChartView
-import com.qiuqiuqiu.weatherPredicate.ui.normal.DefaultCard
+import com.qiuqiuqiu.weatherPredicate.ui.normal.DefaultElevatedCard
 import com.qiuqiuqiu.weatherPredicate.ui.normal.NullNestScrollConnection
 import com.qiuqiuqiu.weatherPredicate.ui.normal.ScrollableCenterRowList
 import com.qiuqiuqiu.weatherPredicate.ui.normal.WeatherIcon
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.DetailTipItem
-import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.WeatherStatusInfoCard
+import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.WeatherStatusInfoElevatedCard
 import com.qiuqiuqiu.weatherPredicate.viewModel.weather.HourlyDetailType
 import com.qiuqiuqiu.weatherPredicate.viewModel.weather.WeatherDetailViewModel
 import com.qweather.sdk.response.weather.WeatherHourly
@@ -133,7 +133,7 @@ fun WeatherHourlyDetailPage(
             chartModel?.let {
                 Spacer(modifier = Modifier.height(4.dp))
                 val nestScrollConnection = remember { NullNestScrollConnection() }
-                DefaultCard(
+                DefaultElevatedCard(
                     bgColor = MaterialTheme.colorScheme.background,
                     modifier = Modifier
                         .padding(horizontal = 12.dp, vertical = 6.dp)
@@ -227,8 +227,7 @@ fun WeatherHourlyDetailPage(
             }
 
             weatherModel.indicesDailies?.let {
-
-                WeatherStatusInfoCard(
+                WeatherStatusInfoElevatedCard(
                     it, bgColor = MaterialTheme.colorScheme.background,
                     pressColor = MaterialTheme.colorScheme.surfaceContainer,
                     icon = Icons.Default.NotificationsActive,
@@ -355,12 +354,12 @@ fun HourlyTipCard(
                         ) {
                             Text(
                                 text = OffsetDateTime.parse(it.fxTime)
-                                    .format(DateTimeFormatter.ofPattern("hh:mm")),
+                                    .format(DateTimeFormatter.ofPattern("HH:mm")),
                                 style = MaterialTheme.typography.labelMedium
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "全天降水量${it.precip}mm",
+                                text = "降水量${it.precip}mm",
                                 style = MaterialTheme.typography.labelMedium
                             )
                         }
@@ -404,7 +403,7 @@ fun HourlyTipCard(
                         ) {
                             Text(
                                 text = OffsetDateTime.parse(it.fxTime)
-                                    .format(DateTimeFormatter.ofPattern("hh:mm")),
+                                    .format(DateTimeFormatter.ofPattern("HH:mm")),
                                 style = MaterialTheme.typography.labelMedium
                             )
                             Spacer(modifier = Modifier.width(4.dp))
@@ -451,7 +450,7 @@ fun HourlyTipCard(
                         ) {
                             Text(
                                 text = OffsetDateTime.parse(it.fxTime)
-                                    .format(DateTimeFormatter.ofPattern("hh:mm")),
+                                    .format(DateTimeFormatter.ofPattern("HH:mm")),
                                 style = MaterialTheme.typography.labelMedium
                             )
                             Spacer(modifier = Modifier.width(4.dp))
@@ -493,7 +492,7 @@ fun HourlyTipCard(
                         ) {
                             Text(
                                 text = OffsetDateTime.parse(it.fxTime)
-                                    .format(DateTimeFormatter.ofPattern("hh:mm")),
+                                    .format(DateTimeFormatter.ofPattern("HH:mm")),
                                 style = MaterialTheme.typography.labelMedium
                             )
                             Spacer(modifier = Modifier.width(4.dp))
@@ -535,7 +534,7 @@ fun HourlyTipCard(
                         ) {
                             Text(
                                 text = OffsetDateTime.parse(it.fxTime)
-                                    .format(DateTimeFormatter.ofPattern("hh:mm")),
+                                    .format(DateTimeFormatter.ofPattern("HH:mm")),
                                 style = MaterialTheme.typography.labelMedium
                             )
                             Spacer(modifier = Modifier.width(4.dp))

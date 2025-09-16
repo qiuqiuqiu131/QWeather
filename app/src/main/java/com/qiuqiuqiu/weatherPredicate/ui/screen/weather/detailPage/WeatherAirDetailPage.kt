@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.qiuqiuqiu.weatherPredicate.model.LocationWeatherModel
 import com.qiuqiuqiu.weatherPredicate.ui.normal.CustomLineChartView
-import com.qiuqiuqiu.weatherPredicate.ui.normal.DefaultCard
+import com.qiuqiuqiu.weatherPredicate.ui.normal.DefaultElevatedCard
 import com.qiuqiuqiu.weatherPredicate.viewModel.weather.WeatherAirDetailViewModel
 import com.qweather.sdk.response.air.v1.AirV1CurrentResponse
 import com.qweather.sdk.response.air.v1.Pollutant
@@ -93,7 +93,7 @@ fun WeatherAirDetailPage(
 
             airModel.value?.let {
                 Spacer(modifier = Modifier.height(8.dp))
-                DefaultCard(
+                DefaultElevatedCard(
                     bgColor = MaterialTheme.colorScheme.background,
                     modifier = Modifier
                         .padding(horizontal = 12.dp, vertical = 6.dp)

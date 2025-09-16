@@ -4,6 +4,7 @@ import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,6 +26,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -36,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -54,6 +57,7 @@ import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseItem
 import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
 import com.qiuqiuqiu.weatherPredicate.ui.normal.rememberScrollAlpha
 import com.qiuqiuqiu.weatherPredicate.ui.normal.rememberScrollThreshold
+import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.background.WeatherBackground
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.AirCurrentCard
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.DailyWeatherCard
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.HourlyWeatherCard
@@ -88,7 +92,7 @@ fun WeatherScreen(navController: NavController) {
             viewModel.initLocation(currentCity)
         }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(currentCity) {
         val hasPermissions = hasLocationPermissions(context)
         val isDenied = isLocationPermanentlyDenied(context)
         if (currentCity.type == CityType.Position && !hasPermissions && isDenied) {
@@ -104,23 +108,25 @@ fun WeatherScreen(navController: NavController) {
         }
     }
 
-//    Box(
-//        modifier = Modifier
-//            .background(
-//                Color(
-//                    red = 0.8f,
-//                    green = 0.9f,
-//                    blue = 1f,
-//                    alpha = 1f,
-//                    colorSpace = ColorSpaces.Srgb
-//                )
-//            )
-//            .fillMaxSize()
-//    )
+    LaunchedEffect(weatherModel) {
+        weatherModel.weatherNow?.let {
+            appViewModel.currentBg.value = it.icon
+        }
+    }
+
+
+    if (weatherModel.weatherNow != null)
+        WeatherBackground(weatherModel.weatherNow!!.icon)
+    else
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+        )
 
     PullToRefreshBox(
         isRefreshing = viewModel.isRefreshing.value,
-        onRefresh = { viewModel.refreshing() },
+        onRefresh = { viewModel.refreshing() }
     ) {
         Scaffold(
             topBar = {
@@ -132,9 +138,14 @@ fun WeatherScreen(navController: NavController) {
                     cityTextHide,
                     onCityClick = { navController.navigate("CityManage") }
                 )
-            }
+            },
+            containerColor = Color.Transparent,
+            contentColor = MaterialTheme.colorScheme.onSecondary
         ) { innerPadding ->
-            LoadingContainer(isInit = viewModel.isInit.value) {
+            LoadingContainer(
+                isInit = viewModel.isInit.value,
+                color = if (weatherModel.weatherNow == null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer
+            ) {
                 WeatherCenterPage(
                     weatherModel = weatherModel,
                     scrollState = scrollState,
@@ -349,7 +360,7 @@ fun WeatherCenterPage(
             })
         }
 
-        Spacer(modifier = Modifier.height(50.dp))
+        Spacer(modifier = Modifier.height(100.dp))
     }
 }
 

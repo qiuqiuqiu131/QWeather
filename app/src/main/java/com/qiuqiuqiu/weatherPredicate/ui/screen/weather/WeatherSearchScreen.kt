@@ -3,7 +3,9 @@ package com.qiuqiuqiu.weatherPredicate.ui.screen.weather
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
@@ -42,6 +46,7 @@ import com.qiuqiuqiu.weatherPredicate.service.isLocationPermanentlyDenied
 import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
 import com.qiuqiuqiu.weatherPredicate.ui.normal.SearchTextBox
 import com.qiuqiuqiu.weatherPredicate.ui.normal.showPermissionSettingDialog
+import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.background.WeatherBackground
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.AddPositionCard
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.SearchCityCard
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.SearchHistoryCard
@@ -56,7 +61,6 @@ fun WeatherSearchScreen(navController: NavController) {
     var showDialog by remember { mutableStateOf(false) }
 
     val viewModel: WeatherSearchViewModel = hiltViewModel()
-    viewModel.initSearchData()
     val searchCityModel by viewModel.searchCityModel.collectAsState()
     val input by viewModel.searchInputFlow.collectAsState()
 
@@ -64,9 +68,23 @@ fun WeatherSearchScreen(navController: NavController) {
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
 
+    LaunchedEffect(Unit) {
+        viewModel.initSearchData()
+    }
+
     if (showDialog) {
         showPermissionSettingDialog(onDismiss = { showDialog = false }, context = context)
     }
+
+    if (appViewModel.currentBg.value != null)
+        WeatherBackground(appViewModel.currentBg.value!!, modifier = Modifier.fillMaxSize())
+    else
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+        )
+
 
     Scaffold(
         topBar = {
@@ -77,9 +95,14 @@ fun WeatherSearchScreen(navController: NavController) {
                 },
                 { navController.popBackStack() }
             )
-        }
+        },
+        containerColor = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onSecondary
     ) { innerPadding ->
-        LoadingContainer(isInit = viewModel.isInit.value) {
+        LoadingContainer(
+            isInit = viewModel.isInit.value,
+            color = if (appViewModel.currentBg.value == null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer
+        ) {
             if (!viewModel.searchCities.value.isNullOrEmpty()) {
                 Column(
                     modifier = Modifier
@@ -200,8 +223,6 @@ fun WeatherSearchScreen(navController: NavController) {
                             }
                         )
                     }
-
-
                 }
             }
         }

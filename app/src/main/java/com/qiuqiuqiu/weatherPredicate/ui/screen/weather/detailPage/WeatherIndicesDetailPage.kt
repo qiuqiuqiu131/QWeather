@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.qiuqiuqiu.weatherPredicate.tools.toMaterialFillIcon
 import com.qiuqiuqiu.weatherPredicate.ui.normal.CustomLineChartView
-import com.qiuqiuqiu.weatherPredicate.ui.normal.DefaultCard
+import com.qiuqiuqiu.weatherPredicate.ui.normal.DefaultElevatedCard
 import com.qiuqiuqiu.weatherPredicate.ui.normal.IconList
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.WeatherDailyInfoCard
 import com.qiuqiuqiu.weatherPredicate.viewModel.weather.WeatherDetailViewModel
@@ -146,7 +146,7 @@ fun WeatherIndicesPage(
                                             .copy(
                                                 activeContainerColor = MaterialTheme.colorScheme.primary,
                                                 activeContentColor = MaterialTheme.colorScheme.background,
-                                                inactiveContentColor = MaterialTheme.colorScheme.onSecondary,
+                                                inactiveContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                                                 inactiveContainerColor = MaterialTheme.colorScheme.surfaceContainer
                                             ),
                                         icon = {},
@@ -235,7 +235,7 @@ fun WeatherIndicesPage(
                 }
 
                 chartModel.value?.let { model ->
-                    DefaultCard(
+                    DefaultElevatedCard(
                         bgColor = MaterialTheme.colorScheme.background,
                         modifier = Modifier
                             .padding(horizontal = 12.dp, vertical = 6.dp)

@@ -44,7 +44,7 @@ import androidx.navigation.NavController
 import com.qiuqiuqiu.weatherPredicate.LocalAppViewModel
 import com.qiuqiuqiu.weatherPredicate.model.CityType
 import com.qiuqiuqiu.weatherPredicate.model.LocationWeatherModel
-import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseCard
+import com.qiuqiuqiu.weatherPredicate.ui.normal.DefaultElevatedCard
 import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
 import com.qiuqiuqiu.weatherPredicate.viewModel.AppViewModel
 import com.qiuqiuqiu.weatherPredicate.viewModel.CityEditViewModel
@@ -158,7 +158,11 @@ fun EditCityCard(
     onHomeClick: (() -> Unit)? = null,
     onDeleteClick: (() -> Unit)? = null
 ) {
-    BaseCard(modifier = Modifier.height(110.dp))
+    DefaultElevatedCard(
+        modifier = Modifier
+            .padding(horizontal = 12.dp, vertical = 4.dp)
+            .height(110.dp)
+    )
     {
         Row(
             modifier = Modifier

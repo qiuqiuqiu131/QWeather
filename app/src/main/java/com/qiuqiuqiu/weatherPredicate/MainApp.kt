@@ -1,11 +1,16 @@
 package com.qiuqiuqiu.weatherPredicate
 
+import android.app.Activity
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
@@ -40,6 +45,7 @@ fun MainApp(modifier: Modifier = Modifier) {
             "WeatherDetail?pageName={pageName}&pageInfo={pageInfo}&longitude={longitude}&latitude={latitude}",
             arguments = listOf()
         ) {
+            SwitchStatusBarColor(true)
             val pageName = it.arguments?.getString("pageName")
             val pageInfo = it.arguments?.getString("pageInfo")
             val longitude = it.arguments?.getString("longitude")?.toDoubleOrNull() ?: 116.4074
@@ -48,6 +54,7 @@ fun MainApp(modifier: Modifier = Modifier) {
         }
 
         animatedNavComposable("WeatherSearch") {
+            SwitchStatusBarColor(false)
             WeatherSearchScreen(navController)
         }
 
@@ -55,28 +62,34 @@ fun MainApp(modifier: Modifier = Modifier) {
             "CityWeather?longitude={longitude}&latitude={latitude}",
             arguments = listOf()
         ) {
+            SwitchStatusBarColor(false)
             val longitude = it.arguments?.getString("longitude")?.toDoubleOrNull() ?: 116.4074
             val latitude = it.arguments?.getString("latitude")?.toDoubleOrNull() ?: 39.9042
             WeatherCityScreen(navController, Pair(longitude, latitude))
         }
 
         animatedNavComposable("CityManage") {
+            SwitchStatusBarColor(true)
             CityManageScreen(navController)
         }
 
         animatedNavComposable("CityEdit") {
+            SwitchStatusBarColor(true)
             CityEditScreen(navController)
         }
 
         animatedNavComposable("time/global") {
+            SwitchStatusBarColor(true)
             GlobalTimeScreen(onBack = { navController.popBackStack() })
         }
 
         animatedNavComposable("time/solar") {
+            SwitchStatusBarColor(true)
             SolarTermScreen(onBack = { navController.popBackStack() })
         }
 
         animatedNavComposable("time/city") {
+            SwitchStatusBarColor(true)
             TourScreen(onBack = { navController.popBackStack() })
         }
     }
@@ -135,4 +148,19 @@ fun NavGraphBuilder.animatedNavComposable(
         },
         content = content
     )
+}
+
+@Composable
+fun SwitchStatusBarColor(
+    darkIcons: Boolean,
+) {
+    val context = LocalContext.current
+    val view = LocalView.current
+
+    SideEffect {
+        val window = (context as? Activity)?.window
+        window?.let {
+            WindowInsetsControllerCompat(window, view).isAppearanceLightStatusBars = darkIcons
+        }
+    }
 }

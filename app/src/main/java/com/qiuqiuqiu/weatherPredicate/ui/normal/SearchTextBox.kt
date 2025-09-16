@@ -19,6 +19,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -31,7 +33,8 @@ fun SearchTextBox(
     input: String,
     inputChanged: (String) -> Unit,
     onClear: (() -> Unit),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.onSecondary,
 ) {
     DefaultCard(modifier = modifier) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxSize()) {
@@ -56,8 +59,13 @@ fun SearchTextBox(
                             keyboardType = KeyboardType.Text,
                             imeAction = ImeAction.Search
                         ),
+                    cursorBrush = SolidColor(color),
+                    singleLine = true,
                     onValueChange = inputChanged,
-                    textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 15.sp),
+                    textStyle = MaterialTheme.typography.bodyMedium.copy(
+                        fontSize = 15.sp,
+                        color = color
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -66,7 +74,7 @@ fun SearchTextBox(
                         label,
                         modifier = Modifier
                             .padding(start = 4.dp)
-                            .alpha(0.6f),
+                            .alpha(0.75f),
                         style = MaterialTheme.typography.bodyMedium.copy(fontSize = 15.sp),
                     )
                 }

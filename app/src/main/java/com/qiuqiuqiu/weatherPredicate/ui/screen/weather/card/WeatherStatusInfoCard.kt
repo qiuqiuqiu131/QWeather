@@ -38,6 +38,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseCard
+import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseItem
+import com.qiuqiuqiu.weatherPredicate.ui.normal.DefaultElevatedCard
 import com.qweather.sdk.response.indices.IndicesDaily
 import kotlinx.coroutines.delay
 import kotlin.random.Random
@@ -168,3 +170,132 @@ fun WeatherStatusInfoCard(
     }
 }
 
+@Composable
+fun WeatherStatusInfoElevatedCard(
+    indicesDaily: List<IndicesDaily>,
+    modifier: Modifier = Modifier,
+    bgColor: Color? = null,
+    pressColor: Color? = null,
+    icon: ImageVector = Icons.Outlined.NotificationsActive,
+    iconColor: Color = MaterialTheme.colorScheme.onSecondary,
+    onIndicesClick: ((name: String) -> Unit)? = null
+) {
+    val categories = indicesDaily.mapNotNull { it.text }.filter { it.isNotBlank() }
+    var currentIndex by remember { mutableIntStateOf(Random.nextInt(0, categories.size - 1)) }
+
+    if (categories.isNotEmpty()) {
+        DefaultElevatedCard(
+            modifier = modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+            bgColor = bgColor
+        ) {
+            BaseItem(
+                bgColor = pressColor ?: MaterialTheme.colorScheme.surface,
+                onClick = { onIndicesClick?.invoke(indicesDaily[currentIndex].name) },
+                modifier = modifier
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp)
+                        .height(35.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    AnimatedContent(
+                        targetState = currentIndex,
+                        transitionSpec = {
+                            slideIntoContainer(
+                                AnimatedContentTransitionScope.SlideDirection.Up,
+                                animationSpec =
+                                    spring(
+                                        dampingRatio = Spring.DampingRatioNoBouncy,
+                                        stiffness = Spring.StiffnessLow
+                                    )
+                            ) togetherWith
+                                    slideOutOfContainer(
+                                        AnimatedContentTransitionScope.SlideDirection.Up,
+                                        animationSpec =
+                                            spring(
+                                                dampingRatio =
+                                                    Spring.DampingRatioNoBouncy,
+                                                stiffness = Spring.StiffnessLow
+                                            )
+                                    )
+                        }
+                    ) { idx ->
+                        val text = categories.getOrNull(idx) ?: ""
+                        val scrollState = rememberScrollState()
+                        LaunchedEffect(text) {
+                            scrollState.scrollTo(0)
+                            delay(2000)
+                            val needScroll = scrollState.maxValue > 0
+                            if (needScroll) {
+                                val speedPxPerSec = 150f
+                                val durationMillis =
+                                    ((scrollState.maxValue / speedPxPerSec) * 1000).toInt()
+                                val remainMillis = 2000 - durationMillis
+                                scrollState.animateScrollTo(
+                                    scrollState.maxValue,
+                                    animationSpec = tween(durationMillis = durationMillis)
+                                )
+                                delay(timeMillis = remainMillis.coerceAtLeast(500).toLong())
+                            } else {
+                                delay(3500)
+                            }
+                            currentIndex = (currentIndex + 1) % categories.size
+                        }
+
+                        val infiniteTransition = rememberInfiniteTransition(label = "shake")
+                        val rotation by
+                        infiniteTransition.animateFloat(
+                            initialValue = -18f,
+                            targetValue = 18f,
+                            animationSpec =
+                                infiniteRepeatable(
+                                    animation =
+                                        tween(
+                                            durationMillis = 500,
+                                            easing = LinearEasing
+                                        ),
+                                    repeatMode = RepeatMode.Reverse
+                                ),
+                            label = "shakeAnim"
+                        )
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = icon,
+                                contentDescription = null,
+                                tint = iconColor,
+                                modifier = Modifier
+                                    .graphicsLayer { this.rotationZ = rotation }
+                                    .size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.padding(horizontal = 4.dp))
+                            Row(
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .horizontalScroll(
+                                            scrollState,
+                                            enabled = false
+                                        ) // 禁止用户滑动
+                                        .padding(end = 8.dp)
+                            ) {
+                                Text(
+                                    text = text,
+                                    maxLines = 1,
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontSize = 13.sp
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+}

@@ -1,6 +1,8 @@
 package com.qiuqiuqiu.weatherPredicate.ui.screen
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -24,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.qiuqiuqiu.weatherPredicate.SwitchStatusBarColor
 import com.qiuqiuqiu.weatherPredicate.ui.screen.map.MapScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.WeatherScreen
 
@@ -42,14 +45,17 @@ fun MainHost(
     Box(modifier = modifier) {
         when (selectedBar) {
             MainNaviBar.Weather -> {
+                SwitchStatusBarColor(false)
                 WeatherScreen(navController)
             }
 
             MainNaviBar.Map -> {
+                SwitchStatusBarColor(true)
                 MapScreen()
             }
 
             MainNaviBar.Time -> {
+                SwitchStatusBarColor(true)
                 TimeScreen(navController)
             }
         }
@@ -64,11 +70,27 @@ fun MainScreen(navController: NavController, modifier: Modifier = Modifier) {
     Scaffold(
         modifier = modifier,
         bottomBar = {
+
+        }
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = innerPadding.calculateBottomPadding())
+        ) {
+            MainHost(
+                selectedDestination,
+                navController, modifier.fillMaxSize()
+            )
+
             NavigationBar(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(50.dp),
                 windowInsets = NavigationBarDefaults.windowInsets,
-                modifier = Modifier.height(50.dp),
                 contentColor = MaterialTheme.colorScheme.onTertiary,
-                containerColor = MaterialTheme.colorScheme.surfaceContainer
+                containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.975f)
             ) {
                 MainNaviBar.entries.forEachIndexed { index, destination ->
                     NavigationBarItem(
@@ -102,11 +124,6 @@ fun MainScreen(navController: NavController, modifier: Modifier = Modifier) {
                 }
             }
         }
-    ) { innerPadding ->
-        MainHost(
-            selectedDestination,
-            navController,
-            Modifier.padding(bottom = innerPadding.calculateBottomPadding())
-        )
+
     }
 }
