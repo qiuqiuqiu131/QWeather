@@ -124,7 +124,7 @@ fun LunchTrayTheme(
     }
 
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = LightColorScheme,
         shapes = Shapes,
         typography = Typography,
         content = content

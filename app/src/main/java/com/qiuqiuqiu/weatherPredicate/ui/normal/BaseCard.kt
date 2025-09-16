@@ -168,7 +168,7 @@ fun DefaultCard(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = bgColor
-                ?: MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.15f),
+                ?: MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.2f),
             contentColor = MaterialTheme.colorScheme.onSecondary
         )
     ) {

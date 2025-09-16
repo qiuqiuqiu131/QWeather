@@ -2,7 +2,6 @@ package com.qiuqiuqiu.weatherPredicate.ui.screen.weather.detailPage
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -79,10 +78,10 @@ fun WeatherIndicesPage(
     if (!weatherIndices.isNullOrEmpty()) {
         val currentIndices = weatherIndices[currentIndex]
         val indicesData = indicesMapper(currentIndices.type.toInt())
-        val colorBg =
-            if (isSystemInDarkTheme()) indicesData.nightColor else indicesData.dayColor
-        val colorIcon =
-            if (isSystemInDarkTheme()) indicesData.dayColor else indicesData.nightColor
+        val colorBg = indicesData.dayColor
+        // if (isSystemInDarkTheme()) indicesData.nightColor else indicesData.dayColor
+        val colorIcon = indicesData.nightColor
+        // if (isSystemInDarkTheme()) indicesData.dayColor else indicesData.nightColor
         val level = currentIndices.level.toInt()
 
         LaunchedEffect(currentPageIndex) {

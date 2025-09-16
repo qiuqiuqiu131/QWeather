@@ -3,7 +3,6 @@ package com.qiuqiuqiu.weatherPredicate.ui.screen.weather.detailPage
 import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -248,7 +247,7 @@ fun WeatherHourlyDetailPage(
                 ) {
                     items(it) { indices ->
                         val data = indicesMapper(indices.type.toInt())
-                        val color = if (isSystemInDarkTheme()) data.dayColor else data.nightColor
+                        val color = data.nightColor
                         DetailTipItem(
                             indices.name.toMaterialFillIcon(),
                             indices.category,
