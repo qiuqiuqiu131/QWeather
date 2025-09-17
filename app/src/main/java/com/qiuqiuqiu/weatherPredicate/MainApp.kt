@@ -18,6 +18,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.qiuqiuqiu.weatherPredicate.ui.screen.MainScreen
+import com.qiuqiuqiu.weatherPredicate.ui.screen.map.MapSideScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.time.GlobalTimeScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.time.SolarTermScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.time.TourScreen
@@ -91,6 +92,17 @@ fun MainApp(modifier: Modifier = Modifier) {
         animatedNavComposable("time/city") {
             SwitchStatusBarColor(true)
             TourScreen(onBack = { navController.popBackStack() })
+        }
+
+        animatedNavComposable(
+            "SideMap?title={title}&longitude={longitude}&latitude={latitude}",
+            arguments = listOf()
+        ) {
+            SwitchStatusBarColor(true)
+            val title = it.arguments?.getString("title") ?: "位置"
+            val longitude = it.arguments?.getString("longitude")?.toDoubleOrNull() ?: 116.4074
+            val latitude = it.arguments?.getString("latitude")?.toDoubleOrNull() ?: 39.9042
+            MapSideScreen(title, longitude, latitude, navController)
         }
     }
 }

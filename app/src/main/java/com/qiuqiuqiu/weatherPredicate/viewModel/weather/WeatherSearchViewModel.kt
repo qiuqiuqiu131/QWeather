@@ -40,20 +40,35 @@ class WeatherSearchViewModel @Inject constructor(
     var searchCityModel: MutableStateFlow<SearchCityModel> = MutableStateFlow(SearchCityModel())
         private set
 
-    var searchHistories: MutableState<List<SearchHistory>> = mutableStateOf(listOf())
+    var searchHistories: MutableStateFlow<List<SearchHistory>> = MutableStateFlow(listOf())
+        private set
+
+    var rangePois: MutableStateFlow<List<Location>?> = MutableStateFlow(null)
         private set
 
     var isInit: MutableState<Boolean> = mutableStateOf(true)
         private set
 
-    fun initSearchData() {
+    fun initSearchData(currentCity: CityLocationModel?) {
         searchInputFlow.value = null
         viewModelScope.launch(CoroutineExceptionHandler { _, e ->
             Log.e("Search", "获取天气失败: ${e.message}")
         } + Dispatchers.IO) {
             val model = searchCityManager.getTopCities()
             searchCityModel.update { model }
-            searchHistories.value = localDataManager.getSearchHistories()
+            searchHistories.update { localDataManager.getSearchHistories() }
+            if (currentCity != null)
+                try {
+                    rangePois.update {
+                        searchCityManager.getPoiCache(
+                            currentCity.location.first.toString(),
+                            currentCity.location.second.toString()
+                        )
+                    }
+                } catch (e: Exception) {
+                    Log.e("Search", "获取附近失败: ${e.message}")
+                }
+
             delay(300)
             viewModelScope.launch(Dispatchers.Main) {
                 isInit.value = false

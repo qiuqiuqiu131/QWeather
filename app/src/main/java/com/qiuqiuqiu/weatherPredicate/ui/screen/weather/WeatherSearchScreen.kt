@@ -49,6 +49,7 @@ import com.qiuqiuqiu.weatherPredicate.ui.normal.SearchTextBox
 import com.qiuqiuqiu.weatherPredicate.ui.normal.showPermissionSettingDialog
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.background.WeatherBackground
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.AddPositionCard
+import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.PoiCard
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.SearchCityCard
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.SearchHistoryCard
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.TopCityCard
@@ -65,14 +66,17 @@ fun WeatherSearchScreen(navController: NavController) {
 
     val viewModel: WeatherSearchViewModel = hiltViewModel()
     val searchCityModel by viewModel.searchCityModel.collectAsState()
+    val searchHistory by viewModel.searchHistories.collectAsState()
+    val rangePoi by viewModel.rangePois.collectAsState()
     val input by viewModel.searchInputFlow.collectAsState()
 
     val appViewModel: AppViewModel = LocalAppViewModel.current
+    val currentCity by appViewModel.currentCity.collectAsState()
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
-        viewModel.initSearchData()
+    LaunchedEffect(currentCity) {
+        viewModel.initSearchData(currentCity)
     }
 
     if (showDialog) {
@@ -153,7 +157,7 @@ fun WeatherSearchScreen(navController: NavController) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     SearchHistoryCard(
-                        viewModel.searchHistories.value, onClearClick = {
+                        searchHistory, onClearClick = {
                             viewModel.clearSearchHistories()
                         },
                         onClick = {
@@ -229,6 +233,17 @@ fun WeatherSearchScreen(navController: NavController) {
                             }
                         )
                     }
+
+                    rangePoi?.let {
+                        if (!it.isEmpty()) {
+                            PoiCard(it, onClick = { poi ->
+                                // 地图侧边栏
+                                navController.navigate("SideMap?title=${poi.name}&longitude=${poi.lon}&latitude=${poi.lat}")
+                            })
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(180.dp))
                 }
             }
         }

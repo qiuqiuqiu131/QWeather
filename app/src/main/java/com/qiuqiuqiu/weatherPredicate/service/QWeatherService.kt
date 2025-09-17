@@ -7,11 +7,13 @@ import com.qweather.sdk.JWTGenerator
 import com.qweather.sdk.QWeather
 import com.qweather.sdk.basic.Indices
 import com.qweather.sdk.basic.Lang
+import com.qweather.sdk.basic.Poi
 import com.qweather.sdk.basic.Range
 import com.qweather.sdk.basic.Unit
 import com.qweather.sdk.parameter.air.AirV1Parameter
 import com.qweather.sdk.parameter.geo.GeoCityLookupParameter
 import com.qweather.sdk.parameter.geo.GeoCityTopParameter
+import com.qweather.sdk.parameter.geo.GeoPoiRangeParameter
 import com.qweather.sdk.parameter.indices.IndicesParameter
 import com.qweather.sdk.parameter.warning.WarningNowParameter
 import com.qweather.sdk.parameter.weather.WeatherParameter
@@ -23,6 +25,7 @@ import com.qweather.sdk.response.air.v1.AirV1HourlyResponse
 import com.qweather.sdk.response.error.ErrorResponse
 import com.qweather.sdk.response.geo.GeoCityLookupResponse
 import com.qweather.sdk.response.geo.GeoCityTopResponse
+import com.qweather.sdk.response.geo.GeoPoiResponse
 import com.qweather.sdk.response.geo.Location
 import com.qweather.sdk.response.indices.IndicesDaily
 import com.qweather.sdk.response.indices.IndicesDailyResponse
@@ -132,6 +135,20 @@ interface IQWeatherService {
     suspend fun getCityTop(
         number: Int,
         range: Range? = null
+    ): List<Location>
+
+    /**
+     * 获取周边POI
+     * @param longitude 经度
+     * @param latitude 纬度
+     * @param range 范围，单位km，默认1km，最大支持20km
+     * @param number 数量，默认10个，最大支持20个
+     */
+    suspend fun getPoi(
+        longitude: String,
+        latitude: String,
+        range: Int = 10,
+        number: Int = 10
     ): List<Location>
 }
 
@@ -469,6 +486,35 @@ class QWeatherService @Inject constructor(@ApplicationContext private val contex
             instance.geoCityTop(parameter, object : Callback<GeoCityTopResponse> {
                 override fun onSuccess(response: GeoCityTopResponse) {
                     cont.resume(response.topCityList, null)
+                }
+
+                override fun onFailure(errorResponse: ErrorResponse) {
+                    Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
+                    cont.resumeWithException(Exception(errorResponse.toString()))
+                }
+
+                override fun onException(e: Throwable) {
+                    Log.e(TAG, "getWeatherNow onException: $e")
+                    cont.resumeWithException(e)
+                }
+            })
+        }
+    }
+
+    override suspend fun getPoi(
+        longitude: String,
+        latitude: String,
+        range: Int,
+        number: Int
+    ): List<Location> {
+        var parameter = GeoPoiRangeParameter("$longitude,$latitude", Poi.SCENIC)
+            .number(number).radius(range)
+            .lang(Lang.ZH_HANS)
+
+        return suspendCancellableCoroutine { cont ->
+            instance.geoPoiRange(parameter, object : Callback<GeoPoiResponse> {
+                override fun onSuccess(response: GeoPoiResponse) {
+                    cont.resume(response.poi, null)
                 }
 
                 override fun onFailure(errorResponse: ErrorResponse) {

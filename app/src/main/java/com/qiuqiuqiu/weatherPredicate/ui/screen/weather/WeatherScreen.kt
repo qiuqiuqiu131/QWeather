@@ -23,6 +23,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -49,6 +50,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import com.qiuqiuqiu.weatherPredicate.LocalAppViewModel
+import com.qiuqiuqiu.weatherPredicate.SwitchStatusBarColor
 import com.qiuqiuqiu.weatherPredicate.model.CityType
 import com.qiuqiuqiu.weatherPredicate.model.LocationWeatherModel
 import com.qiuqiuqiu.weatherPredicate.service.hasLocationPermissions
@@ -154,6 +156,7 @@ fun WeatherScreen(navController: NavController) {
                 isInit = viewModel.isInit.value,
                 color = if (weatherModel.weatherNow == null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer
             ) {
+                SwitchStatusBarColor(false)
                 WeatherCenterPage(
                     weatherModel = weatherModel,
                     scrollState = scrollState,
@@ -184,6 +187,8 @@ fun WeatherTopBar(
             .height(50.dp)
     ) {
         location?.let {
+            val text =
+                "${it.adm1} " + (if (it.adm2.equals(it.name)) "" else it.adm2 + " ") + "${it.name}"
             BaseItem(
                 onClick = onCityClick,
                 modifier =
@@ -200,10 +205,7 @@ fun WeatherTopBar(
                     Text(
                         fontWeight = FontWeight.SemiBold,
                         fontSize = (15 + 2 * (1 - alpha.value)).sp,
-                        text =
-                            "${it.adm1} " +
-                                    (if (it.adm2.equals(it.name)) "" else it.adm2 + " ") +
-                                    "${it.name}",
+                        text = text,
                         modifier = Modifier.widthIn(max = 300.dp),
                         overflow = TextOverflow.Ellipsis,
                         softWrap = false
@@ -219,7 +221,26 @@ fun WeatherTopBar(
                     }
                 }
             }
+
+            IconButton(
+                onClick = {
+                    navController.navigate(
+                        "SideMap?title=${text}&longitude=${location.lon}&latitude=${location.lat}"
+                    )
+                },
+                modifier = Modifier
+                    .padding(8.dp)
+                    .clickable {}
+                    .align(Alignment.CenterStart)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.MyLocation,
+                    null,
+                    modifier = Modifier.size(26.dp)
+                )
+            }
         }
+
 
         IconButton(
             onClick = {

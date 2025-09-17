@@ -52,7 +52,6 @@ fun MainHost(
                 appViewModel.naviBarContainerColor.value = Color.Transparent
                 appViewModel.naviBarIndicatorColor.value =
                     MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f)
-                SwitchStatusBarColor(false)
                 WeatherScreen(navController)
             }
 
