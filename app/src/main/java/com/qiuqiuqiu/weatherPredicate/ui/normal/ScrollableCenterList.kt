@@ -87,6 +87,7 @@ fun ScrollableCenterRowList(
     LazyRow(
         state = listState,
         horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
         modifier = modifier.nestedScroll(nestScrollConnection),
         userScrollEnabled = canScroll
     ) {

@@ -63,6 +63,8 @@ fun LifeIndexCard(
     ) {
         LazyHorizontalGrid(
             rows = GridCells.Fixed(2),
+            horizontalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(180.dp)
@@ -97,9 +99,11 @@ fun WeatherIndexCard(weather: WeatherNow, uvIndex: String?, onClick: (() -> Unit
                 )
             }
         },
-        modifier = Modifier.padding(bottom = 8.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 8.dp)
     ) {
-        LazyRow(horizontalArrangement = Arrangement.Start) {
+        LazyRow(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
             item { TipItem(Icons.Default.Thermostat, "${weather.feelsLike}℃", "体感温度", onClick) }
 
             item { TipItem(Icons.Outlined.WaterDrop, "${weather.humidity}%", "湿度", onClick) }

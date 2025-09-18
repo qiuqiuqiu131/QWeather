@@ -32,6 +32,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
@@ -133,9 +135,20 @@ fun WeatherScreen(navController: NavController) {
                 .background(MaterialTheme.colorScheme.background)
         )
 
+    val state = rememberPullToRefreshState()
     PullToRefreshBox(
         isRefreshing = viewModel.isRefreshing.value,
-        onRefresh = { viewModel.refreshing() }
+        state = state,
+        onRefresh = { viewModel.refreshing() },
+        indicator = {
+            Indicator(
+                modifier = Modifier.align(Alignment.TopCenter),
+                isRefreshing = viewModel.isRefreshing.value,
+                state = state,
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                color = MaterialTheme.colorScheme.onSecondary
+            )
+        },
     ) {
         Scaffold(
             topBar = {

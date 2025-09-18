@@ -52,8 +52,8 @@ data class Raindrop(
 @Composable
 fun RainyWindowBackground(
     modifier: Modifier = Modifier,
-    type: RainType = RainType.MODERATE,
-    isDay: Boolean = true
+    type: RainType = RainType.EXTREME,
+    isDay: Boolean = false
 ) {
     val raindropCount = getRaindropCount(type)
     val raindrops = remember {

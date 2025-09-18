@@ -58,7 +58,7 @@ fun WeatherAirDetailPage(
     currentPageIndex: Int,
     pageIndex: Int,
     modifier: Modifier = Modifier,
-    onColorChanged: ((Color) -> Unit)? = null
+    onThemeChanged: ((Color?, Color?, Boolean?) -> Unit)? = null,
 ) {
     val airViewModel: WeatherAirDetailViewModel = hiltViewModel()
     val airModel = airViewModel.model.collectAsState()
@@ -69,7 +69,7 @@ fun WeatherAirDetailPage(
 
     LaunchedEffect(currentPageIndex) {
         if (currentPageIndex == pageIndex) {
-            onColorChanged?.invoke(color)
+            onThemeChanged?.invoke(null, null, null)
             model.airHourlies?.let {
                 airViewModel.initModel(it)
             }
@@ -83,7 +83,7 @@ fun WeatherAirDetailPage(
 
     if (showChart) {
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {

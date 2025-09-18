@@ -43,6 +43,7 @@ import kotlin.math.sin
 import kotlin.random.Random
 
 @SuppressLint("ConfigurationScreenWidthHeight")
+@Preview
 @Composable
 fun SunnyLensFlareBackground(
     modifier: Modifier = Modifier,
@@ -111,7 +112,7 @@ fun DaySunnyBackground(modifier: Modifier = Modifier, isCloudy: Boolean = false)
             drawRect(
                 brush = Brush.verticalGradient(
                     // colors = listOf(Color(0xFF60A0FF), Color(0xFFB1C1DE))
-                    colors = listOf(Color(0xFF2586FF), Color(0xFF6EB1E8))
+                    colors = listOf(Color(0xFF2586FF), Color(0xFF53A3E7))
                 ),
                 size = size
             )

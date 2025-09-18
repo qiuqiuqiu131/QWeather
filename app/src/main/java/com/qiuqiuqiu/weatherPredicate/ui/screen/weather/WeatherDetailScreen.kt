@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.qiuqiuqiu.weatherPredicate.SwitchStatusBarColor
 import com.qiuqiuqiu.weatherPredicate.model.CityLocationModel
 import com.qiuqiuqiu.weatherPredicate.model.CityType
 import com.qiuqiuqiu.weatherPredicate.tools.toTimeWithPeriod
@@ -64,6 +65,8 @@ fun WeatherDetailScreen(
 
     val defaultColor = MaterialTheme.colorScheme.background
     var topBarColor by remember { mutableStateOf(defaultColor) }
+    val defaultContentColor = MaterialTheme.colorScheme.onSecondaryContainer
+    var contentColor by remember { mutableStateOf(defaultContentColor) }
 
     viewModel.initWeatherData(CityLocationModel(CityType.Normal, location), pageName)
 
@@ -93,11 +96,19 @@ fun WeatherDetailScreen(
             }
         }
 
+
+        var darkIcon by remember { mutableStateOf(true) }
+        val themeChanged: (Color?, Color?, Boolean?) -> Unit = { color, ctColor, darkicon ->
+            topBarColor = color ?: defaultColor
+            contentColor = ctColor ?: defaultContentColor
+            darkIcon = darkicon ?: true
+        }
+
         LaunchedEffect(pageState.targetPage) {
             if (viewModel.pageIndex.intValue != pageState.targetPage)
                 viewModel.pageIndex.intValue = pageState.targetPage
         }
-
+        SwitchStatusBarColor(darkIcon)
         Scaffold(
             topBar = {
                 weatherModel.location?.let {
@@ -109,6 +120,7 @@ fun WeatherDetailScreen(
                         pageItems = viewModel.pageItems.value,
                         pageIndex = viewModel.pageIndex.intValue,
                         bgColor = topBarColor,
+                        contentColor = contentColor,
                         navBack = { navController.popBackStack() },
                         onSelectionChanged = switchPage
                     )
@@ -135,9 +147,7 @@ fun WeatherDetailScreen(
                                         viewModel,
                                         currentPageIndex = pageState.targetPage,
                                         pageIndex = it,
-                                        onColorChanged = { color ->
-                                            topBarColor = color
-                                        }, onSwitchPage = { pageName ->
+                                        onThemeChanged = themeChanged, onSwitchPage = { pageName ->
                                             val index = viewModel.pageItems.value.indexOf(pageName)
                                             switchPage(index)
                                         })
@@ -146,9 +156,8 @@ fun WeatherDetailScreen(
                                         weatherModel.weatherDailiesMore,
                                         currentPageIndex = pageState.targetPage,
                                         pageIndex = it,
-                                        onColorChanged = { color ->
-                                            topBarColor = color
-                                        })
+                                        onThemeChanged = themeChanged
+                                    )
 
                                     "实况天气" -> WeatherCurrentDetailPage(
                                         weatherNow = weatherModel.weatherNow,
@@ -157,18 +166,15 @@ fun WeatherDetailScreen(
                                             .toTimeWithPeriod(),
                                         currentPageIndex = pageState.targetPage,
                                         pageIndex = it,
-                                        onColorChanged = { color ->
-                                            topBarColor = color
-                                        }, onSwitchPage = switchPage
+                                        onThemeChanged = themeChanged, onSwitchPage = switchPage
                                     )
 
                                     "空气质量" -> WeatherAirDetailPage(
                                         model = weatherModel,
                                         currentPageIndex = pageState.targetPage,
                                         pageIndex = it,
-                                        onColorChanged = { color ->
-                                            topBarColor = color
-                                        })
+                                        onThemeChanged = themeChanged
+                                    )
 
                                     else -> Text(pageName)
                                 }
@@ -183,9 +189,7 @@ fun WeatherDetailScreen(
                                     pageIndex = it,
                                     viewModel = viewModel,
                                     detailModel = hiltViewModel(key = "$it$pageInfo"),
-                                    onColorChanged = { color ->
-                                        topBarColor = color
-                                    },
+                                    onThemeChanged = themeChanged,
                                     onSwitchPage = switchPage
                                 )
                             }
@@ -203,6 +207,7 @@ fun WeatherDetailTopBar(
     cityName: String,
     pageItems: List<String>,
     bgColor: Color,
+    contentColor: Color,
     pageIndex: Int,
     navBack: () -> Unit,
     onSelectionChanged: (index: Int) -> Unit,
@@ -229,12 +234,14 @@ fun WeatherDetailTopBar(
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowLeft,
                     null,
+                    tint = contentColor,
                     modifier = Modifier.size(24.dp)
                 )
             }
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(
                     text = cityName,
+                    color = contentColor,
                     style =
                         MaterialTheme.typography.titleMedium.copy(
                             fontSize = 17.sp,
@@ -260,6 +267,7 @@ fun WeatherDetailTopBar(
             Text(
                 text = pageItems[index],
                 style = style,
+                color = contentColor,
                 modifier = Modifier.alpha(if (isSelected) 1f else 0.6f)
             )
         }

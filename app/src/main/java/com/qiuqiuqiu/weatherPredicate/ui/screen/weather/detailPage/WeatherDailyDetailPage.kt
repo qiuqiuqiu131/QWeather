@@ -44,13 +44,12 @@ fun WeatherDailyDetailPage(
     weatherDailies: List<WeatherDaily>?, modifier: Modifier = Modifier,
     currentPageIndex: Int,
     pageIndex: Int,
-    onColorChanged: ((Color) -> Unit)? = null
+    onThemeChanged: ((Color?, Color?, Boolean?) -> Unit)? = null,
 ) {
     var showChart by remember { mutableStateOf(false) }
-    val color = MaterialTheme.colorScheme.background
     LaunchedEffect(currentPageIndex) {
         if (currentPageIndex == pageIndex) {
-            onColorChanged?.invoke(color)
+            onThemeChanged?.invoke(null, null, null)
             if (!showChart) {
                 delay(200)
                 showChart = true

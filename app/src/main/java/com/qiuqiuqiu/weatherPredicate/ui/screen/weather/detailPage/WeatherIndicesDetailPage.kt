@@ -66,7 +66,7 @@ fun WeatherIndicesPage(
     modifier: Modifier = Modifier,
     currentPageIndex: Int,
     pageIndex: Int,
-    onColorChanged: ((Color) -> Unit)? = null,
+    onThemeChanged: ((Color?, Color?, Boolean?) -> Unit)? = null,
     onSwitchPage: ((index: Int) -> Unit)? = null
 ) {
     var currentIndex by remember { mutableIntStateOf(0) }
@@ -78,15 +78,15 @@ fun WeatherIndicesPage(
     if (!weatherIndices.isNullOrEmpty()) {
         val currentIndices = weatherIndices[currentIndex]
         val indicesData = indicesMapper(currentIndices.type.toInt())
-        val colorBg = indicesData.dayColor
-        // if (isSystemInDarkTheme()) indicesData.nightColor else indicesData.dayColor
-        val colorIcon = indicesData.nightColor
-        // if (isSystemInDarkTheme()) indicesData.dayColor else indicesData.nightColor
+        val colorBg = indicesData.nightColor
+        val colorIcon = indicesData.dayColor
         val level = currentIndices.level.toInt()
+
+        val contentColor = MaterialTheme.colorScheme.onSecondary
 
         LaunchedEffect(currentPageIndex) {
             if (currentPageIndex == pageIndex) {
-                onColorChanged?.invoke(colorBg)
+                onThemeChanged?.invoke(colorBg, contentColor, false)
                 detailModel.initChartModel(weatherIndices.first(), viewModel)
                 if (!showChart) {
                     delay(300)
@@ -113,7 +113,7 @@ fun WeatherIndicesPage(
                             bottomEnd = 36.dp
                         ),
                     colors = CardDefaults.cardColors()
-                        .copy(containerColor = colorBg)
+                        .copy(containerColor = colorBg, contentColor = contentColor)
                 ) {
                     Row(modifier = Modifier.padding(start = 26.dp, top = 20.dp, end = 8.dp)) {
                         Column(
@@ -132,7 +132,7 @@ fun WeatherIndicesPage(
                                             count = radioGroup.size
                                         ),
                                         border = SegmentedButtonDefaults.borderStroke(
-                                            MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
+                                            MaterialTheme.colorScheme.surface.copy(alpha = 0f),
                                             width = 0.dp
                                         ),
                                         onClick = {
@@ -143,10 +143,12 @@ fun WeatherIndicesPage(
                                         selected = (index == currentIndex),
                                         colors = SegmentedButtonDefaults.colors()
                                             .copy(
-                                                activeContainerColor = MaterialTheme.colorScheme.primary,
-                                                activeContentColor = MaterialTheme.colorScheme.background,
-                                                inactiveContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                                                inactiveContainerColor = MaterialTheme.colorScheme.surfaceContainer
+                                                activeContainerColor = MaterialTheme.colorScheme.background,
+                                                activeContentColor = colorBg,
+                                                inactiveContentColor = contentColor,
+                                                inactiveContainerColor = MaterialTheme.colorScheme.surfaceContainer.copy(
+                                                    alpha = 0.3f
+                                                )
                                             ),
                                         icon = {},
                                         label = {
@@ -291,22 +293,22 @@ data class IndicesData(
 
 fun indicesMapper(type: Int): IndicesData {
     return when (type) {
-        1 -> IndicesData(1, 3, Color(0xFFB2DFDB), Color(0xFF388E3C)) // 运动指数
-        2 -> IndicesData(2, 4, Color(0xFFFFF8E1), Color(0xFFFBC02D)) // 洗车指数
-        3 -> IndicesData(3, 7, Color(0xFFE3F2FD), Color(0xFF1976D2)) // 穿衣指数
-        4 -> IndicesData(4, 3, Color(0xFFC8E6C9), Color(0xFF388E3C)) // 钓鱼指数
-        5 -> IndicesData(5, 5, Color(0xFFFFEBEE), Color(0xFFD32F2F)) // 紫外线指数
-        6 -> IndicesData(6, 5, Color(0xFFFFFFE0), Color(0xFFFBC02D)) // 旅游指数
-        7 -> IndicesData(7, 5, Color(0xFFF3E5F5), Color(0xFF7B1FA2)) // 花粉过敏指数
-        8 -> IndicesData(8, 7, Color(0xFFE1F5FE), Color(0xFF0288D1)) // 舒适度指数
-        9 -> IndicesData(9, 4, Color(0xFFE0F2F1), Color(0xFF00796B)) // 感冒指数
-        10 -> IndicesData(10, 5, Color(0xFFF5F5F5), Color(0xFF5D4037)) // 空气污染扩散条件指数
-        11 -> IndicesData(11, 4, Color(0xFFFFFDE7), Color(0xFFFBC02D)) // 空调开启指数
-        12 -> IndicesData(12, 5, Color(0xFFE0F7FA), Color(0xFF0097A7)) // 太阳镜指数
-        13 -> IndicesData(13, 8, Color(0xFFFFF3E0), Color(0xFFF57C00)) // 化妆指数
-        14 -> IndicesData(14, 6, Color(0xFFFFFDE7), Color(0xFFFFA000)) // 晾晒指数
-        15 -> IndicesData(15, 5, Color(0xFFECEFF1), Color(0xFF455A64)) // 交通指数
-        16 -> IndicesData(16, 5, Color(0xFFFFF8E1), Color(0xFFE65100)) // 防晒指数
-        else -> IndicesData(0, 1, Color(0xFFF5F5F5), Color(0xFF616161)) // 其他
+        1 -> IndicesData(1, 3, Color(0xFFA5D6A7), Color(0xFF4CAF50)) // 运动指数 青绿色
+        2 -> IndicesData(2, 4, Color(0xFFB2DFDB), Color(0xFF26A69A)) // 洗车指数 浅紫
+        3 -> IndicesData(3, 7, Color(0xFFE1BEE7), Color(0xFF8E24AA)) // 穿衣指数 粉紫
+        4 -> IndicesData(4, 3, Color(0xFFA5D6A7), Color(0xFF4CAF50)) // 钓鱼指数 绿色
+        5 -> IndicesData(5, 5, Color(0xFFB3E5FC), Color(0xFF039BE5)) // 紫外线指数 浅蓝
+        6 -> IndicesData(6, 5, Color(0xFF76B3FF), Color(0xFF1976D2)) // 旅游指数 深蓝
+        7 -> IndicesData(7, 5, Color(0xFF795548), Color(0xFFA67C52)) // 花粉过敏指数 粉色
+        8 -> IndicesData(8, 7, Color(0xFFB2DFDB), Color(0xFF26A69A)) // 舒适度指数 青绿色
+        9 -> IndicesData(9, 4, Color(0xFF80DEEA), Color(0xFF26C6DA)) // 感冒指数 蓝绿
+        10 -> IndicesData(10, 5, Color(0xFFC1D1D9), Color(0xFF78909C)) // 空气污染扩散条件指数 灰蓝
+        11 -> IndicesData(11, 4, Color(0xFFB3E5FC), Color(0xFF039BE5)) // 空调开启指数 浅蓝
+        12 -> IndicesData(12, 5, Color(0xFFE1BEE7), Color(0xFF8E24AA)) // 太阳镜指数 粉紫
+        13 -> IndicesData(13, 8, Color(0xFF795548), Color(0xFFA67C52)) // 化妆指数 粉色
+        14 -> IndicesData(14, 6, Color(0xFF90CAF9), Color(0xFF1976D2)) // 晾晒指数 蓝色
+        15 -> IndicesData(15, 5, Color(0xFFBBD5E1), Color(0xFF78909C)) // 交通指数 灰蓝
+        16 -> IndicesData(16, 5, Color(0xFFCE93D8), Color(0xFFAB47BC)) // 防晒指数 浅紫
+        else -> IndicesData(0, 1, Color(0xFFECEFF1), Color(0xFF607D8B)) // 其他 灰色
     }
 }

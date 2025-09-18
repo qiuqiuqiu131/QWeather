@@ -62,18 +62,16 @@ fun WeatherHourlyDetailPage(
     currentPageIndex: Int,
     pageIndex: Int,
     modifier: Modifier = Modifier,
-    onColorChanged: ((Color) -> Unit)? = null,
+    onThemeChanged: ((Color?, Color?, Boolean?) -> Unit)? = null,
     onSwitchPage: ((name: String) -> Unit)? = null
 ) {
     val weatherModel by viewModel.locationWeather.collectAsState()
     val chartModel by viewModel.chartModel.collectAsState()
     var showChart by remember { mutableStateOf(false) }
 
-    val color = MaterialTheme.colorScheme.background
-
     LaunchedEffect(currentPageIndex) {
         if (currentPageIndex == pageIndex) {
-            onColorChanged?.invoke(color)
+            onThemeChanged?.invoke(null, null, null)
             if (!showChart) {
                 delay(400)
                 showChart = true
@@ -95,7 +93,7 @@ fun WeatherHourlyDetailPage(
                     selectedItemChanged = { index ->
                         viewModel.onDateChanged(index)
                     }, modifier = Modifier
-                        .background(color)
+                        .background(MaterialTheme.colorScheme.background)
                         .padding(start = 8.dp, end = 8.dp, bottom = 4.dp)
                 ) { index, isSelected ->
                     Column(

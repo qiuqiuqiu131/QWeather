@@ -41,13 +41,13 @@ fun WeatherCurrentDetailPage(
     currentPageIndex: Int,
     pageIndex: Int,
     modifier: Modifier = Modifier,
-    onColorChanged: ((Color) -> Unit)? = null,
+    onThemeChanged: ((Color?, Color?, Boolean?) -> Unit)? = null,
     onSwitchPage: ((index: Int) -> Unit)? = null
 ) {
     var showChart by remember { mutableStateOf(false) }
     LaunchedEffect(currentPageIndex) {
         if (currentPageIndex == pageIndex) {
-            onColorChanged?.invoke(Color.Transparent)
+            onThemeChanged?.invoke(Color.Transparent, null, null)
             if (!showChart) {
                 delay(300)
                 showChart = true
@@ -57,7 +57,7 @@ fun WeatherCurrentDetailPage(
 
     if (showChart) {
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally

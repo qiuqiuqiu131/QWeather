@@ -1,7 +1,10 @@
 package com.qiuqiuqiu.weatherPredicate.ui.screen.weather.background
 
+import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import com.qiuqiuqiu.weatherPredicate.R
 
 fun getWeatherBackgroundType(id: String): String {
     val cloudCodes = setOf(
@@ -111,4 +114,19 @@ fun WeatherBackground(id: String, modifier: Modifier = Modifier, isDay: Boolean 
         "snow" -> CloudyAnimationBackground(modifier = modifier, isDay = isDay) // 可自定义雪背景
         else -> CloudyAnimationBackground(modifier = modifier, isDay = isDay)
     }
+}
+
+@Composable
+fun WeatherBackgroundCard(id: String, modifier: Modifier = Modifier, isDay: Boolean = true) {
+    val id = when (getWeatherBackgroundType(id)) {
+        "sunny" -> if (isDay) R.drawable.sunnyday else R.drawable.sunnynight
+        "sunnyCloudy" -> if (isDay) R.drawable.sunnycloudyday else R.drawable.sunnycloudynight
+        "cloudy" -> if (isDay) R.drawable.cloudyday else R.drawable.cloudynight
+        "rain_drizzle", "rain_light", "rain_moderate", "rain_heavy", "rain_severe", "rain_storm" -> if (isDay) R.drawable.rainyday else R.drawable.rainynight
+        else -> if (isDay) R.drawable.cloudyday else R.drawable.cloudynight
+    }
+    Image(
+        painterResource(id), null, modifier = modifier,
+        contentScale = androidx.compose.ui.layout.ContentScale.Crop
+    )
 }

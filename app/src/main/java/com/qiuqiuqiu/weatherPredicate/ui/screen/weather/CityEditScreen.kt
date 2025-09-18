@@ -1,5 +1,6 @@
 package com.qiuqiuqiu.weatherPredicate.ui.screen.weather
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -44,10 +45,12 @@ import androidx.navigation.NavController
 import com.qiuqiuqiu.weatherPredicate.LocalAppViewModel
 import com.qiuqiuqiu.weatherPredicate.model.CityType
 import com.qiuqiuqiu.weatherPredicate.model.LocationWeatherModel
-import com.qiuqiuqiu.weatherPredicate.ui.normal.DefaultElevatedCard
+import com.qiuqiuqiu.weatherPredicate.ui.normal.DefaultCard
 import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
+import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.background.WeatherBackgroundCard
 import com.qiuqiuqiu.weatherPredicate.viewModel.AppViewModel
 import com.qiuqiuqiu.weatherPredicate.viewModel.CityEditViewModel
+import java.time.LocalDateTime
 
 @Composable
 fun CityEditScreen(navController: NavController) {
@@ -152,144 +155,154 @@ fun CityEditTopBar(cancelClick: () -> Unit, saveClick: () -> Unit) {
     }
 }
 
+@SuppressLint("NewApi")
 @Composable
 fun EditCityCard(
     weather: LocationWeatherModel,
     onHomeClick: (() -> Unit)? = null,
     onDeleteClick: (() -> Unit)? = null
 ) {
-    DefaultElevatedCard(
+    DefaultCard(
         modifier = Modifier
             .padding(horizontal = 12.dp, vertical = 4.dp)
             .height(110.dp)
     )
     {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .weight(1.3f)
-                    .fillMaxSize()
-            ) {
-                weather.location?.let {
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(vertical = 4.dp)
-                    ) {
-                        if (weather.type == CityType.Position) {
-                            Icon(
-                                Icons.Default.LocationOn,
-                                null,
-                                modifier = Modifier
-                                    .size(28.dp)
-                                    .alpha(0.9f)
-                            )
-                        }
-                        Text(
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontSize = 21.sp,
-                                fontWeight = FontWeight.Medium
-                            ),
-                            softWrap = false,
-                            overflow = TextOverflow.Ellipsis,
-                            text = "${it.adm1} " +
-                                    (if (it.adm2.equals(it.name)) "" else it.adm2 + " ") +
-                                    "${it.name}",
-                            modifier = Modifier.padding(horizontal = 4.dp)
-                        )
-                    }
-
-                }
-
-                if (weather.warnings != null && weather.warnings.isNotEmpty()) {
-                    val warning = weather.warnings.first()
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            Icons.Default.Warning,
-                            null,
-                            modifier = Modifier
-                                .size(20.dp)
-                                .padding(end = 4.dp)
-                        )
-                        Text(
-                            style = MaterialTheme.typography.bodyMedium,
-                            text = "${warning.typeName}${warning.level}预警",
-                            modifier = Modifier.height(20.dp),
-                            softWrap = false, overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                } else {
-                    weather.weatherNow?.let {
-                        Text(
-                            style = MaterialTheme.typography.bodyMedium,
-                            text = it.text,
-                            modifier = Modifier.height(20.dp),
-                            softWrap = false, overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
+        Box(modifier = Modifier.fillMaxSize()) {
+            weather.weatherNow?.let {
+                WeatherBackgroundCard(
+                    weather.weatherNow.icon,
+                    modifier = Modifier.matchParentSize(),
+                    isDay = LocalDateTime.now().hour in 6..17
+                )
             }
-
             Row(
                 modifier = Modifier
-                    .weight(1f)
-                    .fillMaxSize(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
+                    .fillMaxSize()
+                    .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp)
             ) {
-                Box(
+                Column(
                     modifier = Modifier
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onTap = { onHomeClick?.invoke() }
+                        .weight(1.3f)
+                        .fillMaxSize()
+                ) {
+                    weather.location?.let {
+                        Row(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(vertical = 4.dp)
+                        ) {
+                            if (weather.type == CityType.Position) {
+                                Icon(
+                                    Icons.Default.LocationOn,
+                                    null,
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .alpha(0.9f)
+                                )
+                            }
+                            Text(
+                                style = MaterialTheme.typography.titleLarge.copy(
+                                    fontSize = 21.sp,
+                                    fontWeight = FontWeight.Medium
+                                ),
+                                softWrap = false,
+                                overflow = TextOverflow.Ellipsis,
+                                text = "${it.adm1} " +
+                                        (if (it.adm2.equals(it.name)) "" else it.adm2 + " ") +
+                                        "${it.name}",
+                                modifier = Modifier.padding(horizontal = 4.dp)
                             )
                         }
-                        .padding(end = 24.dp)) {
-                    val item =
-                        if (weather.type == CityType.Host) Pair(
-                            Icons.Rounded.Home,
-                            "取消常驻地"
-                        ) else Pair(Icons.Outlined.Home, "设为常驻地")
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            imageVector = item.first,
-                            null,
-                            modifier = Modifier
-                                .padding(bottom = 4.dp, top = 8.dp)
-                                .size(24.dp)
-                        )
-                        Text(text = item.second, style = MaterialTheme.typography.bodySmall)
+
+                    }
+
+                    if (weather.warnings != null && weather.warnings.isNotEmpty()) {
+                        val warning = weather.warnings.first()
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                Icons.Default.Warning,
+                                null,
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .padding(end = 4.dp)
+                            )
+                            Text(
+                                style = MaterialTheme.typography.bodyMedium,
+                                text = "${warning.typeName}${warning.level}预警",
+                                modifier = Modifier.height(20.dp),
+                                softWrap = false, overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    } else {
+                        weather.weatherNow?.let {
+                            Text(
+                                style = MaterialTheme.typography.bodyMedium,
+                                text = it.text,
+                                modifier = Modifier.height(20.dp),
+                                softWrap = false, overflow = TextOverflow.Ellipsis
+                            )
+                        }
                     }
                 }
 
-                Box(
+                Row(
                     modifier = Modifier
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onTap = { onDeleteClick?.invoke() }
-                            )
-                        }
+                        .weight(1f)
+                        .fillMaxSize(),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Delete,
-                            null,
-                            modifier = Modifier
-                                .padding(bottom = 4.dp, top = 8.dp)
-                                .size(24.dp)
+                    Box(
+                        modifier = Modifier
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onTap = { onHomeClick?.invoke() }
+                                )
+                            }
+                            .padding(end = 24.dp)) {
+                        val item =
+                            if (weather.type == CityType.Host) Pair(
+                                Icons.Rounded.Home,
+                                "取消常驻地"
+                            ) else Pair(Icons.Outlined.Home, "设为常驻地")
+                        Column(
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = item.first,
+                                null,
+                                modifier = Modifier
+                                    .padding(bottom = 4.dp, top = 8.dp)
+                                    .size(24.dp)
+                            )
+                            Text(text = item.second, style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
 
-                        )
-                        Text(text = "删除", style = MaterialTheme.typography.bodySmall)
+                    Box(
+                        modifier = Modifier
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onTap = { onDeleteClick?.invoke() }
+                                )
+                            }
+                    ) {
+                        Column(
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Delete,
+                                null,
+                                modifier = Modifier
+                                    .padding(bottom = 4.dp, top = 8.dp)
+                                    .size(24.dp)
+
+                            )
+                            Text(text = "删除", style = MaterialTheme.typography.bodySmall)
+                        }
                     }
                 }
             }

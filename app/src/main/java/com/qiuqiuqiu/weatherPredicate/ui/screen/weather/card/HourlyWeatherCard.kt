@@ -2,6 +2,7 @@ package com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
@@ -27,7 +28,7 @@ fun HourlyWeatherCard(
     onItemClick: ((WeatherHourly) -> Unit)? = null
 ) {
     BaseCard(onClick = onClick) {
-        LazyRow(horizontalArrangement = Arrangement.Start) {
+        LazyRow(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
             items(weathers) { hw ->
                 BaseItem(
                     innerModifier = Modifier.padding(vertical = 12.dp),

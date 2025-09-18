@@ -1,5 +1,6 @@
 package com.qiuqiuqiu.weatherPredicate.ui.screen.weather
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,10 +49,13 @@ import com.qiuqiuqiu.weatherPredicate.model.CityLocationModel
 import com.qiuqiuqiu.weatherPredicate.model.CityType
 import com.qiuqiuqiu.weatherPredicate.model.LocationWeatherModel
 import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseItem
+import com.qiuqiuqiu.weatherPredicate.ui.normal.DefaultCard
 import com.qiuqiuqiu.weatherPredicate.ui.normal.DefaultElevatedCard
 import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
+import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.background.WeatherBackgroundCard
 import com.qiuqiuqiu.weatherPredicate.viewModel.AppViewModel
 import com.qiuqiuqiu.weatherPredicate.viewModel.CityManageViewModel
+import java.time.LocalDateTime
 
 @Composable
 fun CityManageScreen(navController: NavController) {
@@ -243,15 +247,23 @@ fun SearchButton(
     }
 }
 
+@SuppressLint("NewApi")
 @Composable
 fun CityCard(weather: LocationWeatherModel, onClick: (() -> Unit)? = null) {
-    DefaultElevatedCard(
+    DefaultCard(
         modifier = Modifier
             .padding(horizontal = 12.dp, vertical = 4.dp)
-            .height(110.dp),
+            .height(110.dp)
     )
     {
         BaseItem(onClick = onClick) {
+            weather.weatherNow?.let {
+                WeatherBackgroundCard(
+                    weather.weatherNow.icon,
+                    modifier = Modifier.matchParentSize(),
+                    isDay = LocalDateTime.now().hour in 6..17
+                )
+            }
             Row(
                 modifier = Modifier
                     .fillMaxSize()
@@ -350,7 +362,6 @@ fun CityCard(weather: LocationWeatherModel, onClick: (() -> Unit)? = null) {
                                 modifier = Modifier.padding(top = 4.dp)
                             )
                         }
-
                         Text(text = "℃", style = MaterialTheme.typography.titleMedium)
                     }
 
@@ -365,6 +376,5 @@ fun CityCard(weather: LocationWeatherModel, onClick: (() -> Unit)? = null) {
                 }
             }
         }
-
     }
 }

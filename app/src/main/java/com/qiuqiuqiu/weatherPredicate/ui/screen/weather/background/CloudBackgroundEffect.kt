@@ -45,7 +45,7 @@ data class CloudLayer(
 @Composable
 fun CloudyAnimationBackground(
     modifier: Modifier = Modifier,
-    isDay: Boolean = false
+    isDay: Boolean = true
 ) {
     val alpha1 = if (isDay) 0.4f else 0.15f
     val alpha2 = if (isDay) 0.2f else 0.08f

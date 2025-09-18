@@ -40,7 +40,7 @@ fun BaseItem(
         modifier =
             modifier
                 .background(
-                    color = if (isPressed) bgColor.copy(alpha = 0.2f) else Color.Transparent,
+                    color = if (isPressed) bgColor.copy(alpha = 0.3f) else Color.Transparent,
                     shape = RoundedCornerShape(8.dp)
                 )
                 .pointerInput(Unit) {
@@ -168,7 +168,7 @@ fun DefaultCard(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = bgColor
-                ?: MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.2f),
+                ?: MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
             contentColor = MaterialTheme.colorScheme.onSecondary
         )
     ) {
