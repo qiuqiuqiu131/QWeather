@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.qiuqiuqiu.weatherPredicate.model.JieQiResponse
 import com.qiuqiuqiu.weatherPredicate.service.ApiKeyProvider
 import com.qiuqiuqiu.weatherPredicate.network.TianApiCities
-import com.qiuqiuqiu.weatherPredicate.repository.JieQiRepository
+import com.qiuqiuqiu.weatherPredicate.repository.TianRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class JieQiViewModel @Inject constructor(
-    private val repository: JieQiRepository
+    private val repository: TianRepository
 ) : ViewModel() {
 
     private val _jieQiResult = MutableStateFlow<JieQiResponse?>(null)

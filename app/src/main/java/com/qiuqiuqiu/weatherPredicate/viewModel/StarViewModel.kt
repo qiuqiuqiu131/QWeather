@@ -2,7 +2,7 @@ package com.qiuqiuqiu.weatherPredicate.viewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qiuqiuqiu.weatherPredicate.model.DailyFortuneResponse
-import com.qiuqiuqiu.weatherPredicate.repository.DailyFortuneRepository
+import com.qiuqiuqiu.weatherPredicate.repository.TianRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class StarViewModel @Inject constructor(
-    private val repository: DailyFortuneRepository
+    private val repository: TianRepository
 ) : ViewModel() {
 
     private val _fortuneResult = MutableStateFlow<DailyFortuneResponse?>(null)

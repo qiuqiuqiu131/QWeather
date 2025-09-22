@@ -9,7 +9,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.qiuqiuqiu.weatherPredicate.ui.screen.MainScreen
-import com.qiuqiuqiu.weatherPredicate.ui.screen.time.TourScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.time.GlobalTimeScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.time.SolarTermScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.CityEditScreen
@@ -364,44 +363,5 @@ fun MainApp(modifier: Modifier = Modifier) {
             SolarTermScreen(onBack = { navController.popBackStack() })
         }
 
-        composable(
-            "time/city",
-            enterTransition = {
-                slideIntoContainer(
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioNoBouncy,
-                        stiffness = Spring.StiffnessMediumLow,
-                    ),
-                    towards = AnimatedContentTransitionScope.SlideDirection.Left
-                )
-            },
-            exitTransition = {
-                slideOutOfContainer(
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioNoBouncy,
-                        stiffness = Spring.StiffnessMediumLow,
-                    ),
-                    towards = AnimatedContentTransitionScope.SlideDirection.Left
-                )
-            }, popEnterTransition = {
-                slideIntoContainer(
-                    towards = AnimatedContentTransitionScope.SlideDirection.Right,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioNoBouncy,
-                        stiffness = Spring.StiffnessMediumLow,
-                    )
-                )
-            },
-            popExitTransition = {
-                slideOutOfContainer(
-                    towards = AnimatedContentTransitionScope.SlideDirection.Right,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioNoBouncy,
-                        stiffness = Spring.StiffnessMediumLow,
-                    )
-                )
-            }) {
-            TourScreen(onBack = { navController.popBackStack() })
-        }
     }
 }

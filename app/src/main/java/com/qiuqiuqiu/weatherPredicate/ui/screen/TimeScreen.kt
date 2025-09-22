@@ -63,12 +63,7 @@ fun TimeScreen(navController: NavController) {
                 FeatureButton("二十四节气查询", Icons.Default.Spa) {
                     navController.navigate("time/solar")
                 }
-//                FeatureButton("旅游景区查询", Icons.Default.Place) {
-//                    navController.navigate("time/city")
-//                }
-                FeatureButton("天气诗句", Icons.Default.Spa) {
-                    navController.navigate("time/shiju")
-                }
+
             }
 
             Spacer(modifier = Modifier.height(30.dp))

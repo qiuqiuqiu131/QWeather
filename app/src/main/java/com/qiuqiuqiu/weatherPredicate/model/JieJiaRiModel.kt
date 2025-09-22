@@ -1,5 +1,4 @@
 package com.qiuqiuqiu.weatherPredicate.model
-
 data class JieJiaRiResponse(
     val code: Int,
     val msg: String,

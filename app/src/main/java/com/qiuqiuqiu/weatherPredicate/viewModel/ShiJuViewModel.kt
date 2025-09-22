@@ -3,7 +3,7 @@ package com.qiuqiuqiu.weatherPredicate.viewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qiuqiuqiu.weatherPredicate.model.ShiJuResponse
-import com.qiuqiuqiu.weatherPredicate.repository.ShiJuRepository
+import com.qiuqiuqiu.weatherPredicate.repository.TianRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ShiJuViewModel @Inject constructor(
-    private val repository: ShiJuRepository
+    private val repository: TianRepository
 ) : ViewModel() {
 
     private val _shiJuResult = MutableStateFlow<ShiJuResponse?>(null)
@@ -33,8 +33,8 @@ class ShiJuViewModel @Inject constructor(
             _loading.value = true
             _error.value = null
             try {
-                val response = repository.getShiJu( tqtype) // key 已在 Repository 中处理
-                if (response != null && response.code == 200) {
+                val response = repository.getShiJu(tqtype) // key 已在 Repository 中处理
+                if (response.code == 200) {
                     _shiJuResult.value = response
                 } else {
                     _error.value = response?.msg ?: "未知错误"

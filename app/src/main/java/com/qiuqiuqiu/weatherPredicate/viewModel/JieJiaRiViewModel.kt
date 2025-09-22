@@ -3,7 +3,7 @@ package com.qiuqiuqiu.weatherPredicate.viewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qiuqiuqiu.weatherPredicate.model.JieJiaRiResponse
-import com.qiuqiuqiu.weatherPredicate.repository.JieJiaRiRepository
+import com.qiuqiuqiu.weatherPredicate.repository.TianRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class JieJiaRiViewModel @Inject constructor(
-    private val repository: JieJiaRiRepository
+    private val repository: TianRepository
 ) : ViewModel() {
 
     private val _holidayResult = MutableStateFlow<JieJiaRiResponse?>(null)
@@ -38,7 +38,7 @@ class JieJiaRiViewModel @Inject constructor(
             _error.value = null
             try {
                 val response = repository.getJieJiaRi(date, type)
-                if (response != null && response.code == 200) {
+                if (response.code == 200) {
                     _holidayResult.value = response
                 } else {
                     _error.value = response?.msg ?: "未知错误"

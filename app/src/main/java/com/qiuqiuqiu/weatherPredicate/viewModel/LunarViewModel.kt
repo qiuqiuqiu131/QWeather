@@ -3,7 +3,7 @@ package com.qiuqiuqiu.weatherPredicate.viewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qiuqiuqiu.weatherPredicate.model.LunarResponse
-import com.qiuqiuqiu.weatherPredicate.repository.LunarRepository
+import com.qiuqiuqiu.weatherPredicate.repository.TianRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LunarViewModel @Inject constructor(
-    private val repository: LunarRepository
+    private val repository: TianRepository
 ) : ViewModel() {
 
     private val _lunarResult = MutableStateFlow<LunarResponse?>(null)
@@ -39,7 +39,7 @@ class LunarViewModel @Inject constructor(
             _error.value = null
             try {
                 val response = repository.getLunar(date, type)
-                if (response != null && response.code == 200) {
+                if (response.code == 200) {
                     _lunarResult.value = response
                 } else {
                     _error.value = response?.msg ?: "未知错误"
