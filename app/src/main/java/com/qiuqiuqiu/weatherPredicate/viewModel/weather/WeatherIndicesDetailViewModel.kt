@@ -5,7 +5,7 @@ import android.content.Context
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.qiuqiuqiu.weatherPredicate.model.TimelyChartModel
+import com.qiuqiuqiu.weatherPredicate.model.weather.TimelyChartModel
 import com.qweather.sdk.response.indices.IndicesDaily
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject

@@ -7,9 +7,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qiuqiuqiu.weatherPredicate.manager.ILocalDataManager
 import com.qiuqiuqiu.weatherPredicate.manager.ILocationWeatherManager
-import com.qiuqiuqiu.weatherPredicate.model.CityLocationModel
-import com.qiuqiuqiu.weatherPredicate.model.CityType
-import com.qiuqiuqiu.weatherPredicate.model.LocationWeatherModel
+import com.qiuqiuqiu.weatherPredicate.model.weather.CityLocationModel
+import com.qiuqiuqiu.weatherPredicate.model.weather.CityType
+import com.qiuqiuqiu.weatherPredicate.model.weather.LocationWeatherModel
 import com.qiuqiuqiu.weatherPredicate.viewModel.weather.defaultLocation
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject

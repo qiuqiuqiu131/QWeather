@@ -39,11 +39,11 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.qiuqiuqiu.weatherPredicate.SwitchStatusBarColor
-import com.qiuqiuqiu.weatherPredicate.model.CityLocationModel
-import com.qiuqiuqiu.weatherPredicate.model.CityType
+import com.qiuqiuqiu.weatherPredicate.model.weather.CityLocationModel
+import com.qiuqiuqiu.weatherPredicate.model.weather.CityType
 import com.qiuqiuqiu.weatherPredicate.tools.toTimeWithPeriod
 import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
-import com.qiuqiuqiu.weatherPredicate.ui.normal.ScrollableCenterRowList
+import com.qiuqiuqiu.weatherPredicate.ui.normal.ScrollableCenterNormalRowList
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.detailPage.WeatherAirDetailPage
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.detailPage.WeatherCurrentDetailPage
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.detailPage.WeatherDailyDetailPage
@@ -253,7 +253,7 @@ fun WeatherDetailTopBar(
                 )
             }
         }
-        ScrollableCenterRowList(
+        ScrollableCenterNormalRowList(
             itemCount = pageItems.size,
             itemIndex = pageIndex,
             modifier = Modifier

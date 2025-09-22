@@ -5,8 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import com.qiuqiuqiu.weatherPredicate.manager.ILocalDataManager
-import com.qiuqiuqiu.weatherPredicate.model.CityLocationModel
-import com.qiuqiuqiu.weatherPredicate.model.CityType
+import com.qiuqiuqiu.weatherPredicate.model.weather.CityLocationModel
+import com.qiuqiuqiu.weatherPredicate.model.weather.CityType
 import com.qiuqiuqiu.weatherPredicate.service.ILocationService
 import com.qiuqiuqiu.weatherPredicate.viewModel.weather.defaultLocation
 import dagger.hilt.android.lifecycle.HiltViewModel

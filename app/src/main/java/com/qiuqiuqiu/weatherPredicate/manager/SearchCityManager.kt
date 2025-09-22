@@ -1,7 +1,7 @@
 package com.qiuqiuqiu.weatherPredicate.manager
 
 import android.annotation.SuppressLint
-import com.qiuqiuqiu.weatherPredicate.model.SearchCityModel
+import com.qiuqiuqiu.weatherPredicate.model.weather.SearchCityModel
 import com.qiuqiuqiu.weatherPredicate.service.IQWeatherService
 import com.qweather.sdk.basic.Range
 import com.qweather.sdk.response.geo.Location

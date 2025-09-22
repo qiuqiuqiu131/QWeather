@@ -53,8 +53,8 @@ import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import com.qiuqiuqiu.weatherPredicate.LocalAppViewModel
 import com.qiuqiuqiu.weatherPredicate.SwitchStatusBarColor
-import com.qiuqiuqiu.weatherPredicate.model.CityType
-import com.qiuqiuqiu.weatherPredicate.model.LocationWeatherModel
+import com.qiuqiuqiu.weatherPredicate.model.weather.CityType
+import com.qiuqiuqiu.weatherPredicate.model.weather.LocationWeatherModel
 import com.qiuqiuqiu.weatherPredicate.service.hasLocationPermissions
 import com.qiuqiuqiu.weatherPredicate.service.isLocationPermanentlyDenied
 import com.qiuqiuqiu.weatherPredicate.tools.isToday

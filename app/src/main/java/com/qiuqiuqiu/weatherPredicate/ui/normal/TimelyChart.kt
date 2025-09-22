@@ -30,7 +30,7 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import com.github.mikephil.charting.listener.ChartTouchListener
 import com.github.mikephil.charting.listener.OnChartGestureListener
 import com.github.mikephil.charting.renderer.LineChartRenderer
-import com.qiuqiuqiu.weatherPredicate.model.TimelyChartModel
+import com.qiuqiuqiu.weatherPredicate.model.weather.TimelyChartModel
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 

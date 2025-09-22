@@ -1,4 +1,4 @@
-package com.qiuqiuqiu.weatherPredicate.model
+package com.qiuqiuqiu.weatherPredicate.model.weather
 
 enum class CityType {
     Normal,

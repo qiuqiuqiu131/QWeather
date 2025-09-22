@@ -1,4 +1,4 @@
-package com.qiuqiuqiu.weatherPredicate.model
+package com.qiuqiuqiu.weatherPredicate.model.weather
 
 import com.qiuqiuqiu.weatherPredicate.ui.normal.ChartPoint
 import com.qiuqiuqiu.weatherPredicate.viewModel.weather.HourlyDetailType
