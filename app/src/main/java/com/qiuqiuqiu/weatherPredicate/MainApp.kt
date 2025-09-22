@@ -21,7 +21,6 @@ import com.qiuqiuqiu.weatherPredicate.ui.screen.MainScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.map.MapSideScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.time.GlobalTimeScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.time.SolarTermScreen
-import com.qiuqiuqiu.weatherPredicate.ui.screen.time.TourScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.CityEditScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.CityManageScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.WeatherCityScreen
@@ -89,10 +88,7 @@ fun MainApp(modifier: Modifier = Modifier) {
             SolarTermScreen(onBack = { navController.popBackStack() })
         }
 
-        animatedNavComposable("time/city") {
-            SwitchStatusBarColor(true)
-            TourScreen(onBack = { navController.popBackStack() })
-        }
+
 
         animatedNavComposable(
             "SideMap?title={title}&longitude={longitude}&latitude={latitude}",
