@@ -16,9 +16,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Spa
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.runtime.LaunchedEffect
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun TimeScreen(navController: NavController) {
+
 
     // 背景渐变
     val backgroundBrush = Brush.verticalGradient(
@@ -60,8 +63,11 @@ fun TimeScreen(navController: NavController) {
                 FeatureButton("二十四节气查询", Icons.Default.Spa) {
                     navController.navigate("time/solar")
                 }
-                FeatureButton("旅游景区查询", Icons.Default.Place) {
-                    navController.navigate("time/city")
+//                FeatureButton("旅游景区查询", Icons.Default.Place) {
+//                    navController.navigate("time/city")
+//                }
+                FeatureButton("天气诗句", Icons.Default.Spa) {
+                    navController.navigate("time/shiju")
                 }
             }
 
@@ -95,3 +101,6 @@ fun FeatureButton(label: String, icon: androidx.compose.ui.graphics.vector.Image
         Text(label, color = Color(0xFF2196F3))
     }
 }
+
+
+

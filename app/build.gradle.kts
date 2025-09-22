@@ -149,7 +149,17 @@ dependencies {
     // Play Services (location)
     implementation("com.google.android.gms:play-services-location:21.3.0")
 
+
     // 其它（重复项已合并）
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0") // 已包含：如需移除请只保留一处
+
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation(kotlin("test"))
+    androidTestImplementation ("com.google.dagger:hilt-android-testing:2.51.1")
+    kaptAndroidTest ("com.google.dagger:hilt-android-compiler:2.51.1")
+
+    
+
+
 }
 
