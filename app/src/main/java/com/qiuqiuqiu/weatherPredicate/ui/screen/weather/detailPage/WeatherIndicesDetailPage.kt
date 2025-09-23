@@ -147,7 +147,7 @@ fun WeatherIndicesPage(
                                                 activeContentColor = colorBg,
                                                 inactiveContentColor = contentColor,
                                                 inactiveContainerColor = MaterialTheme.colorScheme.surfaceContainer.copy(
-                                                    alpha = 0.3f
+                                                    alpha = 0.25f
                                                 )
                                             ),
                                         icon = {},

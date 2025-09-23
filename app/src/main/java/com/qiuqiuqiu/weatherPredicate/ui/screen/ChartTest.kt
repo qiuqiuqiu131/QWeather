@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.Glide
-import com.qiuqiuqiu.weatherPredicate.model.TimelyChartModel
+import com.qiuqiuqiu.weatherPredicate.model.weather.TimelyChartModel
 import com.qiuqiuqiu.weatherPredicate.ui.normal.ChartPoint
 import com.qiuqiuqiu.weatherPredicate.ui.normal.CustomLineChartView
 import com.qiuqiuqiu.weatherPredicate.viewModel.weather.HourlyDetailType

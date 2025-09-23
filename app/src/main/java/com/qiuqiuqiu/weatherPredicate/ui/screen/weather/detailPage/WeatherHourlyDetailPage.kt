@@ -46,6 +46,7 @@ import com.qiuqiuqiu.weatherPredicate.ui.normal.DefaultElevatedCard
 import com.qiuqiuqiu.weatherPredicate.ui.normal.NullNestScrollConnection
 import com.qiuqiuqiu.weatherPredicate.ui.normal.ScrollableCenterRowList
 import com.qiuqiuqiu.weatherPredicate.ui.normal.WeatherIcon
+import com.qiuqiuqiu.weatherPredicate.ui.screen.time.StarCard
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.DetailTipItem
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.WeatherStatusInfoElevatedCard
 import com.qiuqiuqiu.weatherPredicate.viewModel.weather.HourlyDetailType
@@ -67,6 +68,7 @@ fun WeatherHourlyDetailPage(
 ) {
     val weatherModel by viewModel.locationWeather.collectAsState()
     val chartModel by viewModel.chartModel.collectAsState()
+    val detailModel by viewModel.detailModel.collectAsState()
     var showChart by remember { mutableStateOf(false) }
 
     LaunchedEffect(currentPageIndex) {
@@ -80,9 +82,7 @@ fun WeatherHourlyDetailPage(
     }
 
     Column(
-        modifier =
-            modifier
-                .fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         if (showChart) {
             viewModel.dates.value?.let {
@@ -256,6 +256,10 @@ fun WeatherHourlyDetailPage(
                             })
                     }
                 }
+            }
+
+            detailModel.star?.let {
+                StarCard(it)
             }
         }
     }

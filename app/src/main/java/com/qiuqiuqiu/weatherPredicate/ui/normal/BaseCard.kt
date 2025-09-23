@@ -40,7 +40,7 @@ fun BaseItem(
         modifier =
             modifier
                 .background(
-                    color = if (isPressed) bgColor.copy(alpha = 0.3f) else Color.Transparent,
+                    color = if (isPressed) bgColor.copy(alpha = 0.25f) else Color.Transparent,
                     shape = RoundedCornerShape(8.dp)
                 )
                 .pointerInput(Unit) {
@@ -115,6 +115,52 @@ fun BaseCard(
 }
 
 @Composable
+fun ElevatedBaseCard(
+    modifier: Modifier = Modifier,
+    title: String? = null,
+    endCorner: @Composable (BoxScope.() -> Unit)? = null,
+    content: @Composable (ColumnScope.() -> Unit)
+) {
+    DefaultElevatedCard(
+        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+        bgColor = MaterialTheme.colorScheme.background
+    ) {
+        Column(modifier = modifier) {
+            if (title != null || endCorner != null) {
+                Box(
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .height(38.dp)
+                        .fillMaxWidth()
+                ) {
+                    title?.let {
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier =
+                                Modifier
+                                    .padding(horizontal = 12.dp)
+                                    .align(Alignment.BottomStart)
+                        )
+                    }
+
+                    endCorner?.let {
+                        Box(
+                            modifier =
+                                Modifier
+                                    .padding(horizontal = 12.dp)
+                                    .alpha(0.6f)
+                                    .align(Alignment.BottomEnd)
+                        ) { it() }
+                    }
+                }
+            }
+            content()
+        }
+    }
+}
+
+@Composable
 fun SearchBaseCard(
     modifier: Modifier = Modifier,
     title: String? = null,
@@ -168,7 +214,7 @@ fun DefaultCard(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = bgColor
-                ?: MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
+                ?: MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.25f),
             contentColor = MaterialTheme.colorScheme.onSecondary
         )
     ) {

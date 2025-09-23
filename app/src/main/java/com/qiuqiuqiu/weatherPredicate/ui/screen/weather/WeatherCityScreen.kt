@@ -48,8 +48,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.qiuqiuqiu.weatherPredicate.LocalAppViewModel
-import com.qiuqiuqiu.weatherPredicate.model.CityLocationModel
-import com.qiuqiuqiu.weatherPredicate.model.CityType
+import com.qiuqiuqiu.weatherPredicate.model.weather.CityLocationModel
+import com.qiuqiuqiu.weatherPredicate.model.weather.CityType
 import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
 import com.qiuqiuqiu.weatherPredicate.ui.normal.rememberScrollAlpha
 import com.qiuqiuqiu.weatherPredicate.ui.normal.rememberScrollThreshold
@@ -102,7 +102,7 @@ fun WeatherCityScreen(navController: NavController, location: Pair<Double, Doubl
                 modifier = Modifier.align(Alignment.TopCenter),
                 isRefreshing = viewModel.isRefreshing.value,
                 state = state,
-                containerColor = Color.LightGray,
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
                 color = MaterialTheme.colorScheme.onSecondary
             )
         },
@@ -170,12 +170,9 @@ fun WeatherCityBottomBar(
                     Brush.verticalGradient(
                         colors =
                             listOf(
-                                MaterialTheme.colorScheme.background
-                                    .copy(alpha = 0f), // 顶部透明
-                                MaterialTheme.colorScheme.background
-                                    .copy(alpha = 0.4f), // 中间半透明
-                                MaterialTheme.colorScheme.background
-                                    .copy(alpha = 0.6f)// 底部不透明
+                                color.copy(alpha = 0f), // 顶部透明
+                                color.copy(alpha = 0.2f), // 中间半透明
+                                color.copy(alpha = 0.3f)// 底部不透明
                             ),
                         startY = 0f,
                         endY = with(density) { boxHeight.toPx() }

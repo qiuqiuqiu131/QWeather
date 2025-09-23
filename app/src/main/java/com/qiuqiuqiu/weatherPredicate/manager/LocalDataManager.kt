@@ -6,9 +6,9 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.qiuqiuqiu.weatherPredicate.model.CityLocationModel
-import com.qiuqiuqiu.weatherPredicate.model.CityType
-import com.qiuqiuqiu.weatherPredicate.model.SearchHistory
+import com.qiuqiuqiu.weatherPredicate.model.weather.CityLocationModel
+import com.qiuqiuqiu.weatherPredicate.model.weather.CityType
+import com.qiuqiuqiu.weatherPredicate.model.weather.SearchHistory
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.first
 import kotlin.math.abs

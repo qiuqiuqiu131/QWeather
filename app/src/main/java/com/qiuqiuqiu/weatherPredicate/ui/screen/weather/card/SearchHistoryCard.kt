@@ -17,7 +17,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.qiuqiuqiu.weatherPredicate.model.SearchHistory
+import com.qiuqiuqiu.weatherPredicate.model.weather.SearchHistory
 import com.qiuqiuqiu.weatherPredicate.ui.normal.DefaultCard
 import com.qiuqiuqiu.weatherPredicate.ui.normal.SearchBaseCard
 

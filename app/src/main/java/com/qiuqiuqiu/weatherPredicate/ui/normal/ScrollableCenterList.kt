@@ -1,15 +1,21 @@
 package com.qiuqiuqiu.weatherPredicate.ui.normal
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -19,6 +25,8 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
@@ -100,6 +108,60 @@ fun ScrollableCenterRowList(
                     },
                 contentAlignment = Alignment.Center
             ) { content(index, index == itemIndex) }
+        }
+    }
+}
+
+@Composable
+fun ScrollableCenterNormalRowList(
+    modifier: Modifier = Modifier,
+    itemCount: Int,
+    itemIndex: Int,
+    selectedItemChanged: (index: Int) -> Unit,
+    content: @Composable (index: Int, isSelected: Boolean) -> Unit
+) {
+    val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
+    val itemOffsets = remember { mutableStateListOf<Int>() }
+    val itemWidths = remember { mutableStateListOf<Int>() }
+
+    // 记录每个 item 的宽度和偏移
+    Row(
+        modifier = modifier
+            .horizontalScroll(scrollState),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        repeat(itemCount) { index ->
+            Box(
+                Modifier
+                    .padding(horizontal = 8.dp)
+                    .onGloballyPositioned { layoutCoordinates ->
+                        val x = layoutCoordinates.positionInParent().x.toInt()
+                        val w = layoutCoordinates.size.width
+                        if (itemOffsets.size <= index) itemOffsets.add(x) else itemOffsets[index] =
+                            x
+                        if (itemWidths.size <= index) itemWidths.add(w) else itemWidths[index] = w
+                    }
+                    .pointerInput(Unit) {
+                        detectTapGestures { selectedItemChanged(index) }
+                    },
+                contentAlignment = Alignment.Center
+            ) { content(index, index == itemIndex) }
+        }
+    }
+
+    // itemIndex变化时自动滚动居中
+    LaunchedEffect(itemIndex, itemOffsets, itemWidths) {
+        if (itemIndex in itemOffsets.indices && itemIndex in itemWidths.indices) {
+            val itemStart = itemOffsets[itemIndex]
+            val itemWidth = itemWidths[itemIndex]
+            val itemCenter = itemStart + itemWidth / 2
+            val viewportCenter = scrollState.viewportSize / 2
+            val scrollTo = (itemCenter - viewportCenter).coerceAtLeast(0)
+            coroutineScope.launch {
+                scrollState.animateScrollTo(scrollTo, spring(stiffness = Spring.StiffnessLow))
+            }
         }
     }
 }

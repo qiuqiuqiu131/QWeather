@@ -3,7 +3,7 @@ package com.qiuqiuqiu.weatherPredicate.viewModel.weather
 import android.annotation.SuppressLint
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.qiuqiuqiu.weatherPredicate.model.TimelyChartModel
+import com.qiuqiuqiu.weatherPredicate.model.weather.TimelyChartModel
 import com.qiuqiuqiu.weatherPredicate.ui.normal.ChartPoint
 import com.qweather.sdk.response.air.v1.AirHourly
 import dagger.hilt.android.lifecycle.HiltViewModel

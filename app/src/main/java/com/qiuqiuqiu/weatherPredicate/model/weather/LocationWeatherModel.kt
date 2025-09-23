@@ -1,4 +1,4 @@
-package com.qiuqiuqiu.weatherPredicate.model
+package com.qiuqiuqiu.weatherPredicate.model.weather
 
 import com.qweather.sdk.response.air.v1.AirHourly
 import com.qweather.sdk.response.air.v1.AirV1CurrentResponse

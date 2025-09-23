@@ -1,4 +1,4 @@
-package com.qiuqiuqiu.weatherPredicate.model
+package com.qiuqiuqiu.weatherPredicate.model.weather
 
 import com.qweather.sdk.response.geo.Location
 import com.qweather.sdk.response.weather.WeatherDaily

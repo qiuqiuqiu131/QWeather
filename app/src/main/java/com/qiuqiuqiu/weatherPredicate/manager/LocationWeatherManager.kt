@@ -1,8 +1,8 @@
 package com.qiuqiuqiu.weatherPredicate.manager
 
 import android.annotation.SuppressLint
-import com.qiuqiuqiu.weatherPredicate.model.CityLocationModel
-import com.qiuqiuqiu.weatherPredicate.model.LocationWeatherModel
+import com.qiuqiuqiu.weatherPredicate.model.weather.CityLocationModel
+import com.qiuqiuqiu.weatherPredicate.model.weather.LocationWeatherModel
 import com.qiuqiuqiu.weatherPredicate.service.IQWeatherService
 import jakarta.inject.Inject
 import kotlinx.coroutines.async

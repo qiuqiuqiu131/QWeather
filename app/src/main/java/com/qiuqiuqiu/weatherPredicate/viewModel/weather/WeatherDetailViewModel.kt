@@ -21,9 +21,12 @@ import androidx.lifecycle.viewModelScope
 import com.bumptech.glide.Glide
 import com.qiuqiuqiu.weatherPredicate.manager.ILocalDataManager
 import com.qiuqiuqiu.weatherPredicate.manager.ILocationWeatherManager
-import com.qiuqiuqiu.weatherPredicate.model.CityLocationModel
-import com.qiuqiuqiu.weatherPredicate.model.LocationWeatherModel
-import com.qiuqiuqiu.weatherPredicate.model.TimelyChartModel
+import com.qiuqiuqiu.weatherPredicate.model.StarModel
+import com.qiuqiuqiu.weatherPredicate.model.weather.CityLocationModel
+import com.qiuqiuqiu.weatherPredicate.model.weather.DetailModel
+import com.qiuqiuqiu.weatherPredicate.model.weather.LocationWeatherModel
+import com.qiuqiuqiu.weatherPredicate.model.weather.TimelyChartModel
+import com.qiuqiuqiu.weatherPredicate.repository.TianRepository
 import com.qiuqiuqiu.weatherPredicate.service.IQWeatherService
 import com.qiuqiuqiu.weatherPredicate.ui.normal.ChartPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -46,13 +49,18 @@ class WeatherDetailViewModel @Inject constructor(
     val locationWeatherManager: ILocationWeatherManager,
     val localDataManager: ILocalDataManager,
     val weatherService: IQWeatherService,
-    val context: Context
+    val context: Context,
+    val tianRepository: TianRepository
 ) : ViewModel() {
     var isInit = mutableStateOf(true)
         private set
 
     private val _locationWeather = MutableStateFlow(LocationWeatherModel())
     val locationWeather: StateFlow<LocationWeatherModel> = _locationWeather.asStateFlow()
+
+    private val _detailModel = MutableStateFlow(DetailModel())
+    val detailModel: StateFlow<DetailModel> = _detailModel.asStateFlow()
+
 
     var pageItems: MutableState<List<String>> = mutableStateOf(emptyList())
         private set
@@ -110,6 +118,15 @@ class WeatherDetailViewModel @Inject constructor(
 
             chartModelCache.clear()
             switchChartType(selectedHourlyType.value)
+
+            viewModelScope.launch(Dispatchers.IO + CoroutineExceptionHandler { _, e ->
+                Log.e("Weather", "获取星座运势失败: ${e.stackTrace}")
+            }) {
+                val result = tianRepository.getDailyFortune("virgo").result
+                _detailModel.update { it ->
+                    it.copy(star = StarModel("处女座", result))
+                }
+            }
 
             isInit.value = false
         }

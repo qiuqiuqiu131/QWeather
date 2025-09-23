@@ -2,7 +2,7 @@ package com.qiuqiuqiu.weatherPredicate.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.qiuqiuqiu.weatherPredicate.model.TimeResponse
+import com.qiuqiuqiu.weatherPredicate.model.NewsResponse
 import com.qiuqiuqiu.weatherPredicate.repository.TianRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,17 +10,19 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
-
-
-// ------- ViewModel ---------
+/**
+ * 新闻 ViewModel
+ */
+/**
+ * 新闻 ViewModel
+ */
 @HiltViewModel
-class CitiesViewModel @Inject constructor(
+class NewsViewModel @Inject constructor(
     private val repository: TianRepository
 ) : ViewModel() {
 
-    private val _cityResult = MutableStateFlow<TimeResponse?>(null)
-    val cityResult: StateFlow<TimeResponse?> = _cityResult
+    private val _newsResult = MutableStateFlow<NewsResponse?>(null)
+    val newsResult: StateFlow<NewsResponse?> = _newsResult
 
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> = _loading
@@ -28,25 +30,39 @@ class CitiesViewModel @Inject constructor(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
-    fun fetchCityTime(city: String) {
+    /**
+     * 获取新闻
+     *
+     * @param num 返回数量，1~50，默认10
+     * @param page 翻页，默认0
+     * @param rand 是否随机获取，0=不随机，1=随机
+     * @param word 搜索关键词，可选
+     * @param source 指定来源，可选
+     */
+    fun fetchNews(
+        num: Int? = 10,
+        page: Int? = 0,
+        rand: Int? = 0,
+        word: String? = null,
+        source: String? = null
+    ) {
         viewModelScope.launch {
             _loading.value = true
             _error.value = null
             try {
-                val response = repository.getWorldTime(city)
+                val response = repository.getNews(num, page, rand, word, source)
                 if (response.code == 200) {
-                    _cityResult.value = response
+                    _newsResult.value = response
                 } else {
                     _error.value = response.msg
-                    _cityResult.value = null
+                    _newsResult.value = null
                 }
             } catch (e: Exception) {
                 _error.value = e.message
-                _cityResult.value = null
+                _newsResult.value = null
             } finally {
                 _loading.value = false
             }
         }
     }
 }
-

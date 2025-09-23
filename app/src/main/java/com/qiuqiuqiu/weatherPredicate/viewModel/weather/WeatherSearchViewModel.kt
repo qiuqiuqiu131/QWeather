@@ -8,10 +8,10 @@ import androidx.lifecycle.viewModelScope
 import com.qiuqiuqiu.weatherPredicate.manager.ILocalDataManager
 import com.qiuqiuqiu.weatherPredicate.manager.ILocationWeatherManager
 import com.qiuqiuqiu.weatherPredicate.manager.ISearchCityManager
-import com.qiuqiuqiu.weatherPredicate.model.CityLocationModel
-import com.qiuqiuqiu.weatherPredicate.model.CityType
-import com.qiuqiuqiu.weatherPredicate.model.SearchCityModel
-import com.qiuqiuqiu.weatherPredicate.model.SearchHistory
+import com.qiuqiuqiu.weatherPredicate.model.weather.CityLocationModel
+import com.qiuqiuqiu.weatherPredicate.model.weather.CityType
+import com.qiuqiuqiu.weatherPredicate.model.weather.SearchCityModel
+import com.qiuqiuqiu.weatherPredicate.model.weather.SearchHistory
 import com.qiuqiuqiu.weatherPredicate.service.IQWeatherService
 import com.qiuqiuqiu.weatherPredicate.service.LocationService
 import com.qweather.sdk.response.geo.Location

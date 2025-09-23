@@ -44,7 +44,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.qiuqiuqiu.weatherPredicate.model.LocationWeatherModel
+import com.qiuqiuqiu.weatherPredicate.model.weather.LocationWeatherModel
 import com.qiuqiuqiu.weatherPredicate.ui.normal.CustomLineChartView
 import com.qiuqiuqiu.weatherPredicate.ui.normal.DefaultElevatedCard
 import com.qiuqiuqiu.weatherPredicate.viewModel.weather.WeatherAirDetailViewModel
