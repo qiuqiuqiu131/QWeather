@@ -14,6 +14,7 @@ import com.qweather.sdk.parameter.air.AirV1Parameter
 import com.qweather.sdk.parameter.geo.GeoCityLookupParameter
 import com.qweather.sdk.parameter.geo.GeoCityTopParameter
 import com.qweather.sdk.parameter.geo.GeoPoiRangeParameter
+import com.qweather.sdk.parameter.grid.GridWeatherParameter
 import com.qweather.sdk.parameter.indices.IndicesParameter
 import com.qweather.sdk.parameter.warning.WarningNowParameter
 import com.qweather.sdk.parameter.weather.WeatherParameter
@@ -27,6 +28,8 @@ import com.qweather.sdk.response.geo.GeoCityLookupResponse
 import com.qweather.sdk.response.geo.GeoCityTopResponse
 import com.qweather.sdk.response.geo.GeoPoiResponse
 import com.qweather.sdk.response.geo.Location
+import com.qweather.sdk.response.grid.GridNow
+import com.qweather.sdk.response.grid.GridNowResponse
 import com.qweather.sdk.response.indices.IndicesDaily
 import com.qweather.sdk.response.indices.IndicesDailyResponse
 import com.qweather.sdk.response.warning.Warning
@@ -150,6 +153,11 @@ interface IQWeatherService {
         range: Int = 10,
         number: Int = 10
     ): List<Location>
+
+    suspend fun getGridCurrentWeather(
+        longitude: Double,
+        latitude: Double
+    ): GridNow
 }
 
 
@@ -515,6 +523,29 @@ class QWeatherService @Inject constructor(@ApplicationContext private val contex
             instance.geoPoiRange(parameter, object : Callback<GeoPoiResponse> {
                 override fun onSuccess(response: GeoPoiResponse) {
                     cont.resume(response.poi, null)
+                }
+
+                override fun onFailure(errorResponse: ErrorResponse) {
+                    Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
+                    cont.resumeWithException(Exception(errorResponse.toString()))
+                }
+
+                override fun onException(e: Throwable) {
+                    Log.e(TAG, "getWeatherNow onException: $e")
+                    cont.resumeWithException(e)
+                }
+            })
+        }
+    }
+
+    override suspend fun getGridCurrentWeather(longitude: Double, latitude: Double): GridNow {
+        var parameter = GridWeatherParameter(longitude, latitude)
+            .lang(Lang.ZH_HANS)
+
+        return suspendCancellableCoroutine { cont ->
+            instance.gridNow(parameter, object : Callback<GridNowResponse> {
+                override fun onSuccess(response: GridNowResponse) {
+                    cont.resume(response.now, null)
                 }
 
                 override fun onFailure(errorResponse: ErrorResponse) {
