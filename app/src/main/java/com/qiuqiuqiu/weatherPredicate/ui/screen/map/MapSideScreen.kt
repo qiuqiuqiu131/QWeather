@@ -17,6 +17,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -34,10 +35,13 @@ fun MapSideScreen(
     navController: NavController
 ) {
     val mapView = rememberMapViewWithLifecycle()
+    // 尝试隐藏缩放控件（可选）
+    try { mapView.showZoomControls(false) } catch (_: Throwable) {}
+    val baiduMap = remember { mapView.map }
 
     LaunchedEffect(Unit) {
         val latLng = LatLng(latitude, longitude)
-        mapView.map?.apply {
+        baiduMap?.apply {
             isMyLocationEnabled = true
             val locData = MyLocationData.Builder()
                 .latitude(latitude)
@@ -47,7 +51,13 @@ fun MapSideScreen(
             setMyLocationData(locData)
 
             setMapStatus(MapStatusUpdateFactory.newLatLngZoom(latLng, 14f))
-            mapView.invalidate()
+        }
+        mapView.invalidate()
+
+        // 禁用旋转/俯仰
+        baiduMap?.uiSettings?.apply {
+            isRotateGesturesEnabled = false
+            isOverlookingGesturesEnabled = false
         }
     }
 
@@ -86,7 +96,7 @@ fun MapSideScreenTopBar(title: String, navController: NavController) {
         ) {
             Icon(
                 imageVector = Icons.Default.KeyboardArrowLeft,
-                null,
+                contentDescription = null,
                 modifier = Modifier.size(26.dp)
             )
         }

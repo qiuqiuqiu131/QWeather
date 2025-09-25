@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.baidu.mapapi.map.BaiduMap
 import com.baidu.mapapi.map.MapView
+import com.baidu.mapapi.model.LatLng
 import com.qiuqiuqiu.weatherPredicate.manager.IMapWeatherManager
 import com.qiuqiuqiu.weatherPredicate.model.CityWeather
 import com.qiuqiuqiu.weatherPredicate.model.CityCurrentWeather
@@ -16,7 +17,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class MapViewModel @Inject constructor(val mapWeatherManager: IMapWeatherManager) : ViewModel() {
+class MapViewModel @Inject constructor(
+    private val mapWeatherManager: IMapWeatherManager
+) : ViewModel() {
 
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query
@@ -25,12 +28,27 @@ class MapViewModel @Inject constructor(val mapWeatherManager: IMapWeatherManager
         _query.value = newQuery
     }
 
-    fun search(context: Context, mapView: MapView, baiduMap: BaiduMap?) {
+    /**
+     * 搜索城市并移动到地图，同时返回 LatLng 回调给 UI
+     */
+    fun search(
+        context: Context,
+        mapView: MapView,
+        baiduMap: BaiduMap?,
+        onResult: (LatLng?) -> Unit  // ✅ 新增回调
+    ) {
         val input = _query.value.trim()
         if (input.isNotBlank()) {
             val parts = input.split(Regex("\\s+"), limit = 2)
             val maybeCity = parts.getOrNull(0)?.trim().orEmpty()
             val maybeAddress = parts.getOrNull(1)?.trim().orEmpty()
+
+            val callback: (LatLng?) -> Unit = { latLng ->
+                if (latLng != null) {
+                    fetchWeatherAt(latLng.latitude, latLng.longitude) // 请求天气
+                }
+                onResult(latLng) // ✅ 把结果传给 UI
+            }
 
             if (maybeAddress.isNotEmpty()) {
                 MapUtils.geocodeAndShow(
@@ -38,7 +56,8 @@ class MapViewModel @Inject constructor(val mapWeatherManager: IMapWeatherManager
                     mapView = mapView,
                     baiduMap = baiduMap,
                     city = maybeCity,
-                    address = maybeAddress
+                    address = maybeAddress,
+                    onResult = callback
                 )
             } else {
                 val token = maybeCity
@@ -48,17 +67,21 @@ class MapViewModel @Inject constructor(val mapWeatherManager: IMapWeatherManager
                     baiduMap = baiduMap,
                     city = token,
                     address = token,
-                    fallbackAddressOnly = true
+                    fallbackAddressOnly = true,
+                    onResult = callback
                 )
             }
         }
     }
 
+
+
+    // ------------------- 热门城市天气 -------------------
     suspend fun getManualCitiesWeather(): List<CityWeather> {
         return mapWeatherManager.getManualCitiesWeather()
     }
 
-    // ------------------- 点击获取天气 -------------------
+    // ------------------- 点击/搜索获取天气 -------------------
     private val _clickedWeather = MutableStateFlow<CityCurrentWeather?>(null)
     val clickedWeather: StateFlow<CityCurrentWeather?> = _clickedWeather
 
@@ -69,8 +92,6 @@ class MapViewModel @Inject constructor(val mapWeatherManager: IMapWeatherManager
                 _clickedWeather.value = weather
             } catch (e: Exception) {
                 _clickedWeather.value = null
-                // 可选：提示用户
-                // Toast.makeText(getApplication(), "该位置无天气数据", Toast.LENGTH_SHORT).show()
             }
         }
     }

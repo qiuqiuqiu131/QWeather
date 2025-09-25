@@ -10,6 +10,7 @@ data class CityWeather(
     val lon: Double,
     val icon: String,  // 和风天气 icon code
     val text: String   // 天气描述
+
 )
 
 data class CityCurrentWeather(

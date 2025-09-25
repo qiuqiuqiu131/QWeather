@@ -58,7 +58,7 @@ fun MainHost(
             MainNaviBar.Map -> {
                 appViewModel.clearNaviBarColor()
                 SwitchStatusBarColor(true)
-                MapScreen()
+                MapScreen(navController = navController)
             }
 
             MainNaviBar.Time -> {

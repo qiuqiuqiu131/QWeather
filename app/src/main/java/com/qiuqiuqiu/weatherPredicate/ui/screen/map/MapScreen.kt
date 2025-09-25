@@ -39,13 +39,23 @@ import com.baidu.mapapi.map.BaiduMap
 import com.baidu.mapapi.model.LatLng
 import kotlinx.coroutines.delay
 import java.util.Locale
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.Arrangement
 
 @Composable
-fun MapScreen() {
+fun MapScreen(navController: androidx.navigation.NavController) {
     val viewModel: MapViewModel = hiltViewModel()
     val context = LocalContext.current
     val mapView = rememberMapViewWithLifecycle()
-    val baiduMap = remember { mapView.map }
+    val baiduMap = remember {
+        mapView.map.apply {
+            uiSettings.isRotateGesturesEnabled = false   // 禁止旋转
+            uiSettings.isOverlookingGesturesEnabled = false // 可选：禁止俯视
+        }
+    }
 
     val query by viewModel.query.collectAsState()
     val clickedWeather by viewModel.clickedWeather.collectAsState()
@@ -131,12 +141,13 @@ fun MapScreen() {
         onDispose { baiduMap?.setOnMapClickListener(null) }
     }
 
-    // ---------- 弹窗自动关闭 ----------
-    LaunchedEffect(clickedWeather) {
-        if (clickedWeather != null) {
-            delay(1000) // 1秒后自动关闭
+    // ---------- 弹窗和经纬度提示自动关闭 ----------
+    LaunchedEffect(clickedLatLng, clickedWeather) {
+        if (clickedLatLng != null) {
+            delay(1000) // 等待1秒
             clickedLatLng = null
             viewModel.clearClickedWeather()
+            latLngText = ""
         }
     }
 
@@ -159,7 +170,21 @@ fun MapScreen() {
                 if (query.isBlank()) {
                     Toast.makeText(context, "请输入搜索内容", Toast.LENGTH_SHORT).show()
                 } else {
-                    viewModel.search(context, mapView, baiduMap)
+                    // 修改：增加搜索结果回调
+                    viewModel.search(context, mapView, baiduMap) { resultLatLng ->
+                        if (resultLatLng != null) {
+                            clickedLatLng = resultLatLng
+                            viewModel.fetchWeatherAt(resultLatLng.latitude, resultLatLng.longitude)
+                            latLngText = String.format(
+                                Locale.getDefault(),
+                                "纬度: %.4f, 经度: %.4f",
+                                resultLatLng.latitude,
+                                resultLatLng.longitude
+                            )
+                        } else {
+                            Toast.makeText(context, "未找到该城市", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 }
             },
             modifier = Modifier
@@ -173,11 +198,11 @@ fun MapScreen() {
             AndroidView(factory = { mapView }, modifier = Modifier.fillMaxSize())
 
             // ---------- 经纬度显示 ----------
-            if (latLngText.isNotEmpty()) {
+            if (latLngText.isNotEmpty() && clickedLatLng != null) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = 16.dp)
+                        .padding(bottom = 35.dp)
                         .background(Color.Black.copy(alpha = 0.8f), RoundedCornerShape(8.dp))
                         .padding(horizontal = 12.dp, vertical = 6.dp)
                 ) {
@@ -197,34 +222,56 @@ fun MapScreen() {
                 val projection = map.projection
                 val screenPoint = projection.toScreenLocation(latLng)
 
-                Box(
+                Card(
                     modifier = Modifier
-                        .offset { IntOffset(screenPoint.x, screenPoint.y - 120) }
-                        .background(Color.LightGray, RoundedCornerShape(4.dp))
-                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                        .offset { IntOffset(screenPoint.x - 150, screenPoint.y - 220) }
+                        .width(160.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
                 ) {
-                    Text(
-                        text = "天气: ${weather.weatherNow?.text ?: "N/A"}\n" +
-                                "温度: ${weather.weatherNow?.temp ?: "N/A"}°C\n" +
-                                "AQI(CN): ${weather.airNow?.aqi ?: "N/A"}",
-                        color = Color.Black,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = "天气详情",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Divider()
+                        Text("天气：${weather.weatherNow?.text ?: "N/A"}")
+                        Text("温度：${weather.weatherNow?.temp ?: "N/A"}°C")
+                        Text("空气质量：${weather.airNow?.aqi ?: "N/A"}")
+                    }
                 }
             } else if (latLng != null) {
                 // 无数据提示
-                Box(
+                Card(
                     modifier = Modifier
                         .offset { IntOffset(0, 0) }
-                        .background(Color.LightGray, RoundedCornerShape(4.dp))
-                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                        .width(220.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
                 ) {
                     Text(
                         text = "该位置无天气数据",
-                        color = Color.Black,
+                        modifier = Modifier.padding(16.dp),
+                        color = Color.Gray,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
+            }
+
+            // ---------- 开启热力图按钮 ----------
+            Button(
+                onClick = { navController.navigate("HotMap") },
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(start = 16.dp, bottom = 80.dp)
+            ) {
+                Text("开启热力图")
             }
         }
     }

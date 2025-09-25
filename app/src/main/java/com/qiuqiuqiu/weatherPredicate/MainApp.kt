@@ -19,6 +19,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.qiuqiuqiu.weatherPredicate.ui.screen.MainScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.map.MapSideScreen
+import com.qiuqiuqiu.weatherPredicate.ui.screen.map.HotmapScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.time.GlobalTimeScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.time.SolarTermScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.CityEditScreen
@@ -98,6 +99,11 @@ fun MainApp(modifier: Modifier = Modifier) {
             val latitude = it.arguments?.getString("latitude")?.toDoubleOrNull() ?: 39.9042
             MapSideScreen(title, longitude, latitude, navController)
         }
+        animatedNavComposable("HotMap") {
+            SwitchStatusBarColor(true)
+            HotmapScreen(navController)
+        }
+
     }
 }
 

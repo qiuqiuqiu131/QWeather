@@ -46,10 +46,12 @@ object MapUtils {
         baiduMap: BaiduMap?,
         city: String,
         address: String,
-        fallbackAddressOnly: Boolean = false
+        fallbackAddressOnly: Boolean = false,
+        onResult: ((LatLng?) -> Unit)? = null   // ✅ 新增回调
     ) {
         if (address.isBlank() && city.isBlank()) {
             Toast.makeText(context, "请输入有效的城市或地址", Toast.LENGTH_SHORT).show()
+            onResult?.invoke(null)
             return
         }
 
@@ -61,29 +63,27 @@ object MapUtils {
                         if (result != null && result.error == SearchResult.ERRORNO.NO_ERROR) {
                             val pt: LatLng = result.location
                             baiduMap?.clear()
-                            val bd =
-                                BitmapDescriptorFactory.fromResource(android.R.drawable.ic_menu_mylocation)
+                            val bd = BitmapDescriptorFactory.fromResource(android.R.drawable.ic_menu_mylocation)
                             val markerOpts = MarkerOptions().position(pt).icon(bd)
                             baiduMap?.addOverlay(markerOpts)
                             baiduMap?.setMapStatus(MapStatusUpdateFactory.newLatLngZoom(pt, 15f))
+
+                            // ✅ 回调经纬度
+                            onResult?.invoke(pt)
                         } else {
                             if (fallbackAddressOnly) {
                                 coder.geocode(GeoCodeOption().address(address))
                                 return@runOnUiThread
                             } else {
-                                Toast.makeText(
-                                    context,
-                                    "未找到该地址，请检查输入",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                Toast.makeText(context, "未找到该地址，请检查输入", Toast.LENGTH_SHORT).show()
+                                onResult?.invoke(null)
                             }
                         }
                     } finally {
                         mapView.postDelayed({
                             try {
                                 coder.destroy()
-                            } catch (_: Throwable) {
-                            }
+                            } catch (_: Throwable) {}
                         }, 300L)
                     }
                 }
@@ -100,12 +100,13 @@ object MapUtils {
         } catch (e: Exception) {
             Log.e(TAG, "geocode call failed: ${e.message}", e)
             Toast.makeText(context, "查询失败: ${e.message}", Toast.LENGTH_SHORT).show()
+            onResult?.invoke(null)
             try {
                 coder.destroy()
-            } catch (_: Throwable) {
-            }
+            } catch (_: Throwable) {}
         }
     }
+
 
     /**
      * 启动定位，并将地图移动到当前位置
@@ -213,7 +214,7 @@ suspend fun showCityWeatherMarkers(
     // 获取当前缩放级别
     val zoom = baiduMap.mapStatus.zoom
     val minSize = 32   // 最小图标 px
-    val maxSize = 96   // 最大图标 px
+    val maxSize = 80   // 最大图标 px
     val size = (zoom * 5).toInt().coerceIn(minSize, maxSize)
 
     withContext(Dispatchers.Main) {
