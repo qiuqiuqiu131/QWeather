@@ -1,5 +1,6 @@
 package com.qiuqiuqiu.weatherPredicate.model.weather
 
+import com.qiuqiuqiu.weatherPredicate.model.ShiJuResult
 import com.qweather.sdk.response.air.v1.AirHourly
 import com.qweather.sdk.response.air.v1.AirV1CurrentResponse
 import com.qweather.sdk.response.geo.Location
@@ -21,6 +22,7 @@ data class LocationWeatherModel(
     val airCurrent: AirV1CurrentResponse? = null,
     val lastUpdateTime: LocalDateTime? = null,
 
+    var shiJu: ShiJuResult? = null,
     var weatherDailiesMore: List<WeatherDaily>? = null,
     var indicesDailiesMore: List<Pair<String, List<IndicesDaily>>>? = null,
     var weatherHourliesMore: List<WeatherHourly>? = null,

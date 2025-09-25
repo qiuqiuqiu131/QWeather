@@ -3,6 +3,7 @@ package com.qiuqiuqiu.weatherPredicate.manager
 import android.annotation.SuppressLint
 import com.qiuqiuqiu.weatherPredicate.model.weather.CityLocationModel
 import com.qiuqiuqiu.weatherPredicate.model.weather.LocationWeatherModel
+import com.qiuqiuqiu.weatherPredicate.repository.TianRepository
 import com.qiuqiuqiu.weatherPredicate.service.IQWeatherService
 import jakarta.inject.Inject
 import kotlinx.coroutines.async
@@ -21,7 +22,10 @@ interface ILocationWeatherManager {
     ): Pair<LocationWeatherModel, Boolean>
 }
 
-class LocationWeatherManager @Inject constructor(val weatherService: IQWeatherService) :
+class LocationWeatherManager @Inject constructor(
+    val weatherService: IQWeatherService,
+    val repository: TianRepository
+) :
     ILocationWeatherManager {
     private val weatherCache: MutableMap<String, LocationWeatherModel> = mutableMapOf()
 
@@ -63,7 +67,7 @@ class LocationWeatherManager @Inject constructor(val weatherService: IQWeatherSe
                 )
             }
 
-            LocationWeatherModel(
+            val model = LocationWeatherModel(
                 type = location.type,
                 location = resCity.await(),
                 weatherNow = resWeatherNow.await(),
@@ -74,5 +78,24 @@ class LocationWeatherManager @Inject constructor(val weatherService: IQWeatherSe
                 airCurrent = resAirCurrent.await(),
                 lastUpdateTime = LocalDateTime.now()
             )
+
+            model.shiJu =
+                repository.getShiJu(matchWeatherType(model.weatherNow?.text ?: "晴")).result
+
+            model
         }
+}
+
+fun matchWeatherType(desc: String): Int = when {
+    desc.contains("风") -> 1
+    desc.contains("云") -> 2
+    desc.contains("雨") -> 3
+    desc.contains("雪") -> 4
+    desc.contains("霜") -> 5
+    desc.contains("露") -> 6
+    desc.contains("雾") -> 7
+    desc.contains("雷") -> 8
+    desc.contains("晴") -> 9
+    desc.contains("阴") -> 10
+    else -> 9 // 未匹配到返回0
 }

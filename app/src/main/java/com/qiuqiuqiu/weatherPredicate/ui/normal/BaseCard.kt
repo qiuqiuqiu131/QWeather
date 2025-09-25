@@ -122,7 +122,7 @@ fun ElevatedBaseCard(
     content: @Composable (ColumnScope.() -> Unit)
 ) {
     DefaultElevatedCard(
-        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
         bgColor = MaterialTheme.colorScheme.background
     ) {
         Column(modifier = modifier) {
