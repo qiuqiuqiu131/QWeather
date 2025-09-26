@@ -11,18 +11,14 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Spa
-import androidx.compose.material.icons.filled.Place
-import androidx.compose.runtime.LaunchedEffect
-import androidx.hilt.navigation.compose.hiltViewModel
-
+import com.qiuqiuqiu.weatherPredicate.viewModel.AllNewsViewModel
 @Composable
 fun TimeScreen(navController: NavController) {
-
-
     // 背景渐变
     val backgroundBrush = Brush.verticalGradient(
         colors = listOf(Color(0xFF2196F3), Color(0xFF64B5F6))
@@ -63,10 +59,16 @@ fun TimeScreen(navController: NavController) {
                 FeatureButton("二十四节气查询", Icons.Default.Spa) {
                     navController.navigate("time/solar")
                 }
-
+//                FeatureButton("获取新闻并打印", Icons.Default.Public) {
+//                    newsViewModel.fetchAllNews(num = 5, col=7,page = 1, rand = 1,word="游戏")
+//                }
             }
 
             Spacer(modifier = Modifier.height(30.dp))
+
+
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             Text(
                 "请选择上方功能开始使用",
@@ -96,6 +98,3 @@ fun FeatureButton(label: String, icon: androidx.compose.ui.graphics.vector.Image
         Text(label, color = Color(0xFF2196F3))
     }
 }
-
-
-

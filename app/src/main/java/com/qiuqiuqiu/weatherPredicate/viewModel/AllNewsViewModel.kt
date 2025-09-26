@@ -3,6 +3,7 @@ package com.qiuqiuqiu.weatherPredicate.viewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qiuqiuqiu.weatherPredicate.model.AllNewsResponse
+import com.qiuqiuqiu.weatherPredicate.model.NewsResponse
 import com.qiuqiuqiu.weatherPredicate.repository.TianRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,4 +52,6 @@ class AllNewsViewModel @Inject constructor(
             }
         }
     }
+
+
 }

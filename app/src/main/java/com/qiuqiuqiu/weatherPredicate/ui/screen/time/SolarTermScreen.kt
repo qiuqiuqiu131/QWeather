@@ -64,6 +64,7 @@ fun SolarTermScreen(
     onBack: () -> Unit,
     viewModel: JieQiViewModel = hiltViewModel()
 ) {
+
     var year by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
     var selectedTerm by remember { mutableStateOf("立春") }

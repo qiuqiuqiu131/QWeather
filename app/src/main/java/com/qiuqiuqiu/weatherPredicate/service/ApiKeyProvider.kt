@@ -24,25 +24,25 @@ class BuildConfigApiKeyProvider @Inject constructor() : ApiKeyProvider {
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
     private const val BASE_URL = "https://apis.tianapi.com/"
-//    @Provides
-//    @Singleton
-//    fun provideOkHttpClient(): OkHttpClient {
-//        val logging = HttpLoggingInterceptor().apply {
-//            // 对于 GET 请求，BASIC 已会打印请求行（含 URL 与 query）
-//            level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BASIC
-//            else HttpLoggingInterceptor.Level.NONE
-//        }
-//
-//        return OkHttpClient.Builder()
-//            .addInterceptor(logging)
-//            .build()
-//    }
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(): OkHttpClient {
+        val logging = HttpLoggingInterceptor().apply {
+            // 对于 GET 请求，BASIC 已会打印请求行（含 URL 与 query）
+            level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BASIC
+            else HttpLoggingInterceptor.Level.NONE
+        }
+
+        return OkHttpClient.Builder()
+            .addInterceptor(logging)
+            .build()
+    }
     @Provides
     @Singleton
     fun provideRetrofit(): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
-            //.client(provideOkHttpClient())
+            .client(provideOkHttpClient())
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }

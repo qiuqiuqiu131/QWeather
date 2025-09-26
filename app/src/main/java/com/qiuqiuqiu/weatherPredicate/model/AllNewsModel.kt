@@ -10,7 +10,7 @@ data class AllNewsResponse(
 data class AllNewsResult(
     val curpage: Int,
     val allnum: Int,
-    val list: List<AllNewsItem>
+    val newslist: List<AllNewsItem>?
 )
 
 data class AllNewsItem(

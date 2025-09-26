@@ -67,6 +67,7 @@ interface TianApiCities {
         @Query("source") source: String? = null
     ): NewsResponse
 
+
     @GET("allnews/index")
     suspend fun getAllNews(
         @Query("key") key: String,       // 你的 API KEY

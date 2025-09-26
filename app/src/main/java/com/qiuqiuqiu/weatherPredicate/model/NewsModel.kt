@@ -1,5 +1,7 @@
 package com.qiuqiuqiu.weatherPredicate.model
 
+import com.google.gson.annotations.SerializedName
+
 data class NewsResponse(
     val code: Int,
     val msg: String,
@@ -9,8 +11,11 @@ data class NewsResponse(
 data class NewsResult(
     val curpage: Int,
     val allnum: Int,
-    val list: List<NewsItem>
+    @SerializedName("newslist")
+    val newslist: List<NewsItem>? = null
 )
+
+
 
 data class NewsItem(
     val id: String,
@@ -18,6 +23,6 @@ data class NewsItem(
     val title: String,
     val description: String,
     val source: String,
-    val picUrl: String?,
+    @SerializedName("picUrl") val picUrl: String? = null,
     val url: String
 )

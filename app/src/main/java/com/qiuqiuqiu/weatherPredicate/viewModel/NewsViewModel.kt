@@ -10,12 +10,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/**
- * 新闻 ViewModel
- */
-/**
- * 新闻 ViewModel
- */
 @HiltViewModel
 class NewsViewModel @Inject constructor(
     private val repository: TianRepository
@@ -30,15 +24,6 @@ class NewsViewModel @Inject constructor(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
-    /**
-     * 获取新闻
-     *
-     * @param num 返回数量，1~50，默认10
-     * @param page 翻页，默认0
-     * @param rand 是否随机获取，0=不随机，1=随机
-     * @param word 搜索关键词，可选
-     * @param source 指定来源，可选
-     */
     fun fetchNews(
         num: Int? = 10,
         page: Int? = 0,
@@ -65,4 +50,6 @@ class NewsViewModel @Inject constructor(
             }
         }
     }
+
+
 }
