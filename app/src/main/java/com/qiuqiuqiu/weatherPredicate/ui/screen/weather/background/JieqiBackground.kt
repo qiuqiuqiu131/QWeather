@@ -86,12 +86,12 @@ enum class JieQiType(
     GuYu("谷雨", Color(0xFF59B650), Color(0xFF439D3A), R.drawable.guyu),
 
     // 夏天：深绿色
-    LiXia("立夏", Color(0xFF80D384), Color(0xFF61BE56), 0),
-    XiaoMan("小满", Color(0xFF80D384), Color(0xFF61BE56), 0),
-    MangZhong("芒种", Color(0xFF80D384), Color(0xFF61BE56), 0),
-    XiaZhi("夏至", Color(0xFF80D384), Color(0xFF61BE56), 0),
-    XiaoShu("小暑", Color(0xFF80D384), Color(0xFF61BE56), 0),
-    DaShu("大暑", Color(0xFF61BE56), Color(0xFF61BE56), 0),
+    LiXia("立夏", Color(0xFF59B650), Color(0xFF439D3A), R.drawable.lixia),
+    XiaoMan("小满", Color(0xFF59B650), Color(0xFF439D3A), 0),
+    MangZhong("芒种", Color(0xFF59B650), Color(0xFF439D3A), 0),
+    XiaZhi("夏至", Color(0xFF59B650), Color(0xFF439D3A), 0),
+    XiaoShu("小暑", Color(0xFF59B650), Color(0xFF439D3A), 0),
+    DaShu("大暑", Color(0xFF59B650), Color(0xFF439D3A), 0),
 
     // 秋天：深橙黄
     LiQiu("立秋", Color(0xFFEEA461), Color(0xFFDC8E46), 0),
