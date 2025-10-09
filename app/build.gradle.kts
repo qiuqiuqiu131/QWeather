@@ -150,5 +150,10 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.3.0")
 
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("androidx.legacy:legacy-support-core-utils:1.0.0")
+    implementation("androidx.collection:collection:1.2.0")
 }
 

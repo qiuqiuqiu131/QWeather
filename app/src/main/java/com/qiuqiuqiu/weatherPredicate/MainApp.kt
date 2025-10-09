@@ -19,7 +19,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.qiuqiuqiu.weatherPredicate.ui.screen.MainScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.map.MapSideScreen
-import com.qiuqiuqiu.weatherPredicate.ui.screen.map.HotmapScreen
+import com.qiuqiuqiu.weatherPredicate.ui.screen.map.HotMapScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.time.GlobalTimeScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.time.SolarTermScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.CityEditScreen
@@ -27,11 +27,11 @@ import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.CityManageScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.WeatherCityScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.WeatherDetailScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.WeatherSearchScreen
-
+import androidx.compose.ui.platform.LocalContext
+import com.qiuqiuqiu.weatherPredicate.service.QWeatherService
 @Composable
 fun MainApp(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
-
     NavHost(
         navController,
         startDestination = "Main",
@@ -99,9 +99,18 @@ fun MainApp(modifier: Modifier = Modifier) {
             val latitude = it.arguments?.getString("latitude")?.toDoubleOrNull() ?: 39.9042
             MapSideScreen(title, longitude, latitude, navController)
         }
+
         animatedNavComposable("HotMap") {
             SwitchStatusBarColor(true)
-            HotmapScreen(navController)
+
+            // 获取 Compose 的 context
+            val context = LocalContext.current
+
+            // 创建 QWeatherService 实例
+            val qWeatherService = QWeatherService(context)
+
+            // 调用 HotMapScreen 并传入 service
+            HotMapScreen(navController, qWeatherService)
         }
 
     }
