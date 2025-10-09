@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.CloudQueue
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material3.Icon
@@ -34,8 +33,7 @@ import com.qiuqiuqiu.weatherPredicate.viewModel.AppViewModel
 
 enum class MainNaviBar(val label: String, val icon: ImageVector, val contentDescription: String) {
     Weather("Weather", Icons.Default.CloudQueue, "Weather"),
-    Map("Map", Icons.Default.Map, "Map"),
-    Time("Time", Icons.Default.AccessTime, "Time")
+    Map("Map", Icons.Default.Map, "Map")
 }
 
 @Composable
@@ -59,12 +57,6 @@ fun MainHost(
                 appViewModel.clearNaviBarColor()
                 SwitchStatusBarColor(true)
                 MapScreen(navController = navController)
-            }
-
-            MainNaviBar.Time -> {
-                appViewModel.clearNaviBarColor()
-                SwitchStatusBarColor(true)
-                TimeScreen(navController)
             }
         }
     }

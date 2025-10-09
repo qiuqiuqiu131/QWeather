@@ -91,7 +91,7 @@ fun WeatherScreen(navController: NavController) {
 
     val scrollState: ScrollState = rememberScrollState()
     val centerCardAlpha = rememberScrollAlpha(scrollState, 70, 230)
-    val bgAlpha = rememberScrollAlpha(scrollState, 400, 600)
+    val bgAlpha = rememberScrollAlpha(scrollState, 300, 600)
     val cityTextHide = rememberScrollThreshold(scrollState, 70)
 
     val permissionLauncher =

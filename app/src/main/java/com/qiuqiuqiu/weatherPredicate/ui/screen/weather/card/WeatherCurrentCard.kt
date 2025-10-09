@@ -51,7 +51,7 @@ fun WeatherCurrentCard(
         appViewModel.jieqi.value?.let {
             val type = JieQiType.entries.firstOrNull { t -> t.text == it.name } ?: JieQiType.LiChun
             ElevatedCard(
-                colors = CardDefaults.elevatedCardColors(containerColor = type.labelColor),
+                colors = CardDefaults.elevatedCardColors(containerColor = type.backgroundColor),
                 modifier = Modifier
                     .padding(top = 72.dp, start = 32.dp)
                     .alpha(1 - alpha.value)
@@ -67,7 +67,7 @@ fun WeatherCurrentCard(
                     softWrap = true,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
-                        .padding(vertical = 18.dp, horizontal = 5.dp)
+                        .padding(vertical = 18.dp, horizontal = 4.5.dp)
                 )
             }
         }

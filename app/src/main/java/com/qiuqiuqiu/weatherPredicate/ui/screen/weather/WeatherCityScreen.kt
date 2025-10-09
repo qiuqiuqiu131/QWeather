@@ -78,7 +78,7 @@ fun WeatherCityScreen(navController: NavController, location: Pair<Double, Doubl
 
     val scrollState: ScrollState = rememberScrollState()
     val centerCardAlpha = rememberScrollAlpha(scrollState, 70, 300)
-    val bgAlpha = rememberScrollAlpha(scrollState, 400, 500)
+    val bgAlpha = rememberScrollAlpha(scrollState, 300, 600)
     val cityTextHide = rememberScrollThreshold(scrollState, 70)
 
     if (weatherModel.weatherNow != null) {

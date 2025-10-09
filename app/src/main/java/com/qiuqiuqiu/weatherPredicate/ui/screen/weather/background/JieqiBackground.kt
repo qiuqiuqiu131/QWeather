@@ -73,39 +73,38 @@ fun JieQiBackground(name: String, alpha: Float = 0f) {
 
 enum class JieQiType(
     val text: String,
-    val labelColor: Color,
     val backgroundColor: Color,
     val backgroundImage: Int
 ) {
     // 春天：深蓝绿
-    LiChun("立春", Color(0xFF59B650), Color(0xFF439D3A), R.drawable.lichun),
-    YuShui("雨水", Color(0xFF59B650), Color(0xFF439D3A), R.drawable.yushui),
-    JingZhe("惊蛰", Color(0xFF59B650), Color(0xFF439D3A), R.drawable.jingzhe),
-    ChunFen("春分", Color(0xFF59B650), Color(0xFF439D3A), R.drawable.chunfen),
-    QingMing("清明", Color(0xFF59B650), Color(0xFF439D3A), R.drawable.qingming),
-    GuYu("谷雨", Color(0xFF59B650), Color(0xFF439D3A), R.drawable.guyu),
+    LiChun("立春", Color(0xFF439D3A), R.drawable.lichun),
+    YuShui("雨水", Color(0xFF439D3A), R.drawable.yushui),
+    JingZhe("惊蛰", Color(0xFF439D3A), R.drawable.jingzhe),
+    ChunFen("春分", Color(0xFF439D3A), R.drawable.chunfen),
+    QingMing("清明", Color(0xFF439D3A), R.drawable.qingming),
+    GuYu("谷雨", Color(0xFF439D3A), R.drawable.guyu),
 
     // 夏天：深绿色
-    LiXia("立夏", Color(0xFF59B650), Color(0xFF439D3A), R.drawable.lixia),
-    XiaoMan("小满", Color(0xFF59B650), Color(0xFF439D3A), 0),
-    MangZhong("芒种", Color(0xFF59B650), Color(0xFF439D3A), 0),
-    XiaZhi("夏至", Color(0xFF59B650), Color(0xFF439D3A), 0),
-    XiaoShu("小暑", Color(0xFF59B650), Color(0xFF439D3A), 0),
-    DaShu("大暑", Color(0xFF59B650), Color(0xFF439D3A), 0),
+    LiXia("立夏", Color(0xFF439D3A), R.drawable.lixia),
+    XiaoMan("小满", Color(0xFFDC8746), R.drawable.xiaoman),
+    MangZhong("芒种", Color(0xFFC28C30), R.drawable.mangzhong),
+    XiaZhi("夏至", Color(0xFF439D3A), R.drawable.xiazhi),
+    XiaoShu("小暑", Color(0xFF439D3A), R.drawable.xiaoshu),
+    DaShu("大暑", Color(0xFF439D3A), R.drawable.dashu),
 
     // 秋天：深橙黄
-    LiQiu("立秋", Color(0xFFEEA461), Color(0xFFDC8E46), 0),
-    ChuShu("处暑", Color(0xFFEEA461), Color(0xFFDC8E46), 0),
-    BaiLu("白露", Color(0xFFEEA461), Color(0xFFDC8E46), 0),
-    QiuFen("秋分", Color(0xFFEEA461), Color(0xFFDC8E46), 0),
-    HanLu("寒露", Color(0xFFEEA461), Color(0xFFDC8E46), R.drawable.hanlu),
-    ShuangJiang("霜降", Color(0xFF67A2DC), Color(0xFF4878C5), 0),
+    LiQiu("立秋", Color(0xFFDC8E46), R.drawable.liqiu),
+    ChuShu("处暑", Color(0xFFDC8E46), R.drawable.chushu),
+    BaiLu("白露", Color(0xFFDC8E46), R.drawable.bailu),
+    QiuFen("秋分", Color(0xFFDC8E46), R.drawable.qiufen),
+    HanLu("寒露", Color(0xFFDC8E46), R.drawable.hanlu),
+    ShuangJiang("霜降", Color(0xFF4878C5), R.drawable.shuangjiang),
 
     // 冬天：深蓝
-    LiDong("立冬", Color(0xFF67A2DC), Color(0xFF4878C5), 0),
-    XiaoXue("小雪", Color(0xFF67A2DC), Color(0xFF4878C5), 0),
-    DaXue("大雪", Color(0xFF67A2DC), Color(0xFF4878C5), 0),
-    DongZhi("冬至", Color(0xFF67A2DC), Color(0xFF4878C5), 0),
-    XiaoHan("小寒", Color(0xFF67A2DC), Color(0xFF4878C5), 0),
-    DaHan("大寒", Color(0xFF67A2DC), Color(0xFF4878C5), 0);
+    LiDong("立冬", Color(0xFF4878C5), R.drawable.lidong),
+    XiaoXue("小雪", Color(0xFF7BA3E3), R.drawable.xiaoxue),
+    DaXue("大雪", Color(0xFF739DE1), R.drawable.daxue),
+    DongZhi("冬至", Color(0xFF6BB3FF), R.drawable.dongzhi),
+    XiaoHan("小寒", Color(0xFF739DE1), R.drawable.xiaohan),
+    DaHan("大寒", Color(0xFF739DE1), R.drawable.dahan);
 }
