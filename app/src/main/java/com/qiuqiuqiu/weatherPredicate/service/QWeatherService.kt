@@ -45,6 +45,22 @@ import jakarta.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
+import kotlin.math.sqrt
+
+
+data class CachedGridNow(val data: GridNow, val timestamp: Long)
+
+data class GridPointWeather(
+    val latitude: Double,
+    val longitude: Double,
+    val temp: Double?,       // 温度
+    val humidity: Double?,   // 湿度
+    val windSpeed: Double?,  // 风速
+    val precip: Double?      // 降水
+)
 
 interface IQWeatherService {
     /**
@@ -158,6 +174,8 @@ interface IQWeatherService {
         longitude: Double,
         latitude: Double
     ): GridNow
+    suspend fun getBatchGridWeather(points: List<Pair<Double, Double>>): List<GridPointWeather>
+
 }
 
 
@@ -167,6 +185,12 @@ class QWeatherService @Inject constructor(@ApplicationContext private val contex
     private val instance: QWeather
     private val TAG: String = "QWeatherExampleMainActivity"
 
+
+    // 缓存 map
+    private val cache = mutableMapOf<Pair<Double, Double>, CachedGridNow>()
+    private val cacheDurationMillis = 60 * 60 * 1000L  // 1 小时
+    private val concurrency = 10                       // 并发请求数
+    private val semaphore = Semaphore(concurrency)
     init {
         try {
             val jwt = JWTGenerator(
@@ -560,6 +584,113 @@ class QWeatherService @Inject constructor(@ApplicationContext private val contex
             })
         }
     }
+    // ---------- 内部封装单点 + 缓存 ----------
+    private suspend fun getGridCurrentWeatherWithCache(lon: Double, lat: Double): GridNow {
+        val key = Pair(lon, lat)
+        val now = System.currentTimeMillis()
 
+        // 1. 查缓存
+        cache[key]?.let { cached ->
+            if (now - cached.timestamp < cacheDurationMillis) {
+                return cached.data
+            }
+        }
+
+        // 2. 调用已有单点函数
+        val fresh = getGridCurrentWeather(lon, lat)
+
+        // 3. 更新缓存
+        cache[key] = CachedGridNow(fresh, now)
+        return fresh
+    }
+
+    // ---------- 批量并发获取 ----------
+    override suspend fun getBatchGridWeather(points: List<Pair<Double, Double>>): List<GridPointWeather> {
+        return coroutineScope {
+            points.map { (lon, lat) ->
+                async {
+                    try {
+                        val now = getGridCurrentWeather(lon, lat)
+                        GridPointWeather(
+                            latitude = lat,
+                            longitude = lon,
+                            temp = now.temp?.toDoubleOrNull(),
+                            humidity = now.humidity?.toDoubleOrNull(),
+                            windSpeed = now.windSpeed?.toDoubleOrNull(),
+                            precip = now.precip?.toDoubleOrNull()
+                        )
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
+            }.awaitAll().filterNotNull()
+        }
+    }
+
+
+
+    // ---------- 全国格点生成 ----------
+    fun generateChinaGridPoints(gridCount: Int = 1000): List<Pair<Double, Double>> {
+        val lonMin = 73.0
+        val lonMax = 135.0
+        val latMin = 18.0
+        val latMax = 54.0
+
+        val points = mutableListOf<Pair<Double, Double>>()
+        val stepCount = sqrt(gridCount.toDouble()).toInt()
+        val lonStep = (lonMax - lonMin) / stepCount
+        val latStep = (latMax - latMin) / stepCount
+
+        var lat = latMin
+        while (lat <= latMax) {
+            var lon = lonMin
+            while (lon <= lonMax) {
+                points.add(Pair(lon, lat))
+                lon += lonStep
+            }
+            lat += latStep
+        }
+        return points
+    }
+
+    // ---------- 全国格点批量查询 ----------
+    suspend fun getChinaGridWeather(gridCount: Int = 1000): List<GridPointWeather>
+    {
+        val points = generateChinaGridPoints(gridCount)
+        return getBatchGridWeather(points)
+    }
+
+    // ---------- 局部范围格点生成 ----------
+    fun generateGridPointsInBounds(
+        latMin: Double,
+        latMax: Double,
+        lonMin: Double,
+        lonMax: Double,
+        step: Double = 0.1 // 经度/纬度步长，0.1° ≈ 10km
+    ): List<Pair<Double, Double>> {
+        val points = mutableListOf<Pair<Double, Double>>()
+        var lat = latMin
+        while (lat <= latMax) {
+            var lon = lonMin
+            while (lon <= lonMax) {
+                points.add(Pair(lon, lat))
+                lon += step
+            }
+            lat += step
+        }
+        return points
+    }
+
+    // ---------- 局部范围批量查询 ----------
+    suspend fun getGridWeatherInBounds(
+        latMin: Double,
+        latMax: Double,
+        lonMin: Double,
+        lonMax: Double,
+        step: Double = 0.1
+    ): List<GridPointWeather> {
+        val points = generateGridPointsInBounds(latMin, latMax, lonMin, lonMax, step)
+        return getBatchGridWeather(points)
+    }
 
 }
