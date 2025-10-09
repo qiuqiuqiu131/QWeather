@@ -29,6 +29,7 @@ import com.qiuqiuqiu.weatherPredicate.model.weather.TimelyChartModel
 import com.qiuqiuqiu.weatherPredicate.repository.TianRepository
 import com.qiuqiuqiu.weatherPredicate.service.IQWeatherService
 import com.qiuqiuqiu.weatherPredicate.ui.normal.ChartPoint
+import com.qiuqiuqiu.weatherPredicate.ui.screen.time.StarType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -119,16 +120,21 @@ class WeatherDetailViewModel @Inject constructor(
             chartModelCache.clear()
             switchChartType(selectedHourlyType.value)
 
-            viewModelScope.launch(Dispatchers.IO + CoroutineExceptionHandler { _, e ->
-                Log.e("Weather", "获取星座运势失败: ${e.stackTrace}")
-            }) {
-                val result = tianRepository.getDailyFortune("virgo").result
-                _detailModel.update { it ->
-                    it.copy(star = StarModel("处女座", result))
-                }
-            }
+            // 获取星座运势
+            SwitchStar(StarType.Aries)
 
             isInit.value = false
+        }
+    }
+
+    fun SwitchStar(type: StarType) {
+        viewModelScope.launch(Dispatchers.IO + CoroutineExceptionHandler { _, e ->
+            Log.e("Weather", "获取星座运势失败: ${e.stackTrace}")
+        }) {
+            val result = tianRepository.getDailyFortune(type.label).result
+            _detailModel.update { it ->
+                it.copy(star = StarModel(type.text, result))
+            }
         }
     }
 

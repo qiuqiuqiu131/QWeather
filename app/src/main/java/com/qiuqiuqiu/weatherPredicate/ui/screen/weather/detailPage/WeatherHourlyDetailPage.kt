@@ -3,6 +3,7 @@ package com.qiuqiuqiu.weatherPredicate.ui.screen.weather.detailPage
 import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NotificationsActive
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -36,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
@@ -49,6 +52,7 @@ import com.qiuqiuqiu.weatherPredicate.ui.normal.NullNestScrollConnection
 import com.qiuqiuqiu.weatherPredicate.ui.normal.ScrollableCenterRowList
 import com.qiuqiuqiu.weatherPredicate.ui.normal.WeatherIcon
 import com.qiuqiuqiu.weatherPredicate.ui.screen.time.StarCard
+import com.qiuqiuqiu.weatherPredicate.ui.screen.time.StarType
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.DetailTipItem
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.WeatherStatusInfoElevatedCard
 import com.qiuqiuqiu.weatherPredicate.viewModel.weather.HourlyDetailType
@@ -72,6 +76,7 @@ fun WeatherHourlyDetailPage(
     val chartModel by viewModel.chartModel.collectAsState()
     val detailModel by viewModel.detailModel.collectAsState()
     var showChart by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(currentPageIndex) {
         if (currentPageIndex == pageIndex) {
@@ -81,6 +86,64 @@ fun WeatherHourlyDetailPage(
                 showChart = true
             }
         }
+    }
+
+    if (showDialog) {
+        // 选择星座对话框
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            containerColor = MaterialTheme.colorScheme.background,
+            title = {
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        "选择星座",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+            },
+            text = {
+                val starList = StarType.entries.chunked(4) // 每4个一组，分三行
+
+                Column {
+                    starList.forEach { rowStars ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            rowStars.forEach { type ->
+                                Column(
+                                    modifier = Modifier
+
+                                        .clickable {
+                                            showDialog = false
+                                            viewModel.SwitchStar(type)
+                                        }
+                                        .padding(vertical = 8.dp)
+                                        .weight(1f), // 控制每个星座的宽度
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(text = type.icon, fontSize = 40.sp)
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                    Text(
+                                        text = type.text,
+                                        style = MaterialTheme.typography.labelMedium.copy(fontSize = 11.sp)
+                                    )
+                                    Text(
+                                        text = type.date,
+                                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 8.sp),
+                                        modifier = Modifier.alpha(0.6f)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+
+            }
+        )
     }
 
     Column(
@@ -263,7 +326,9 @@ fun WeatherHourlyDetailPage(
             }
 
             detailModel.star?.let {
-                StarCard(it)
+                StarCard(it, onSwitchStar = {
+                    showDialog = true
+                })
             }
 
             Spacer(modifier = Modifier.height(100.dp))

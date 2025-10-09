@@ -47,6 +47,7 @@ import com.qiuqiuqiu.weatherPredicate.service.isLocationPermanentlyDenied
 import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
 import com.qiuqiuqiu.weatherPredicate.ui.normal.SearchTextBox
 import com.qiuqiuqiu.weatherPredicate.ui.normal.showPermissionSettingDialog
+import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.background.JieQiBackground
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.background.WeatherBackground
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.AddPositionCard
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.PoiCard
@@ -83,12 +84,20 @@ fun WeatherSearchScreen(navController: NavController) {
         showPermissionSettingDialog(onDismiss = { showDialog = false }, context = context)
     }
 
-    if (appViewModel.currentBg.value != null)
-        WeatherBackground(
-            appViewModel.currentBg.value!!, modifier = Modifier.fillMaxSize(),
-            isDay = LocalDateTime.now().hour in 6..17
-        )
-    else
+    if (appViewModel.currentBg.value != null) {
+        if (appViewModel.jieqi.value != null) {
+            JieQiBackground(appViewModel.jieqi.value!!.name)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(0.25f))
+            )
+        } else
+            WeatherBackground(
+                appViewModel.currentBg.value!!, modifier = Modifier.fillMaxSize(),
+                isDay = LocalDateTime.now().hour in 6..17
+            )
+    } else
         Box(
             modifier = Modifier
                 .fillMaxSize()

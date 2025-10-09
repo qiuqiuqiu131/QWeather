@@ -1,0 +1,111 @@
+package com.qiuqiuqiu.weatherPredicate.ui.screen.weather.background
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import com.qiuqiuqiu.weatherPredicate.R
+
+@Composable
+fun JieQiBackground(name: String, alpha: Float = 0f) {
+    val jieqi = JieQiType.entries.firstOrNull { it.text == name } ?: JieQiType.LiChun
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(jieqi.backgroundColor)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .alpha(1 - 0.75f * alpha)
+        ) {
+            Image(
+                painterResource(jieqi.backgroundImage), null, modifier = Modifier.fillMaxWidth(),
+                contentScale = ContentScale.FillWidth
+            )
+            Box(
+                modifier = Modifier
+                    .height(80.dp)
+                    .fillMaxWidth()
+                    .align(Alignment.TopCenter)
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                jieqi.backgroundColor.copy(alpha = 0.4f),
+                                Color.Transparent
+                            ),
+                            endY = Float.POSITIVE_INFINITY
+                        )
+                    )
+            )
+            Box(
+                modifier = Modifier
+                    .height(150.dp)
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter)
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                jieqi.backgroundColor,
+                                jieqi.backgroundColor
+                            ),
+                            endY = Float.POSITIVE_INFINITY
+                        )
+                    )
+            )
+        }
+
+    }
+}
+
+
+enum class JieQiType(
+    val text: String,
+    val labelColor: Color,
+    val backgroundColor: Color,
+    val backgroundImage: Int
+) {
+    // 春天：深蓝绿
+    LiChun("立春", Color(0xFF59B650), Color(0xFF439D3A), R.drawable.lichun),
+    YuShui("雨水", Color(0xFF59B650), Color(0xFF439D3A), R.drawable.yushui),
+    JingZhe("惊蛰", Color(0xFF59B650), Color(0xFF439D3A), R.drawable.jingzhe),
+    ChunFen("春分", Color(0xFF59B650), Color(0xFF439D3A), R.drawable.chunfen),
+    QingMing("清明", Color(0xFF59B650), Color(0xFF439D3A), R.drawable.qingming),
+    GuYu("谷雨", Color(0xFF59B650), Color(0xFF439D3A), R.drawable.guyu),
+
+    // 夏天：深绿色
+    LiXia("立夏", Color(0xFF80D384), Color(0xFF61BE56), 0),
+    XiaoMan("小满", Color(0xFF80D384), Color(0xFF61BE56), 0),
+    MangZhong("芒种", Color(0xFF80D384), Color(0xFF61BE56), 0),
+    XiaZhi("夏至", Color(0xFF80D384), Color(0xFF61BE56), 0),
+    XiaoShu("小暑", Color(0xFF80D384), Color(0xFF61BE56), 0),
+    DaShu("大暑", Color(0xFF61BE56), Color(0xFF61BE56), 0),
+
+    // 秋天：深橙黄
+    LiQiu("立秋", Color(0xFFEEA461), Color(0xFFDC8E46), 0),
+    ChuShu("处暑", Color(0xFFEEA461), Color(0xFFDC8E46), 0),
+    BaiLu("白露", Color(0xFFEEA461), Color(0xFFDC8E46), 0),
+    QiuFen("秋分", Color(0xFFEEA461), Color(0xFFDC8E46), 0),
+    HanLu("寒露", Color(0xFFEEA461), Color(0xFFDC8E46), R.drawable.hanlu),
+    ShuangJiang("霜降", Color(0xFF67A2DC), Color(0xFF4878C5), 0),
+
+    // 冬天：深蓝
+    LiDong("立冬", Color(0xFF67A2DC), Color(0xFF4878C5), 0),
+    XiaoXue("小雪", Color(0xFF67A2DC), Color(0xFF4878C5), 0),
+    DaXue("大雪", Color(0xFF67A2DC), Color(0xFF4878C5), 0),
+    DongZhi("冬至", Color(0xFF67A2DC), Color(0xFF4878C5), 0),
+    XiaoHan("小寒", Color(0xFF67A2DC), Color(0xFF4878C5), 0),
+    DaHan("大寒", Color(0xFF67A2DC), Color(0xFF4878C5), 0);
+}

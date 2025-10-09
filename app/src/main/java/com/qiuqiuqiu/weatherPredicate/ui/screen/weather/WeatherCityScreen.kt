@@ -53,6 +53,7 @@ import com.qiuqiuqiu.weatherPredicate.model.weather.CityType
 import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
 import com.qiuqiuqiu.weatherPredicate.ui.normal.rememberScrollAlpha
 import com.qiuqiuqiu.weatherPredicate.ui.normal.rememberScrollThreshold
+import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.background.JieQiBackground
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.background.WeatherBackground
 import com.qiuqiuqiu.weatherPredicate.viewModel.AppViewModel
 import com.qiuqiuqiu.weatherPredicate.viewModel.weather.WeatherViewModel
@@ -77,15 +78,19 @@ fun WeatherCityScreen(navController: NavController, location: Pair<Double, Doubl
 
     val scrollState: ScrollState = rememberScrollState()
     val centerCardAlpha = rememberScrollAlpha(scrollState, 70, 300)
+    val bgAlpha = rememberScrollAlpha(scrollState, 400, 500)
     val cityTextHide = rememberScrollThreshold(scrollState, 70)
 
-    if (weatherModel.weatherNow != null)
-        WeatherBackground(
-            weatherModel.weatherNow!!.icon,
-            modifier = Modifier.fillMaxSize(),
-            isDay = LocalDateTime.now().hour in 6..17
-        )
-    else
+    if (weatherModel.weatherNow != null) {
+        if (appViewModel.jieqi.value != null)
+            JieQiBackground(appViewModel.jieqi.value!!.name, bgAlpha.value)
+        else
+            WeatherBackground(
+                weatherModel.weatherNow!!.icon,
+                modifier = Modifier.fillMaxSize(),
+                isDay = LocalDateTime.now().hour in 6..17
+            )
+    } else
         Box(
             modifier = Modifier
                 .fillMaxSize()

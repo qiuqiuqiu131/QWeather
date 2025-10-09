@@ -188,7 +188,7 @@ fun WeatherDetailScreen(
                                     currentPageIndex = pageState.targetPage,
                                     pageIndex = it,
                                     viewModel = viewModel,
-                                    detailModel = hiltViewModel(key = "$it$pageInfo"),
+                                    key = "$it$pageInfo",
                                     onThemeChanged = themeChanged,
                                     onSwitchPage = switchPage
                                 )
