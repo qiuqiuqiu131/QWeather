@@ -36,7 +36,10 @@ fun MapSideScreen(
 ) {
     val mapView = rememberMapViewWithLifecycle()
     // 尝试隐藏缩放控件（可选）
-    try { mapView.showZoomControls(false) } catch (_: Throwable) {}
+    try {
+        mapView.showZoomControls(false)
+    } catch (_: Throwable) {
+    }
     val baiduMap = remember { mapView.map }
 
     LaunchedEffect(Unit) {

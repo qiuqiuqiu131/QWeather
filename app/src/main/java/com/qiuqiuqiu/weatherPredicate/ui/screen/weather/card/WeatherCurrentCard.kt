@@ -1,5 +1,6 @@
 package com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,6 +22,7 @@ import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -43,6 +45,7 @@ fun WeatherCurrentCard(
     alpha: State<Float>,
     cityHide: State<Boolean>,
     centerScreen: Boolean,
+    onJieQiClick: (() -> Unit)? = null,
     onCityClick: (() -> Unit)? = null,
     onClick: (() -> Unit)? = null
 ) {
@@ -51,24 +54,41 @@ fun WeatherCurrentCard(
         appViewModel.jieqi.value?.let {
             val type = JieQiType.entries.firstOrNull { t -> t.text == it.name } ?: JieQiType.LiChun
             ElevatedCard(
-                colors = CardDefaults.elevatedCardColors(containerColor = type.backgroundColor),
+                colors = CardDefaults.elevatedCardColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    contentColor = MaterialTheme.colorScheme.onSecondary
+                ),
                 modifier = Modifier
                     .padding(top = 72.dp, start = 32.dp)
                     .alpha(1 - alpha.value)
                     .width(40.dp)
+                    .pointerInput(Unit) {
+                        detectTapGestures { onJieQiClick?.invoke() }
+                    }
             ) {
-                Text(
-                    text = it.name,
-                    letterSpacing = 5.sp,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontSize = 26.sp,
-                        lineHeight = 36.sp,
-                    ),
-                    softWrap = true,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(vertical = 18.dp, horizontal = 4.5.dp)
-                )
+                Box(
+                    modifier = Modifier.background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                type.backgroundColor.copy(alpha = 0.4f),
+                                type.backgroundColor
+                            )
+                        )
+                    )
+                ) {
+                    Text(
+                        text = it.name,
+                        letterSpacing = 5.sp,
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontSize = 26.sp,
+                            lineHeight = 36.sp,
+                        ),
+                        softWrap = true,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(vertical = 18.dp, horizontal = 4.5.dp)
+                    )
+                }
             }
         }
         Column(

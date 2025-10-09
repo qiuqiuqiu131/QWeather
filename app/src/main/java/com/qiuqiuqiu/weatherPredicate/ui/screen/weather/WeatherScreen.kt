@@ -303,6 +303,7 @@ fun WeatherCenterPage(
             alpha,
             cityHide,
             centerScreen,
+            onJieQiClick = { navController?.navigate("JieQi") },
             onCityClick = { navController?.navigate("CityManage") },
             onClick = {
                 navToWeatherDetail(

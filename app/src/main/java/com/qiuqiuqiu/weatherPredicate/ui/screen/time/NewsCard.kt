@@ -104,7 +104,7 @@ fun NewsItem(news: AllNewsItem = testNewsItem()) {
             )
             Box(
                 modifier = Modifier
-                    .padding(4.dp)
+                    .padding(vertical = 4.dp)
                     .fillMaxWidth()
             ) {
                 Text(

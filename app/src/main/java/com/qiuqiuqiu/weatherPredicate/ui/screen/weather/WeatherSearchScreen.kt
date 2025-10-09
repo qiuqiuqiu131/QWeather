@@ -86,11 +86,11 @@ fun WeatherSearchScreen(navController: NavController) {
 
     if (appViewModel.currentBg.value != null) {
         if (appViewModel.jieqi.value != null) {
-            JieQiBackground(appViewModel.jieqi.value!!.name)
+            JieQiBackground(appViewModel.jieqi.value!!.name, 0.6f)
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(0.25f))
+                    .background(Color.Black.copy(0.1f))
             )
         } else
             WeatherBackground(

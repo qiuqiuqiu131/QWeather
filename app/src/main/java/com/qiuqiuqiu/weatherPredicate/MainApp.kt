@@ -21,6 +21,7 @@ import com.qiuqiuqiu.weatherPredicate.service.QWeatherService
 import com.qiuqiuqiu.weatherPredicate.ui.screen.MainScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.map.HotMapScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.map.MapSideScreen
+import com.qiuqiuqiu.weatherPredicate.ui.screen.time.JieQiSideScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.CityEditScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.CityManageScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.WeatherCityScreen
@@ -75,6 +76,11 @@ fun MainApp(modifier: Modifier = Modifier) {
         animatedNavComposable("CityEdit") {
             SwitchStatusBarColor(true)
             CityEditScreen(navController)
+        }
+
+        animatedNavComposable("JieQi") {
+            SwitchStatusBarColor(true)
+            JieQiSideScreen(navController)
         }
 
         animatedNavComposable(
