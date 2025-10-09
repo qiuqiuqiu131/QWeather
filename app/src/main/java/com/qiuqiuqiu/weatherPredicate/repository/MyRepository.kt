@@ -85,4 +85,24 @@ class TianRepository @Inject constructor(
     ): NewsResponse {
         return api.getNews(apiKeyProvider.key, num, page, rand, word, source)
     }
+
+
+    /**
+     * 新闻大全查询
+     *
+     * @param num 返回数量，1-50，默认10
+     * @param col 新闻频道 ID（必填）
+     * @param page 翻页，可选
+     * @param rand 随机获取，0=不随机，1=随机
+     * @param word 检索关键词，可选
+     */
+    suspend fun getAllNews(
+        num: Int = 10,
+        col: Int,
+        page: Int? = 1,
+        rand: Int? = 0,
+        word: String? = null
+    ): AllNewsResponse {
+        return api.getAllNews(apiKeyProvider.key, num, col, page, rand, word)
+    }
 }

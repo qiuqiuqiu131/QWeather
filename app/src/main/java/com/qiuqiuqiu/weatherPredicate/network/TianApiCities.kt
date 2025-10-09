@@ -2,6 +2,7 @@ package com.qiuqiuqiu.weatherPredicate.network
 
 
 
+import com.qiuqiuqiu.weatherPredicate.model.AllNewsResponse
 import com.qiuqiuqiu.weatherPredicate.model.DailyFortuneResponse
 import com.qiuqiuqiu.weatherPredicate.model.JieQiResponse
 import com.qiuqiuqiu.weatherPredicate.model.ShiJuResponse
@@ -65,6 +66,18 @@ interface TianApiCities {
         @Query("word") word: String? = null,
         @Query("source") source: String? = null
     ): NewsResponse
+
+
+    @GET("allnews/index")
+    suspend fun getAllNews(
+        @Query("key") key: String,       // 你的 API KEY
+        @Query("num") num: Int = 10,     // 返回数量，1-50，默认10
+        @Query("col") col: Int = 7,          // 新闻频道 ID（必须）
+        @Query("page") page: Int? = 1,   // 翻页，可选
+        @Query("rand") rand: Int? = 1,   // 随机获取，0->不随机，1->随机
+        @Query("word") word: String? = null // 检索关键词，可选
+    ): AllNewsResponse
+
 
 }
 

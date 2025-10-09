@@ -320,14 +320,12 @@ fun WeatherCenterPage(
         }
 
         // 预警信息卡片
-        weatherModel.warnings?.let {
-            WarningInfoCard(it, onClick = {
-                navToWeatherDetail(
-                    navController, pageName = "预警信息",
-                    location = weatherModel.location
-                )
-            })
-        }
+        WarningInfoCard(weatherModel.warnings, weatherModel.shiJu, onClick = {
+            navToWeatherDetail(
+                navController, pageName = "预警信息",
+                location = weatherModel.location
+            )
+        })
 
         // 每小时天气列表
         weatherModel.weatherHourlies?.let {

@@ -16,7 +16,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material3.Card
@@ -82,7 +84,9 @@ fun WeatherHourlyDetailPage(
     }
 
     Column(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
     ) {
         if (showChart) {
             viewModel.dates.value?.let {
@@ -261,6 +265,8 @@ fun WeatherHourlyDetailPage(
             detailModel.star?.let {
                 StarCard(it)
             }
+
+            Spacer(modifier = Modifier.height(100.dp))
         }
     }
 }
