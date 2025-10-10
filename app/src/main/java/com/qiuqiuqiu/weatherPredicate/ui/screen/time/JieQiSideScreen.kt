@@ -53,7 +53,7 @@ fun JieQiSideScreen(navController: NavHostController) {
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                // JieQiBackground(it.name, 0f)
+                // JieQiBackground(it.name, 0.5f)
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -74,9 +74,23 @@ fun JieQiSideScreen(navController: NavHostController) {
                             .padding(horizontal = 8.dp)
                     ) {
                         Column(modifier = Modifier.padding(18.dp)) {
+                            Text("诗句", color = type.backgroundColor, fontSize = 16.sp)
+                            Text(
+                                it.shiju,
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.padding(bottom = 12.dp)
+                            )
+
                             Text("简介", color = type.backgroundColor, fontSize = 16.sp)
                             Text(
                                 it.jieshao,
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.padding(bottom = 12.dp)
+                            )
+
+                            Text("宜忌", color = type.backgroundColor, fontSize = 16.sp)
+                            Text(
+                                it.yiji,
                                 style = MaterialTheme.typography.bodyMedium,
                                 modifier = Modifier.padding(bottom = 12.dp)
                             )
@@ -94,23 +108,6 @@ fun JieQiSideScreen(navController: NavHostController) {
                                 style = MaterialTheme.typography.bodyMedium,
                                 modifier = Modifier.padding(bottom = 12.dp)
                             )
-
-                            Text("宜忌", color = type.backgroundColor, fontSize = 16.sp)
-                            Text(
-                                it.yiji,
-                                style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.padding(bottom = 12.dp)
-                            )
-
-                            Text("诗句", color = type.backgroundColor, fontSize = 16.sp)
-                            Text(
-                                it.shiju,
-                                style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.padding(bottom = 12.dp)
-                            )
-
-                            Text("原因", color = type.backgroundColor, fontSize = 16.sp)
-                            Text(it.yuanyin, style = MaterialTheme.typography.bodyMedium)
                         }
                     }
                 }

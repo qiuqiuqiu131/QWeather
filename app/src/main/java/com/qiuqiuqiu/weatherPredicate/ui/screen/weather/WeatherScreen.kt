@@ -19,6 +19,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -38,7 +41,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -60,10 +64,13 @@ import com.qiuqiuqiu.weatherPredicate.service.isLocationPermanentlyDenied
 import com.qiuqiuqiu.weatherPredicate.tools.isToday
 import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseItem
 import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
+import com.qiuqiuqiu.weatherPredicate.ui.normal.PagerIndicator
 import com.qiuqiuqiu.weatherPredicate.ui.normal.rememberScrollAlpha
 import com.qiuqiuqiu.weatherPredicate.ui.normal.rememberScrollThreshold
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.background.JieQiBackground
+import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.background.JieQiType
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.background.WeatherBackground
+import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.background.getIndicatorColor
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.AirCurrentCard
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.DailyWeatherCard
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.HourlyWeatherCard
@@ -74,6 +81,7 @@ import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.WeatherCurrentCard
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.WeatherIndexCard
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.WeatherStatusInfoCard
 import com.qiuqiuqiu.weatherPredicate.viewModel.AppViewModel
+import com.qiuqiuqiu.weatherPredicate.viewModel.weather.WeatherMainViewModel
 import com.qiuqiuqiu.weatherPredicate.viewModel.weather.WeatherViewModel
 import com.qweather.sdk.response.geo.Location
 import java.time.LocalDateTime
@@ -83,106 +91,179 @@ import java.time.LocalDateTime
 @Composable
 fun WeatherScreen(navController: NavController) {
     val appViewModel: AppViewModel = LocalAppViewModel.current
-    val currentCity by appViewModel.currentCity.collectAsState()
     val context = LocalContext.current
 
-    val viewModel: WeatherViewModel = hiltViewModel()
-    val weatherModel by viewModel.locationWeather.collectAsState()
+    val mainViewModel: WeatherMainViewModel = hiltViewModel()
+    val weatherViewModel = mainViewModel.cityWeather.collectAsState()
+    mainViewModel.initCities()
 
     val scrollState: ScrollState = rememberScrollState()
     val centerCardAlpha = rememberScrollAlpha(scrollState, 70, 230)
     val bgAlpha = rememberScrollAlpha(scrollState, 300, 600)
     val cityTextHide = rememberScrollThreshold(scrollState, 70)
 
-    val permissionLauncher =
-        rememberLauncherForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions()
-        ) {
-            viewModel.initLocation(currentCity)
-        }
+    val pageState: PagerState = rememberPagerState(
+        appViewModel.currentIndex.intValue,
+        pageCount = { mainViewModel.cities.value.size })
 
-    LaunchedEffect(currentCity) {
-        val hasPermissions = hasLocationPermissions(context)
-        val isDenied = isLocationPermanentlyDenied(context)
-        if (currentCity.type == CityType.Position && !hasPermissions && isDenied) {
-            // 只在副作用中调用 launch
-            permissionLauncher.launch(
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                )
-            )
-        } else {
-            viewModel.initLocation(currentCity)
+    LaunchedEffect(appViewModel.currentIndex.intValue) {
+        if (appViewModel.currentIndex.intValue != pageState.targetPage)
+            pageState.scrollToPage(appViewModel.currentIndex.intValue)
+    }
+
+    LaunchedEffect(pageState.targetPage) {
+        if (appViewModel.currentIndex.intValue != pageState.targetPage)
+            appViewModel.currentIndex.intValue = pageState.targetPage
+        if (mainViewModel.pageIndex.intValue != pageState.targetPage) {
+            mainViewModel.pageIndex.intValue = pageState.targetPage
         }
     }
 
-    LaunchedEffect(weatherModel) {
-        weatherModel.weatherNow?.let {
-            appViewModel.currentBg.value = it.icon
-        }
-    }
+    val hasPermissions = hasLocationPermissions(context)
+    val isDenied = isLocationPermanentlyDenied(context)
 
-
-    if (weatherModel.weatherNow != null) {
-        if (appViewModel.jieqi.value != null)
-            JieQiBackground(appViewModel.jieqi.value!!.name, bgAlpha.value)
-        else
-            WeatherBackground(
-                weatherModel.weatherNow!!.icon,
-                modifier = Modifier.fillMaxSize(),
-                isDay = LocalDateTime.now().hour in 6..17
-            )
-    } else
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-        )
-
-    val state = rememberPullToRefreshState()
-    PullToRefreshBox(
-        isRefreshing = viewModel.isRefreshing.value,
-        state = state,
-        onRefresh = { viewModel.refreshing() },
-        indicator = {
-            Indicator(
-                modifier = Modifier.align(Alignment.TopCenter),
-                isRefreshing = viewModel.isRefreshing.value,
-                state = state,
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                color = MaterialTheme.colorScheme.onSecondary
-            )
-        },
+    LoadingContainer(
+        isInit = mainViewModel.isInit.value,
+        color = MaterialTheme.colorScheme.primary
     ) {
-        Scaffold(
-            topBar = {
-                WeatherTopBar(
-                    weatherModel.type,
-                    weatherModel.location,
-                    navController,
-                    centerCardAlpha,
-                    cityTextHide,
-                    onCityClick = { navController.navigate("CityManage") }
+        var indicatorColor = MaterialTheme.colorScheme.surfaceVariant
+
+        // background
+        if (weatherViewModel.value?.locationWeather?.value?.weatherNow != null) {
+            if (appViewModel.jieqi.value != null) {
+                val name = appViewModel.jieqi.value!!.name
+                JieQiBackground(name, bgAlpha.value)
+                val type =
+                    JieQiType.entries.firstOrNull { it.text == name }
+                        ?: JieQiType.LiChun
+                indicatorColor = type.backgroundColor
+            } else {
+                val id = weatherViewModel.value!!.locationWeather.value.weatherNow!!.icon
+                val isDay = LocalDateTime.now().hour in 6..17
+                WeatherBackground(
+                    id,
+                    modifier = Modifier.fillMaxSize(),
+                    isDay = isDay
+                )
+                indicatorColor = getIndicatorColor(id, isDay, indicatorColor)
+            }
+        } else
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+            )
+
+        val state = rememberPullToRefreshState()
+        PullToRefreshBox(
+            isRefreshing = mainViewModel.isRefreshing.value,
+            state = state,
+            onRefresh = {
+                if (!mainViewModel.isRefreshing.value) {
+                    mainViewModel.isRefreshing.value = true
+                    weatherViewModel.value?.updateWeatherModel {
+                        mainViewModel.isRefreshing.value = false
+                    }
+                }
+            },
+            indicator = {
+                Indicator(
+                    modifier = Modifier.align(Alignment.TopCenter),
+                    isRefreshing = mainViewModel.isRefreshing.value,
+                    state = state,
+                    containerColor = indicatorColor,
+                    color = MaterialTheme.colorScheme.onSecondary
                 )
             },
-            modifier = Modifier.padding(bottom = 50.dp),
-            containerColor = Color.Transparent,
-            contentColor = MaterialTheme.colorScheme.onSecondary
-        ) { innerPadding ->
-            LoadingContainer(
-                isInit = viewModel.isInit.value,
-                color = if (weatherModel.weatherNow == null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer
-            ) {
+        ) {
+            Scaffold(
+                topBar = {
+                    WeatherTopBar(
+                        weatherViewModel.value?.locationWeather?.value,
+                        navController,
+                        centerCardAlpha,
+                        cityTextHide,
+                        onCityClick = { navController.navigate("CityManage") }
+                    )
+                },
+                bottomBar = {
+                    PagerIndicator(
+                        mainViewModel.cities.value.size,
+                        mainViewModel.pageIndex.intValue,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                            .align(Alignment.Center),
+                        selectedColor = MaterialTheme.colorScheme.surfaceContainer,
+                        unselectedColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.4f),
+                        dotSize = 4.5.dp,
+                        selectedDotSize = 6.5.dp,
+                        spacing = 4.dp
+                    )
+                },
+                modifier = Modifier.padding(bottom = 50.dp),
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.onSecondary
+            ) { innerPadding ->
                 SwitchStatusBarColor(false)
-                WeatherCenterPage(
-                    weatherModel = weatherModel,
-                    scrollState = scrollState,
-                    navController = navController,
-                    alpha = centerCardAlpha,
-                    cityHide = cityTextHide,
-                    modifier = Modifier.padding(innerPadding)
-                )
+
+                HorizontalPager(
+                    pageState,
+                    modifier = Modifier
+                        .padding(innerPadding)
+                        .fillMaxSize()
+                ) { it ->
+                    val currentCity =
+                        mainViewModel.cities.value.getOrNull(it) ?: return@HorizontalPager
+                    val index = remember { mutableIntStateOf(it) }
+
+                    val viewModel: WeatherViewModel =
+                        hiltViewModel(key = currentCity.location.toString())
+
+                    val permissionLauncher =
+                        rememberLauncherForActivityResult(
+                            ActivityResultContracts.RequestMultiplePermissions()
+                        ) {
+                            viewModel.initLocation(currentCity)
+                        }
+
+                    LaunchedEffect(Unit) {
+                        if (!viewModel.isInit.value) {
+                            if (currentCity.type == CityType.Position && !hasPermissions && isDenied) {
+                                // 只在副作用中调用 launch
+                                permissionLauncher.launch(
+                                    arrayOf(
+                                        Manifest.permission.ACCESS_FINE_LOCATION,
+                                        Manifest.permission.ACCESS_COARSE_LOCATION
+                                    )
+                                )
+                            } else {
+                                viewModel.initLocation(currentCity)
+                            }
+                        } else {
+                            viewModel.initLocation(currentCity)
+                        }
+                    }
+
+                    LaunchedEffect(mainViewModel.pageIndex.intValue) {
+                        if (mainViewModel.pageIndex.intValue == index.intValue) {
+                            mainViewModel.setCurrentCity(viewModel)
+                            viewModel.locationWeather.value.weatherNow?.let {
+                                appViewModel.currentBg.value = it.icon
+                            }
+                        }
+                    }
+
+                    if (!viewModel.isInit.value) {
+                        WeatherCenterPage(
+                            weatherModel = viewModel.locationWeather.value,
+                            scrollState = scrollState,
+                            navController = navController,
+                            alpha = centerCardAlpha,
+                            cityHide = cityTextHide
+                        )
+                    }
+                }
             }
         }
     }
@@ -191,8 +272,7 @@ fun WeatherScreen(navController: NavController) {
 /** 天气页面顶部栏 */
 @Composable
 fun WeatherTopBar(
-    type: CityType,
-    location: Location?,
+    weatherModel: LocationWeatherModel?,
     navController: NavController,
     alpha: State<Float>,
     cityHide: State<Boolean>,
@@ -204,7 +284,7 @@ fun WeatherTopBar(
             .statusBarsPadding()
             .height(50.dp)
     ) {
-        location?.let {
+        weatherModel?.location?.let {
             val text =
                 "${it.adm1} " + (if (it.adm2.equals(it.name)) "" else it.adm2 + " ") + "${it.name}"
             BaseItem(
@@ -228,7 +308,7 @@ fun WeatherTopBar(
                         overflow = TextOverflow.Ellipsis,
                         softWrap = false
                     )
-                    if (type == CityType.Position) {
+                    if (weatherModel.type == CityType.Position) {
                         Icon(
                             Icons.Default.LocationOn,
                             null,
@@ -243,7 +323,7 @@ fun WeatherTopBar(
             IconButton(
                 onClick = {
                     navController.navigate(
-                        "SideMap?title=${text}&longitude=${location.lon}&latitude=${location.lat}"
+                        "SideMap?title=${text}&longitude=${it.lon}&latitude=${it.lat}"
                     )
                 },
                 modifier = Modifier

@@ -80,38 +80,39 @@ fun MainScreen(navController: NavController, modifier: Modifier = Modifier) {
                 navController, modifier.fillMaxSize()
             )
 
-            NavigationBar(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .height(50.dp),
-                containerColor = appViewModel.naviBarContainerColor.value
-                    ?: MaterialTheme.colorScheme.background
-            ) {
-                val iconColor = appViewModel.naviBarIconColor.value
-                    ?: MaterialTheme.colorScheme.onTertiary
-                val indicatorColor = appViewModel.naviBarIndicatorColor.value
-                    ?: MaterialTheme.colorScheme.tertiaryContainer
-                MainNaviBar.entries.forEachIndexed { index, destination ->
-                    NavigationBarItem(
-                        selected = selectedDestination == destination,
-                        onClick = { selectedDestination = destination },
-                        icon = {
-                            Icon(
-                                destination.icon,
-                                contentDescription = destination.contentDescription
-                            )
-                        },
-                        colors = NavigationBarItemDefaults.colors().copy(
-                            selectedIconColor = iconColor,
-                            unselectedIconColor = iconColor.copy(alpha = 0.7f),
-                            selectedIndicatorColor = indicatorColor,
-                        ),
-                        modifier = Modifier.align(Alignment.CenterVertically)
-                    )
+            if (true) {
+                NavigationBar(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    containerColor = appViewModel.naviBarContainerColor.value
+                        ?: MaterialTheme.colorScheme.background
+                ) {
+                    val iconColor = appViewModel.naviBarIconColor.value
+                        ?: MaterialTheme.colorScheme.onTertiary
+                    val indicatorColor = appViewModel.naviBarIndicatorColor.value
+                        ?: MaterialTheme.colorScheme.tertiaryContainer
+                    MainNaviBar.entries.forEachIndexed { index, destination ->
+                        NavigationBarItem(
+                            selected = selectedDestination == destination,
+                            onClick = { selectedDestination = destination },
+                            icon = {
+                                Icon(
+                                    destination.icon,
+                                    contentDescription = destination.contentDescription
+                                )
+                            },
+                            colors = NavigationBarItemDefaults.colors().copy(
+                                selectedIconColor = iconColor,
+                                unselectedIconColor = iconColor.copy(alpha = 0.7f),
+                                selectedIndicatorColor = indicatorColor,
+                            ),
+                            modifier = Modifier.align(Alignment.CenterVertically)
+                        )
+                    }
                 }
             }
         }
-
     }
 }

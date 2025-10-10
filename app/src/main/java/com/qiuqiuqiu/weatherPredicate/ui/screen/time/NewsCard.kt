@@ -41,12 +41,12 @@ import com.qiuqiuqiu.weatherPredicate.ui.normal.ElevatedBaseCard
 import com.qiuqiuqiu.weatherPredicate.viewModel.AllNewsViewModel
 
 @Composable
-fun NewsCard(col: Int = 5, key: String) {
+fun NewsCard(col: Int = 5, count: Int = 3, key: String) {
     val viewModel: AllNewsViewModel = hiltViewModel(key = key)
     val newsList = viewModel.newsResult.collectAsState()
 
     LaunchedEffect(col) {
-        viewModel.fetchAllNews(3, col)
+        viewModel.fetchAllNews(count, col)
     }
 
     newsList.value?.result?.newslist?.let {
@@ -131,19 +131,16 @@ fun NewsItem(news: AllNewsItem = testNewsItem()) {
                 .padding(vertical = 8.dp)
                 .fillMaxHeight()
         ) {
-            if (news.picUrl.isEmpty()) {
-                Image(
-                    painter = painterResource(R.drawable.news),
-                    null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                AsyncImage(
-                    news.picUrl, null, modifier = Modifier
-                        .fillMaxSize(), contentScale = ContentScale.Crop
-                )
-            }
+            Image(
+                painter = painterResource(R.drawable.news),
+                null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+            AsyncImage(
+                news.picUrl, null, modifier = Modifier
+                    .fillMaxSize(), contentScale = ContentScale.Crop
+            )
         }
 
     }

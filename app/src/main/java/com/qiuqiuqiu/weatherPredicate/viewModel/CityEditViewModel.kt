@@ -65,6 +65,10 @@ constructor(
 
     fun saveEdit(appViewModel: AppViewModel, callBack: (() -> Unit)? = null) {
         viewModelScope.launch(Dispatchers.IO) {
+            val cities = localDataManager.getCityList()
+            val currentCity =
+                cities.getOrNull(appViewModel.currentIndex.intValue) ?: defaultLocation
+
             val list = cityList.map {
                 CityLocationModel(
                     it.type,
@@ -74,12 +78,11 @@ constructor(
             localDataManager.saveCityList(list)
 
             // 保存后，检查当前城市是否还在列表中，如果不在，设置为第一个
-            val currentCity = appViewModel.currentCity.value
             if (list.firstOrNull {
                     abs(it.location.first - currentCity.location.first) < 0.04 &&
                             abs(it.location.second - currentCity.location.second) < 0.04
                 } == null) {
-                appViewModel.currentCity.value = list.firstOrNull() ?: defaultLocation
+                appViewModel.currentIndex.intValue = 0
             }
             viewModelScope.launch(Dispatchers.Main) { callBack?.invoke() }
         }

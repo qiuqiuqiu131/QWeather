@@ -1,5 +1,6 @@
 package com.qiuqiuqiu.weatherPredicate.ui.screen.weather.detailPage
 
+import NewsCard
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -126,6 +127,9 @@ fun WeatherCurrentDetailPage(
                 )
             }
 
+            Spacer(modifier = Modifier.height(4.dp))
+
+            NewsCard(col = 5, count = 5, key = "weatherCurrent")
 
             Spacer(modifier = Modifier.height(100.dp))
         }

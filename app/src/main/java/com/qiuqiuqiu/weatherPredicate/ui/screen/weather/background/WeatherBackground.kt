@@ -3,6 +3,7 @@ package com.qiuqiuqiu.weatherPredicate.ui.screen.weather.background
 import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import com.qiuqiuqiu.weatherPredicate.R
 
@@ -113,6 +114,18 @@ fun WeatherBackground(id: String, modifier: Modifier = Modifier, isDay: Boolean 
 
         "snow" -> CloudyAnimationBackground(modifier = modifier, isDay = isDay) // 可自定义雪背景
         else -> CloudyAnimationBackground(modifier = modifier, isDay = isDay)
+    }
+}
+
+
+fun getIndicatorColor(id: String, isDay: Boolean, defaultColor: Color): Color {
+    return when (getWeatherBackgroundType(id)) {
+        "sunny", "sunnyCloudy" -> if (isDay) Color(0xFFAFDBFF) else Color(0xFF394E79)
+        "cloudy" -> if (isDay) Color(0xFFC2C2C2) else Color(0xFF939393)
+        "rain_drizzle", "rain_light", "rain_moderate", "rain_heavy", "rain_severe", "rain_storm"
+            -> if (isDay) Color(0xFFA6A6A6) else Color(0xFF6E6E6E)
+
+        else -> defaultColor
     }
 }
 

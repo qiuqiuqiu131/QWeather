@@ -72,12 +72,11 @@ fun WeatherSearchScreen(navController: NavController) {
     val input by viewModel.searchInputFlow.collectAsState()
 
     val appViewModel: AppViewModel = LocalAppViewModel.current
-    val currentCity by appViewModel.currentCity.collectAsState()
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
 
-    LaunchedEffect(currentCity) {
-        viewModel.initSearchData(currentCity)
+    LaunchedEffect(Unit) {
+        viewModel.initSearchData() // 初始化搜索数据
     }
 
     if (showDialog) {
