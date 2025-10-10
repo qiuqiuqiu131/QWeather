@@ -20,6 +20,7 @@ import androidx.navigation.compose.rememberNavController
 import com.qiuqiuqiu.weatherPredicate.service.QWeatherService
 import com.qiuqiuqiu.weatherPredicate.ui.screen.MainScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.map.HotMapScreen
+import com.qiuqiuqiu.weatherPredicate.ui.screen.map.MapScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.map.MapSideScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.time.JieQiSideScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.CityEditScreen
@@ -81,6 +82,10 @@ fun MainApp(modifier: Modifier = Modifier) {
         animatedNavComposable("JieQi") {
             SwitchStatusBarColor(true)
             JieQiSideScreen(navController)
+        }
+
+        animatedNavComposable("Map") {
+            MapScreen(navController)
         }
 
         animatedNavComposable(

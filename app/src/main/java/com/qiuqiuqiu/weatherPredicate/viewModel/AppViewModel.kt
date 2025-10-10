@@ -4,7 +4,6 @@ import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qiuqiuqiu.weatherPredicate.manager.ILocalDataManager
@@ -23,16 +22,6 @@ class AppViewModel @Inject constructor(
     val localDataManager: ILocalDataManager,
     val repository: TianRepository
 ) : ViewModel() {
-    var naviBarIconColor: MutableState<Color?> = mutableStateOf(null)
-    var naviBarIndicatorColor: MutableState<Color?> = mutableStateOf(null)
-    var naviBarContainerColor: MutableState<Color?> = mutableStateOf(null)
-
-    fun clearNaviBarColor() {
-        naviBarIconColor.value = null
-        naviBarContainerColor.value = null
-        naviBarIndicatorColor.value = null
-    }
-
     // 黄历
     var lunar: MutableState<LunarResult?> = mutableStateOf(null)
     var jieqi: MutableState<JieQiResult?> = mutableStateOf(null)
