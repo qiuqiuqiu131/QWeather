@@ -25,6 +25,7 @@ import kotlin.math.pow
 import kotlin.random.Random
 import com.baidu.mapapi.map.Gradient
 
+
 @Composable
 fun HotMapScreen(
     navController: NavController,
@@ -33,6 +34,8 @@ fun HotMapScreen(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val mapView = remember { MapView(navController.context) }
+
+
     val baiduMap: BaiduMap = mapView.map
 
     // 禁止地图旋转、倾斜
@@ -320,7 +323,10 @@ fun updateHeatMap(baiduMap: BaiduMap, data: List<GridPointWeather>, type: String
         builder.gradient(gradient)
 
 
-        val heatMap = builder.build()
+        val heatMap = builder
+            .weightedData(weightedData)
+            .gradient(gradient)
+            .build()
         baiduMap.clear()
         baiduMap.addHeatMap(heatMap)
     }

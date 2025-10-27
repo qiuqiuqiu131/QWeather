@@ -47,7 +47,7 @@ object MapUtils {
         city: String,
         address: String,
         fallbackAddressOnly: Boolean = false,
-        onResult: ((LatLng?) -> Unit)? = null   // ✅ 新增回调
+        onResult: ((LatLng?) -> Unit)? = null
     ) {
         if (address.isBlank() && city.isBlank()) {
             Toast.makeText(context, "请输入有效的城市或地址", Toast.LENGTH_SHORT).show()
@@ -62,13 +62,21 @@ object MapUtils {
                     try {
                         if (result != null && result.error == SearchResult.ERRORNO.NO_ERROR) {
                             val pt: LatLng = result.location
+
+                            // ✅ 检查是否在中国境内
+                            if (!isInChina(pt.latitude, pt.longitude)) {
+                                Toast.makeText(context, "仅支持中国境内地址查询", Toast.LENGTH_SHORT).show()
+                                onResult?.invoke(null)
+                                return@runOnUiThread
+                            }
+
+                            // ✅ 在地图上显示标记
                             baiduMap?.clear()
                             val bd = BitmapDescriptorFactory.fromResource(android.R.drawable.ic_menu_mylocation)
                             val markerOpts = MarkerOptions().position(pt).icon(bd)
                             baiduMap?.addOverlay(markerOpts)
                             baiduMap?.setMapStatus(MapStatusUpdateFactory.newLatLngZoom(pt, 15f))
 
-                            // ✅ 回调经纬度
                             onResult?.invoke(pt)
                         } else {
                             if (fallbackAddressOnly) {
@@ -105,6 +113,13 @@ object MapUtils {
                 coder.destroy()
             } catch (_: Throwable) {}
         }
+    }
+
+    /**
+     * ✅ 判断是否在中国大陆范围内
+     */
+    private fun isInChina(lat: Double, lon: Double): Boolean {
+        return lat in 3.0..54.0 && lon in 73.0..136.0
     }
 
 
@@ -231,3 +246,4 @@ suspend fun showCityWeatherMarkers(
         }
     }
 }
+
