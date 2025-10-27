@@ -49,7 +49,7 @@ class WeatherSearchViewModel @Inject constructor(
     var isInit: MutableState<Boolean> = mutableStateOf(true)
         private set
 
-    fun initSearchData(currentCity: CityLocationModel?) {
+    fun initSearchData(currentCity: CityLocationModel? = null) {
         searchInputFlow.value = null
         viewModelScope.launch(CoroutineExceptionHandler { _, e ->
             Log.e("Search", "获取天气失败: ${e.message}")
@@ -135,7 +135,7 @@ class WeatherSearchViewModel @Inject constructor(
 
     fun isLocationEnabled(): Boolean = locationService.isLocationEnabled()
 
-    fun addPositionCity(callBack: (CityLocationModel) -> Unit) {
+    fun addPositionCity(callBack: (Int) -> Unit) {
         isLoadingLocation.value = true
         viewModelScope.launch(Dispatchers.IO) {
             val location = locationService.getLastLocation()
@@ -148,9 +148,10 @@ class WeatherSearchViewModel @Inject constructor(
                 )
                 localDataManager.addPositionCity(city)
                 locationWeatherManager.getNewLocationWeather(city)
+                val cityList = localDataManager.getCityList()
                 delay(500)
                 viewModelScope.launch(Dispatchers.Main) {
-                    callBack(city)
+                    callBack(if (cityList.isEmpty()) 0 else cityList.indexOfFirst { it.type == CityType.Position })
                     isLoadingLocation.value = false
                 }
             }

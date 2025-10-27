@@ -47,6 +47,7 @@ import com.qiuqiuqiu.weatherPredicate.service.isLocationPermanentlyDenied
 import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
 import com.qiuqiuqiu.weatherPredicate.ui.normal.SearchTextBox
 import com.qiuqiuqiu.weatherPredicate.ui.normal.showPermissionSettingDialog
+import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.background.JieQiBackground
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.background.WeatherBackground
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.AddPositionCard
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.PoiCard
@@ -71,24 +72,31 @@ fun WeatherSearchScreen(navController: NavController) {
     val input by viewModel.searchInputFlow.collectAsState()
 
     val appViewModel: AppViewModel = LocalAppViewModel.current
-    val currentCity by appViewModel.currentCity.collectAsState()
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
 
-    LaunchedEffect(currentCity) {
-        viewModel.initSearchData(currentCity)
+    LaunchedEffect(Unit) {
+        viewModel.initSearchData() // 初始化搜索数据
     }
 
     if (showDialog) {
         showPermissionSettingDialog(onDismiss = { showDialog = false }, context = context)
     }
 
-    if (appViewModel.currentBg.value != null)
-        WeatherBackground(
-            appViewModel.currentBg.value!!, modifier = Modifier.fillMaxSize(),
-            isDay = LocalDateTime.now().hour in 6..17
-        )
-    else
+    if (appViewModel.currentBg.value != null) {
+        if (appViewModel.jieqi.value != null) {
+            JieQiBackground(appViewModel.jieqi.value!!.name, 0.6f)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(0.1f))
+            )
+        } else
+            WeatherBackground(
+                appViewModel.currentBg.value!!, modifier = Modifier.fillMaxSize(),
+                isDay = LocalDateTime.now().hour in 6..17
+            )
+    } else
         Box(
             modifier = Modifier
                 .fillMaxSize()

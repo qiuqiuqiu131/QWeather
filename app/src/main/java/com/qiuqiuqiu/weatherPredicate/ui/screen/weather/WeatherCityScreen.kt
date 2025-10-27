@@ -33,8 +33,6 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -53,7 +51,10 @@ import com.qiuqiuqiu.weatherPredicate.model.weather.CityType
 import com.qiuqiuqiu.weatherPredicate.ui.normal.LoadingContainer
 import com.qiuqiuqiu.weatherPredicate.ui.normal.rememberScrollAlpha
 import com.qiuqiuqiu.weatherPredicate.ui.normal.rememberScrollThreshold
+import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.background.JieQiBackground
+import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.background.JieQiType
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.background.WeatherBackground
+import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.background.getIndicatorColor
 import com.qiuqiuqiu.weatherPredicate.viewModel.AppViewModel
 import com.qiuqiuqiu.weatherPredicate.viewModel.weather.WeatherViewModel
 import com.qweather.sdk.response.geo.Location
@@ -65,27 +66,40 @@ import java.time.LocalDateTime
 fun WeatherCityScreen(navController: NavController, location: Pair<Double, Double>) {
     val appViewModel: AppViewModel = LocalAppViewModel.current
     val viewModel: WeatherViewModel = hiltViewModel()
-    val weatherModel by viewModel.locationWeather.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.initLocation(
             CityLocationModel(CityType.Normal, location),
-            isMain = false,
             refresh = false
         )
     }
 
     val scrollState: ScrollState = rememberScrollState()
     val centerCardAlpha = rememberScrollAlpha(scrollState, 70, 300)
+    val bgAlpha = rememberScrollAlpha(scrollState, 300, 600)
     val cityTextHide = rememberScrollThreshold(scrollState, 70)
 
-    if (weatherModel.weatherNow != null)
-        WeatherBackground(
-            weatherModel.weatherNow!!.icon,
-            modifier = Modifier.fillMaxSize(),
-            isDay = LocalDateTime.now().hour in 6..17
-        )
-    else
+    var indicatorColor = MaterialTheme.colorScheme.surfaceVariant
+
+    if (viewModel.locationWeather.value.weatherNow != null) {
+        if (appViewModel.jieqi.value != null) {
+            val name = appViewModel.jieqi.value!!.name
+            JieQiBackground(name, bgAlpha.value)
+            val type =
+                JieQiType.entries.firstOrNull { it.text == name }
+                    ?: JieQiType.LiChun
+            indicatorColor = type.backgroundColor
+        } else {
+            val id = viewModel.locationWeather.value.weatherNow!!.icon
+            val isDay = LocalDateTime.now().hour in 6..17
+            WeatherBackground(
+                id,
+                modifier = Modifier.fillMaxSize(),
+                isDay = isDay
+            )
+            indicatorColor = getIndicatorColor(id, isDay, indicatorColor)
+        }
+    } else
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -102,7 +116,7 @@ fun WeatherCityScreen(navController: NavController, location: Pair<Double, Doubl
                 modifier = Modifier.align(Alignment.TopCenter),
                 isRefreshing = viewModel.isRefreshing.value,
                 state = state,
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                containerColor = indicatorColor,
                 color = MaterialTheme.colorScheme.onSecondary
             )
         },
@@ -110,7 +124,7 @@ fun WeatherCityScreen(navController: NavController, location: Pair<Double, Doubl
         Scaffold(
             topBar = {
                 WeatherCityTopBar(
-                    weatherModel.location,
+                    viewModel.locationWeather.value.location,
                     navController,
                     centerCardAlpha,
                     cityTextHide
@@ -125,7 +139,7 @@ fun WeatherCityScreen(navController: NavController, location: Pair<Double, Doubl
             ) {
                 Box(modifier = Modifier.padding(innerPadding)) {
                     WeatherCenterPage(
-                        weatherModel = weatherModel,
+                        weatherModel = viewModel.locationWeather.value,
                         scrollState = scrollState,
                         alpha = centerCardAlpha,
                         cityHide = cityTextHide,

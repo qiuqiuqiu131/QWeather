@@ -1,10 +1,12 @@
 package com.qiuqiuqiu.weatherPredicate.ui.screen.weather.detailPage
 
+import NewsCard
 import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,7 +30,6 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -43,6 +44,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.qiuqiuqiu.weatherPredicate.tools.toMaterialFillIcon
 import com.qiuqiuqiu.weatherPredicate.ui.normal.CustomLineChartView
 import com.qiuqiuqiu.weatherPredicate.ui.normal.DefaultElevatedCard
@@ -62,7 +64,7 @@ fun WeatherIndicesPage(
     weatherIndices: List<IndicesDaily>?,
     weatherDailies: List<WeatherDaily>?,
     viewModel: WeatherDetailViewModel,
-    detailModel: WeatherIndicesDetailViewModel,
+    key: String,
     modifier: Modifier = Modifier,
     currentPageIndex: Int,
     pageIndex: Int,
@@ -73,7 +75,7 @@ fun WeatherIndicesPage(
     val radioGroup = listOf("今天", "明天", "后天")
     var showChart by remember { mutableStateOf(false) }
 
-    val chartModel = detailModel.chartModel.collectAsState()
+    val detailModel: WeatherIndicesDetailViewModel = hiltViewModel(key = key)
 
     if (!weatherIndices.isNullOrEmpty()) {
         val currentIndices = weatherIndices[currentIndex]
@@ -87,7 +89,8 @@ fun WeatherIndicesPage(
         LaunchedEffect(currentPageIndex) {
             if (currentPageIndex == pageIndex) {
                 onThemeChanged?.invoke(colorBg, contentColor, false)
-                detailModel.initChartModel(weatherIndices.first(), viewModel)
+                if (detailModel._chartModel.value == null)
+                    detailModel.initChartModel(weatherIndices.first(), viewModel)
                 if (!showChart) {
                     delay(300)
                     showChart = true
@@ -235,7 +238,7 @@ fun WeatherIndicesPage(
                     )
                 }
 
-                chartModel.value?.let { model ->
+                detailModel._chartModel.value?.let { model ->
                     DefaultElevatedCard(
                         bgColor = MaterialTheme.colorScheme.background,
                         modifier = Modifier
@@ -277,10 +280,33 @@ fun WeatherIndicesPage(
                         }
 
                     }
+
+                    val col = when (weatherIndices.first().type.toInt()) {
+                        1 -> 12
+                        2 -> 35
+                        3 -> 38
+                        4 -> 18
+                        5 -> -1
+                        6 -> 18
+                        7 -> -1
+                        8 -> 10
+                        9 -> 17
+                        10 -> 41
+                        11 -> 17
+                        12 -> -1
+                        13 -> 43
+                        14 -> 13
+                        15 -> 18
+                        16 -> -1
+                        else -> -1
+                    }
+                    if (col != -1)
+                        NewsCard(key = key, col = col)
                 }
             }
         }
 
+        Spacer(modifier = Modifier.height(150.dp))
     }
 }
 

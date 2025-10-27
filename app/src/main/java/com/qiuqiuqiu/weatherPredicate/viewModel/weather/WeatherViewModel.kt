@@ -18,10 +18,6 @@ import jakarta.inject.Inject
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.Duration
 import java.time.LocalDateTime
@@ -34,8 +30,7 @@ class WeatherViewModel @Inject constructor(
     private val locationService: ILocationService,
     private val localDataManager: ILocalDataManager
 ) : ViewModel() {
-    private val _locationWeather = MutableStateFlow(LocationWeatherModel())
-    val locationWeather: StateFlow<LocationWeatherModel> = _locationWeather.asStateFlow()
+    var locationWeather = mutableStateOf(LocationWeatherModel())
 
     var isInit: MutableState<Boolean> = mutableStateOf(true)
         private set
@@ -51,36 +46,19 @@ class WeatherViewModel @Inject constructor(
      */
     @SuppressLint("NewApi")
     fun initLocation(
-        location: CityLocationModel?,
-        isMain: Boolean = true,
+        location: CityLocationModel,
         refresh: Boolean = true
     ) {
-        if (location != null)
-            currentLocation = location
-        else
-            currentLocation = defaultLocation
-
+        currentLocation = location
         viewModelScope.launch(CoroutineExceptionHandler { _, e ->
             Log.e("Weather", "获取天气失败: ${e.stackTrace}")
         } + Dispatchers.IO) {
             val startTime = LocalDateTime.now()
-            // 判断当前位置是否在城市列表中，如果不存在，相当于删掉了位置，使用第一个城市
-            if (isMain) {
-                if (currentLocation.type == CityType.Position && !locationService.hasLocationPermissions()) {
-                    // 未获得权限，删除城市列表中的定位Location
-                    localDataManager.removePositionCity()
-                    val list = localDataManager.getCityList()
-                    currentLocation =
-                        list.firstOrNull({ it.type == CityType.Host }) ?: list.firstOrNull()
-                                ?: defaultLocation
-                }
-            }
-
-
             currentLocation.let {
                 // 先取缓存数据
                 val result = weatherManager.getCacheLocationWeather(it)
-                _locationWeather.update { result.first }
+
+                locationWeather.value = result.first
                 isInit.value = false
 
                 Log.i(
@@ -106,7 +84,7 @@ class WeatherViewModel @Inject constructor(
 
                             val weatherLoc =
                                 weatherManager.getCacheLocationWeather(it)
-                            _locationWeather.update { weatherLoc.first }
+                            locationWeather.value = weatherLoc.first
                         }
                         pointLocation = location
                     }
@@ -118,7 +96,7 @@ class WeatherViewModel @Inject constructor(
                         isRefreshing.value = true
                         val weatherLocation =
                             weatherManager.getNewLocationWeather(it)
-                        _locationWeather.update { weatherLocation }
+                        locationWeather.value = weatherLocation
                         isRefreshing.value = false
                     }
                     Log.i(
@@ -128,7 +106,6 @@ class WeatherViewModel @Inject constructor(
                         } ms"
                     )
                 }
-
             }
         }
     }
@@ -139,14 +116,14 @@ class WeatherViewModel @Inject constructor(
         updateWeatherModel { isRefreshing.value = false }
     }
 
-    private fun updateWeatherModel(callback: () -> Unit) {
+    fun updateWeatherModel(callback: () -> Unit) {
         viewModelScope.launch(CoroutineExceptionHandler { _, e ->
             Log.e("Weather", "获取天气失败: ${e.message}")
         } + Dispatchers.IO) {
             currentLocation.let {
-                val locationWeather =
+                val locWeather =
                     weatherManager.getNewLocationWeather(it)
-                _locationWeather.update { locationWeather }
+                locationWeather.value = locWeather
             }
             callback.invoke()
         }

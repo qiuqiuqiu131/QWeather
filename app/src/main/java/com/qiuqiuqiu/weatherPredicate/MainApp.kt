@@ -17,18 +17,18 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.qiuqiuqiu.weatherPredicate.service.QWeatherService
 import com.qiuqiuqiu.weatherPredicate.ui.screen.MainScreen
-import com.qiuqiuqiu.weatherPredicate.ui.screen.map.MapSideScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.map.HotMapScreen
-import com.qiuqiuqiu.weatherPredicate.ui.screen.time.GlobalTimeScreen
-import com.qiuqiuqiu.weatherPredicate.ui.screen.time.SolarTermScreen
+import com.qiuqiuqiu.weatherPredicate.ui.screen.map.MapScreen
+import com.qiuqiuqiu.weatherPredicate.ui.screen.map.MapSideScreen
+import com.qiuqiuqiu.weatherPredicate.ui.screen.time.JieQiSideScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.CityEditScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.CityManageScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.WeatherCityScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.WeatherDetailScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.WeatherSearchScreen
-import androidx.compose.ui.platform.LocalContext
-import com.qiuqiuqiu.weatherPredicate.service.QWeatherService
+
 @Composable
 fun MainApp(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
@@ -79,14 +79,13 @@ fun MainApp(modifier: Modifier = Modifier) {
             CityEditScreen(navController)
         }
 
-        animatedNavComposable("time/global") {
+        animatedNavComposable("JieQi") {
             SwitchStatusBarColor(true)
-            GlobalTimeScreen(onBack = { navController.popBackStack() })
+            JieQiSideScreen(navController)
         }
 
-        animatedNavComposable("time/solar") {
-            SwitchStatusBarColor(true)
-            SolarTermScreen(onBack = { navController.popBackStack() })
+        animatedNavComposable("Map") {
+            MapScreen(navController)
         }
 
         animatedNavComposable(

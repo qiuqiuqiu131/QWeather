@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
@@ -45,7 +45,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.qiuqiuqiu.weatherPredicate.LocalAppViewModel
-import com.qiuqiuqiu.weatherPredicate.model.weather.CityLocationModel
 import com.qiuqiuqiu.weatherPredicate.model.weather.CityType
 import com.qiuqiuqiu.weatherPredicate.model.weather.LocationWeatherModel
 import com.qiuqiuqiu.weatherPredicate.ui.normal.BaseItem
@@ -92,22 +91,12 @@ fun CityManageScreen(navController: NavController) {
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    items(viewModel.cityList) {
+                    itemsIndexed(viewModel.cityList) { index, it ->
                         CityCard(it, onClick = {
-                            it.location?.let { location ->
-                                appViewModel.setCurrentCity(
-                                    CityLocationModel(
-                                        it.type,
-                                        location = Pair(
-                                            it.location.lon.toDouble(),
-                                            it.location.lat.toDouble()
-                                        )
-                                    )
-                                )
-                                navController.navigate("Main") {
-                                    popUpTo("Main") { inclusive = false }
-                                    launchSingleTop = true
-                                }
+                            appViewModel.setCurrentCity(index)
+                            navController.navigate("Main") {
+                                popUpTo("Main") { inclusive = false }
+                                launchSingleTop = true
                             }
                         })
                     }

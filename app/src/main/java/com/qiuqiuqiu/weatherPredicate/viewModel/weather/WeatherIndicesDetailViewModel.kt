@@ -2,7 +2,9 @@ package com.qiuqiuqiu.weatherPredicate.viewModel.weather
 
 import android.annotation.SuppressLint
 import android.content.Context
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qiuqiuqiu.weatherPredicate.model.weather.TimelyChartModel
@@ -10,22 +12,16 @@ import com.qweather.sdk.response.indices.IndicesDaily
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @HiltViewModel
 class WeatherIndicesDetailViewModel @Inject constructor(val context: Context) : ViewModel() {
-    private val _chartModel: MutableStateFlow<TimelyChartModel?> = MutableStateFlow(null)
-    val chartModel: StateFlow<TimelyChartModel?> = _chartModel.asStateFlow()
+    var _chartModel: MutableState<TimelyChartModel?> = mutableStateOf(null)
 
     val selectedIndex = mutableIntStateOf(0)
 
     @SuppressLint("NewApi")
     fun initChartModel(weatherIndices: IndicesDaily, detailModel: WeatherDetailViewModel) {
-        _chartModel.update { null }
         viewModelScope.launch(Dispatchers.Default) {
             val model = when (weatherIndices.type.toInt()) {
                 1 -> detailModel.getTimelyChartModel(HourlyDetailType.Pop)
@@ -39,7 +35,7 @@ class WeatherIndicesDetailViewModel @Inject constructor(val context: Context) : 
                 else -> detailModel.getTimelyChartModel(HourlyDetailType.Temp)
             }
             viewModelScope.launch(Dispatchers.Main) {
-                _chartModel.update { model }
+                _chartModel.value = model
             }
         }
     }

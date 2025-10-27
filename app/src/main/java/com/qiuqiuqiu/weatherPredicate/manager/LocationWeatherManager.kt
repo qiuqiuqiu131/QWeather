@@ -99,3 +99,30 @@ fun matchWeatherType(desc: String): Int = when {
     desc.contains("阴") -> 10
     else -> 9 // 未匹配到返回0
 }
+
+enum class JieQiType(val text: String, month: Int, dat: Int) {
+    XiaoHan("小寒", 1, 5),
+    DaHan("大寒", 1, 20),
+    LiChun("立春", 2, 4),
+    YuShui("雨水", 2, 19),
+    JingZhe("惊蛰", 3, 6),
+    ChunFen("春分", 3, 21),
+    QingMing("清明", 4, 5),
+    GuYu("谷雨", 4, 20),
+    LiXia("立夏", 5, 6),
+    XiaoMan("小满", 5, 21),
+    MangZhong("芒种", 6, 6),
+    XiaZhi("夏至", 6, 21),
+    XiaoShu("小暑", 7, 7),
+    DaShu("大暑", 7, 22),
+    LiQiu("立秋", 8, 7),
+    ChuShu("处暑", 8, 23),
+    BaiLu("白露", 9, 8),
+    QiuFen("秋分", 9, 23),
+    HanLu("寒露", 10, 8),
+    ShuangJiang("霜降", 10, 23),
+    LiDong("立冬", 11, 7),
+    XiaoXue("小雪", 11, 22),
+    DaXue("大雪", 12, 7),
+    DongZhi("冬至", 12, 22);
+}
