@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 <resources>
-    <string name="app_name">Lunch Tray</string>
+    <string name="app_name">QWeather</string>
     <string name="back_button">Back</string>
     <string name="cancel">Cancel</string>
     <string name="choose_accompaniment">Choose Accompaniment</string>

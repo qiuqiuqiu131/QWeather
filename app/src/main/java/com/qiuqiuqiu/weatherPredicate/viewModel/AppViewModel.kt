@@ -47,11 +47,11 @@ class AppViewModel @Inject constructor(
                 if (!it.jieqi.isNullOrEmpty()) {
                     jieqi.value = repository.getJieQi(it.jieqi, it.lunardate.substring(0, 3)).result
                 } else {
-                    // jieqi.value = repository.getJieQi("寒露", it.lunardate.substring(0, 3)).result
+                    // jieqi.value = repository.getJieQi("霜降", it.lunardate.substring(0, 3)).result
                 }
             }
             if (jieqi.value == null) {
-                // jieqi.value = repository.getJieQi("寒露", "2025").result
+                // jieqi.value = repository.getJieQi("霜降", "2025").result
             }
         }
     }
