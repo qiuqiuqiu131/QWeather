@@ -18,12 +18,12 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
@@ -248,7 +248,7 @@ fun PopulateTip(pollutant: Pollutant, color: Color) {
             )
             LinearProgressIndicator(
                 progress = aqi.toFloat() / 100f, color = color,
-                backgroundColor = MaterialTheme.colorScheme.surface,
+                trackColor = MaterialTheme.colorScheme.surface,
                 modifier = Modifier.width(20.dp),
                 strokeCap = StrokeCap.Round
             )

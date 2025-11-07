@@ -91,8 +91,8 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.foundation:foundation")
     implementation("androidx.compose.animation:animation")
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.compose.material:material")
+//    implementation("androidx.compose.material3:material3")
+//    implementation("androidx.compose.material:material")
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
     implementation("androidx.compose.material3:material3:1.4.0")
 
@@ -112,13 +112,6 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.6")
-
-    // Baidu 地图 SDK
-    implementation("com.baidu.lbsyun:BaiduMapSDK_Map:7.6.5")
-    implementation("com.baidu.lbsyun:BaiduMapSDK_Search:7.6.5.1")
-    implementation("com.baidu.lbsyun:BaiduMapSDK_Location:9.6.4")
-    implementation("com.baidu.lbsyun:BaiduMapSDK_Util:7.6.4")
-    implementation("com.baidu.lbsyun:BaiduMapSDK_Panorama:2.9.0")
 
     // 本地 jar（和风天气等）
     implementation(fileTree("libs") { include("*.jar") })

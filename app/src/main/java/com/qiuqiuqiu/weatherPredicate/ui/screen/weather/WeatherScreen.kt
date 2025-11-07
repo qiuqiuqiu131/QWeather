@@ -29,7 +29,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -136,6 +135,13 @@ fun WeatherScreen(navController: NavController) {
         color = MaterialTheme.colorScheme.primary
     ) {
         var indicatorColor = MaterialTheme.colorScheme.surfaceVariant
+
+        // 初始化背景
+        val start: WeatherViewModel =
+            hiltViewModel(key = appViewModel.currentIndex.intValue.toString())
+        start.locationWeather.value.weatherNow?.let {
+            appViewModel.currentBg.value = it.icon
+        }
 
         // background
         if (weatherViewModel.value?.locationWeather?.value?.weatherNow != null) {
@@ -329,23 +335,23 @@ fun WeatherTopBar(
                 }
             }
 
-            IconButton(
-                onClick = {
-                    navController.navigate(
-                        "SideMap?title=${text}&longitude=${it.lon}&latitude=${it.lat}"
-                    )
-                },
-                modifier = Modifier
-                    .padding(8.dp)
-                    .clickable {}
-                    .align(Alignment.CenterStart)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.MyLocation,
-                    null,
-                    modifier = Modifier.size(26.dp)
-                )
-            }
+//            IconButton(
+//                onClick = {
+//                    navController.navigate(
+//                        "SideMap?title=${text}&longitude=${it.lon}&latitude=${it.lat}"
+//                    )
+//                },
+//                modifier = Modifier
+//                    .padding(8.dp)
+//                    .clickable {}
+//                    .align(Alignment.CenterStart)
+//            ) {
+//                Icon(
+//                    imageVector = Icons.Default.MyLocation,
+//                    null,
+//                    modifier = Modifier.size(26.dp)
+//                )
+//            }
         }
 
 
@@ -426,24 +432,6 @@ fun WeatherTopBar(
                 }, modifier = Modifier.fillMaxWidth()) {
                     Text(
                         text = "天气信息",
-                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp),
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp, vertical = 12.dp)
-                            .align(Alignment.Center)
-                    )
-                }
-                HorizontalDivider(
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp)
-                        .alpha(0.2f),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                BaseItem(onClick = {
-                    expended = false
-                    navController.navigate("Map")
-                }, modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        text = "地图",
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp),
                         modifier = Modifier
                             .padding(horizontal = 16.dp, vertical = 12.dp)

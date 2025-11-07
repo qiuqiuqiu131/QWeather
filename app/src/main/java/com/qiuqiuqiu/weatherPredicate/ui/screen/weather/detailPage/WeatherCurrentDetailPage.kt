@@ -27,8 +27,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.qiuqiuqiu.weatherPredicate.ui.normal.DefaultElevatedCard
-import com.qiuqiuqiu.weatherPredicate.ui.screen.map.ChinaMapScreen
 import com.qiuqiuqiu.weatherPredicate.ui.screen.weather.card.WeatherDailyInfoCard
 import com.qweather.sdk.response.weather.WeatherDaily
 import com.qweather.sdk.response.weather.WeatherNow
@@ -117,13 +115,6 @@ fun WeatherCurrentDetailPage(
                     weatherDaily,
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                     onClick = { onSwitchPage?.invoke(1) }
-                )
-            }
-
-            DefaultElevatedCard(modifier = Modifier.padding(vertical = 4.dp, horizontal = 12.dp)) {
-                ChinaMapScreen(
-                    modifier = Modifier
-                        .height(230.dp)
                 )
             }
 

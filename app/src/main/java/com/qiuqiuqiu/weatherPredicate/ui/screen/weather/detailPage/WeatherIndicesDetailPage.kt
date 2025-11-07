@@ -183,7 +183,7 @@ fun WeatherIndicesPage(
                                         val size = if (it) 20.dp else 19.5.dp
                                         val tint =
                                             if (it) Color(0xFFFFD607) else Color.Gray.copy(alpha = 0.4f)
-                                        androidx.compose.material.Icon(
+                                        Icon(
                                             Icons.Rounded.Star,
                                             null,
                                             tint = tint,

@@ -14,7 +14,6 @@ import com.qweather.sdk.parameter.air.AirV1Parameter
 import com.qweather.sdk.parameter.geo.GeoCityLookupParameter
 import com.qweather.sdk.parameter.geo.GeoCityTopParameter
 import com.qweather.sdk.parameter.geo.GeoPoiRangeParameter
-import com.qweather.sdk.parameter.grid.GridWeatherParameter
 import com.qweather.sdk.parameter.indices.IndicesParameter
 import com.qweather.sdk.parameter.warning.WarningNowParameter
 import com.qweather.sdk.parameter.weather.WeatherParameter
@@ -29,7 +28,6 @@ import com.qweather.sdk.response.geo.GeoCityTopResponse
 import com.qweather.sdk.response.geo.GeoPoiResponse
 import com.qweather.sdk.response.geo.Location
 import com.qweather.sdk.response.grid.GridNow
-import com.qweather.sdk.response.grid.GridNowResponse
 import com.qweather.sdk.response.indices.IndicesDaily
 import com.qweather.sdk.response.indices.IndicesDailyResponse
 import com.qweather.sdk.response.warning.Warning
@@ -44,11 +42,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resumeWithException
-import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Semaphore
-import kotlinx.coroutines.sync.withPermit
-import kotlin.math.sqrt
+import kotlin.coroutines.resumeWithException
 
 
 data class CachedGridNow(val data: GridNow, val timestamp: Long)
@@ -169,13 +164,6 @@ interface IQWeatherService {
         range: Int = 10,
         number: Int = 10
     ): List<Location>
-
-    suspend fun getGridCurrentWeather(
-        longitude: Double,
-        latitude: Double
-    ): GridNow
-    suspend fun getBatchGridWeather(points: List<Pair<Double, Double>>): List<GridPointWeather>
-
 }
 
 
@@ -191,6 +179,7 @@ class QWeatherService @Inject constructor(@ApplicationContext private val contex
     private val cacheDurationMillis = 60 * 60 * 1000L  // 1 小时
     private val concurrency = 10                       // 并发请求数
     private val semaphore = Semaphore(concurrency)
+
     init {
         try {
             val jwt = JWTGenerator(
@@ -239,12 +228,12 @@ class QWeatherService @Inject constructor(@ApplicationContext private val contex
 
                 override fun onFailure(errorResponse: ErrorResponse) {
                     Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resumeWithException(Exception(errorResponse.toString()))
+                    cont.resume(emptyList(), null)
                 }
 
                 override fun onException(e: Throwable) {
                     Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resumeWithException(e)
+                    cont.resume(emptyList(), null)
                 }
             })
         }
@@ -261,12 +250,12 @@ class QWeatherService @Inject constructor(@ApplicationContext private val contex
 
                 override fun onFailure(errorResponse: ErrorResponse) {
                     Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resumeWithException(Exception(errorResponse.toString()))
+                    cont.resume(emptyList(), null)
                 }
 
                 override fun onException(e: Throwable) {
                     Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resumeWithException(e)
+                    cont.resume(emptyList(), null)
                 }
             })
         }
@@ -283,12 +272,12 @@ class QWeatherService @Inject constructor(@ApplicationContext private val contex
 
                 override fun onFailure(errorResponse: ErrorResponse) {
                     Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resumeWithException(Exception(errorResponse.toString()))
+                    cont.resume(emptyList(), null)
                 }
 
                 override fun onException(e: Throwable) {
                     Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resumeWithException(e)
+                    cont.resume(emptyList(), null)
                 }
             })
         }
@@ -305,12 +294,12 @@ class QWeatherService @Inject constructor(@ApplicationContext private val contex
 
                 override fun onFailure(errorResponse: ErrorResponse) {
                     Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resumeWithException(Exception(errorResponse.toString()))
+                    cont.resume(emptyList(), null)
                 }
 
                 override fun onException(e: Throwable) {
                     Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resumeWithException(e)
+                    cont.resume(emptyList(), null)
                 }
             })
         }
@@ -327,12 +316,12 @@ class QWeatherService @Inject constructor(@ApplicationContext private val contex
 
                 override fun onFailure(errorResponse: ErrorResponse) {
                     Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resumeWithException(Exception(errorResponse.toString()))
+                    cont.resume(emptyList(), null)
                 }
 
                 override fun onException(e: Throwable) {
                     Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resumeWithException(e)
+                    cont.resume(emptyList(), null)
                 }
             })
         }
@@ -349,12 +338,12 @@ class QWeatherService @Inject constructor(@ApplicationContext private val contex
 
                 override fun onFailure(errorResponse: ErrorResponse) {
                     Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resumeWithException(Exception(errorResponse.toString()))
+                    cont.resume(emptyList(), null)
                 }
 
                 override fun onException(e: Throwable) {
                     Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resumeWithException(e)
+                    cont.resume(emptyList(), null)
                 }
             })
         }
@@ -371,12 +360,12 @@ class QWeatherService @Inject constructor(@ApplicationContext private val contex
 
                 override fun onFailure(errorResponse: ErrorResponse) {
                     Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resumeWithException(Exception(errorResponse.toString()))
+                    cont.resume(emptyList(), null)
                 }
 
                 override fun onException(e: Throwable) {
                     Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resumeWithException(e)
+                    cont.resume(emptyList(), null)
                 }
             })
         }
@@ -393,12 +382,12 @@ class QWeatherService @Inject constructor(@ApplicationContext private val contex
 
                 override fun onFailure(errorResponse: ErrorResponse) {
                     Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resumeWithException(Exception(errorResponse.toString()))
+                    cont.resume(emptyList(), null)
                 }
 
                 override fun onException(e: Throwable) {
                     Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resumeWithException(e)
+                    cont.resume(emptyList(), null)
                 }
             })
         }
@@ -438,12 +427,12 @@ class QWeatherService @Inject constructor(@ApplicationContext private val contex
 
                 override fun onFailure(errorResponse: ErrorResponse) {
                     Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resumeWithException(Exception(errorResponse.toString()))
+                    cont.resume(emptyList(), null)
                 }
 
                 override fun onException(e: Throwable) {
                     Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resumeWithException(e)
+                    cont.resume(emptyList(), null)
                 }
             })
         }
@@ -462,12 +451,12 @@ class QWeatherService @Inject constructor(@ApplicationContext private val contex
 
                 override fun onFailure(errorResponse: ErrorResponse) {
                     Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resumeWithException(Exception(errorResponse.toString()))
+                    cont.resume(emptyList(), null)
                 }
 
                 override fun onException(e: Throwable) {
                     Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resumeWithException(e)
+                    cont.resume(emptyList(), null)
                 }
             })
         }
@@ -497,12 +486,12 @@ class QWeatherService @Inject constructor(@ApplicationContext private val contex
 
                 override fun onFailure(errorResponse: ErrorResponse) {
                     Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resumeWithException(Exception(errorResponse.toString()))
+                    cont.resume(emptyList(), null)
                 }
 
                 override fun onException(e: Throwable) {
                     Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resumeWithException(e)
+                    cont.resume(emptyList(), null)
                 }
             })
         }
@@ -522,12 +511,12 @@ class QWeatherService @Inject constructor(@ApplicationContext private val contex
 
                 override fun onFailure(errorResponse: ErrorResponse) {
                     Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resumeWithException(Exception(errorResponse.toString()))
+                    cont.resume(emptyList(), null)
                 }
 
                 override fun onException(e: Throwable) {
                     Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resumeWithException(e)
+                    cont.resume(emptyList(), null)
                 }
             })
         }
@@ -551,146 +540,15 @@ class QWeatherService @Inject constructor(@ApplicationContext private val contex
 
                 override fun onFailure(errorResponse: ErrorResponse) {
                     Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resumeWithException(Exception(errorResponse.toString()))
+                    cont.resume(emptyList(), null)
                 }
 
                 override fun onException(e: Throwable) {
                     Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resumeWithException(e)
+                    cont.resume(emptyList(), null)
                 }
             })
         }
-    }
-
-    override suspend fun getGridCurrentWeather(longitude: Double, latitude: Double): GridNow {
-        var parameter = GridWeatherParameter(longitude, latitude)
-            .lang(Lang.ZH_HANS)
-
-        return suspendCancellableCoroutine { cont ->
-            instance.gridNow(parameter, object : Callback<GridNowResponse> {
-                override fun onSuccess(response: GridNowResponse) {
-                    cont.resume(response.now, null)
-                }
-
-                override fun onFailure(errorResponse: ErrorResponse) {
-                    Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resumeWithException(Exception(errorResponse.toString()))
-                }
-
-                override fun onException(e: Throwable) {
-                    Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resumeWithException(e)
-                }
-            })
-        }
-    }
-    // ---------- 内部封装单点 + 缓存 ----------
-    private suspend fun getGridCurrentWeatherWithCache(lon: Double, lat: Double): GridNow {
-        val key = Pair(lon, lat)
-        val now = System.currentTimeMillis()
-
-        // 1. 查缓存
-        cache[key]?.let { cached ->
-            if (now - cached.timestamp < cacheDurationMillis) {
-                return cached.data
-            }
-        }
-
-        // 2. 调用已有单点函数
-        val fresh = getGridCurrentWeather(lon, lat)
-
-        // 3. 更新缓存
-        cache[key] = CachedGridNow(fresh, now)
-        return fresh
-    }
-
-    // ---------- 批量并发获取 ----------
-    override suspend fun getBatchGridWeather(points: List<Pair<Double, Double>>): List<GridPointWeather> {
-        return coroutineScope {
-            points.map { (lon, lat) ->
-                async {
-                    try {
-                        val now = getGridCurrentWeather(lon, lat)
-                        GridPointWeather(
-                            latitude = lat,
-                            longitude = lon,
-                            temp = now.temp?.toDoubleOrNull(),
-                            humidity = now.humidity?.toDoubleOrNull(),
-                            windSpeed = now.windSpeed?.toDoubleOrNull(),
-                            precip = now.precip?.toDoubleOrNull()
-                        )
-                    } catch (e: Exception) {
-                        null
-                    }
-                }
-            }.awaitAll().filterNotNull()
-        }
-    }
-
-
-
-    // ---------- 全国格点生成 ----------
-    fun generateChinaGridPoints(gridCount: Int = 1000): List<Pair<Double, Double>> {
-        val lonMin = 73.0
-        val lonMax = 135.0
-        val latMin = 18.0
-        val latMax = 54.0
-
-        val points = mutableListOf<Pair<Double, Double>>()
-        val stepCount = sqrt(gridCount.toDouble()).toInt()
-        val lonStep = (lonMax - lonMin) / stepCount
-        val latStep = (latMax - latMin) / stepCount
-
-        var lat = latMin
-        while (lat <= latMax) {
-            var lon = lonMin
-            while (lon <= lonMax) {
-                points.add(Pair(lon, lat))
-                lon += lonStep
-            }
-            lat += latStep
-        }
-        return points
-    }
-
-    // ---------- 全国格点批量查询 ----------
-    suspend fun getChinaGridWeather(gridCount: Int = 1000): List<GridPointWeather>
-    {
-        val points = generateChinaGridPoints(gridCount)
-        return getBatchGridWeather(points)
-    }
-
-    // ---------- 局部范围格点生成 ----------
-    fun generateGridPointsInBounds(
-        latMin: Double,
-        latMax: Double,
-        lonMin: Double,
-        lonMax: Double,
-        step: Double = 0.1 // 经度/纬度步长，0.1° ≈ 10km
-    ): List<Pair<Double, Double>> {
-        val points = mutableListOf<Pair<Double, Double>>()
-        var lat = latMin
-        while (lat <= latMax) {
-            var lon = lonMin
-            while (lon <= lonMax) {
-                points.add(Pair(lon, lat))
-                lon += step
-            }
-            lat += step
-        }
-        return points
-    }
-
-    // ---------- 局部范围批量查询 ----------
-    suspend fun getGridWeatherInBounds(
-        latMin: Double,
-        latMax: Double,
-        lonMin: Double,
-        lonMax: Double,
-        step: Double = 0.1
-    ): List<GridPointWeather> {
-        val points = generateGridPointsInBounds(latMin, latMax, lonMin, lonMax, step)
-        return getBatchGridWeather(points)
     }
 
 }
