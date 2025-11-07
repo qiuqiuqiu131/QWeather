@@ -65,7 +65,7 @@ fun SunnyLensFlareBackground(
 @Preview
 @Composable
 fun DaySunnyBackground(modifier: Modifier = Modifier, isCloudy: Boolean = false) {
-// 创建无限动画过渡
+    // 创建无限动画过渡
     val infiniteTransition = rememberInfiniteTransition(label = "lensFlareAnimation")
 
     // 控制光晕角度偏转的动画值（0f 到 1f，代表角度变化）

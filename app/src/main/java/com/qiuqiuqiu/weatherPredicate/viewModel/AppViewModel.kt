@@ -51,7 +51,7 @@ class AppViewModel @Inject constructor(
                 }
             }
             if (jieqi.value == null) {
-                // jieqi.value = repository.getJieQi("霜降", "2025").result
+                // jieqi.value = repository.getJieQi("寒露", "2025").result
             }
         }
     }
