@@ -33,16 +33,34 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-        val tianKey: String = (project.findProperty("TIAN_API_KEY") as? String)
-            ?: run {
-                val localProps = Properties()
-                val localFile = rootProject.file("local.properties")
-                if (localFile.exists()) {
-                    localProps.load(localFile.inputStream())
-                    localProps.getProperty("TIAN_API_KEY", "")
-                } else ""
-            }
-        buildConfigField("String", "TIAN_API_KEY", "\"$tianKey\"")
+
+        val localProps = Properties()
+        val localFile = rootProject.file("local.properties")
+        if (localFile.exists()) {
+            localProps.load(localFile.inputStream())
+        }
+
+        buildConfigField(
+            "String",
+            "TIAN_API_KEY",
+            "\"${project.findProperty("TIAN_API_KEY") ?: localProps.getProperty("TIAN_API_KEY")}\""
+        )
+        buildConfigField(
+            "String",
+            "QWEATHER_JWT_PRIVATE",
+            "\"${project.findProperty("QWEATHER_JWT_PRIVATE") ?: localProps.getProperty("QWEATHER_JWT_PRIVATE")}\""
+        )
+        buildConfigField(
+            "String",
+            "QWEATHER_JWT_KID",
+            "\"${project.findProperty("QWEATHER_JWT_KID") ?: localProps.getProperty("QWEATHER_JWT_KID")}\""
+        )
+        buildConfigField(
+            "String",
+            "QWEATHER_JWT_ISSUER",
+            "\"${project.findProperty("QWEATHER_JWT_ISSUER") ?: localProps.getProperty("QWEATHER_JWT_ISSUER")}\""
+        )
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
@@ -62,6 +80,7 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -78,6 +97,8 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+
 }
 
 dependencies {

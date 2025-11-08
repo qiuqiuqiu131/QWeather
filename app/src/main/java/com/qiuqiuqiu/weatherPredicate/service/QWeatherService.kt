@@ -2,6 +2,7 @@ package com.qiuqiuqiu.weatherPredicate.service
 
 import android.content.Context
 import android.util.Log
+import com.qiuqiuqiu.weatherPredicate.BuildConfig
 import com.qweather.sdk.Callback
 import com.qweather.sdk.JWTGenerator
 import com.qweather.sdk.QWeather
@@ -40,21 +41,20 @@ import com.qweather.sdk.response.weather.WeatherNow
 import com.qweather.sdk.response.weather.WeatherNowResponse
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
+import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Semaphore
-import kotlin.coroutines.resumeWithException
-
 
 data class CachedGridNow(val data: GridNow, val timestamp: Long)
 
 data class GridPointWeather(
-    val latitude: Double,
-    val longitude: Double,
-    val temp: Double?,       // 温度
-    val humidity: Double?,   // 湿度
-    val windSpeed: Double?,  // 风速
-    val precip: Double?      // 降水
+        val latitude: Double,
+        val longitude: Double,
+        val temp: Double?, // 温度
+        val humidity: Double?, // 湿度
+        val windSpeed: Double?, // 风速
+        val precip: Double? // 降水
 )
 
 interface IQWeatherService {
@@ -70,9 +70,7 @@ interface IQWeatherService {
      */
     suspend fun getWeather24Hour(locationId: String): List<WeatherHourly>
 
-    /**
-     * 获取168小时天气
-     */
+    /** 获取168小时天气 */
     suspend fun getWeather168Hour(locationId: String): List<WeatherHourly>
 
     /**
@@ -87,9 +85,7 @@ interface IQWeatherService {
      */
     suspend fun getWeather7Day(locationId: String): List<WeatherDaily>
 
-    /**
-     * 获取多日的天气
-     */
+    /** 获取多日的天气 */
     suspend fun getWeatherMoreDay(locationId: String): List<WeatherDaily>
 
     /**
@@ -135,10 +131,10 @@ interface IQWeatherService {
      * @param range 范围，可选，如 Range.CN 限定为中国范围内
      */
     suspend fun getCurrentCity(
-        locationId: String,
-        adm: String? = null,
-        range: Range? = null,
-        number: Int? = null
+            locationId: String,
+            adm: String? = null,
+            range: Range? = null,
+            number: Int? = null
     ): List<Location>
 
     /**
@@ -146,10 +142,7 @@ interface IQWeatherService {
      * @param number 数量，最大支持20
      * @param range 范围，可选，如 Range.CN 限定为中国范围内
      */
-    suspend fun getCityTop(
-        number: Int,
-        range: Range? = null
-    ): List<Location>
+    suspend fun getCityTop(number: Int, range: Range? = null): List<Location>
 
     /**
      * 获取周边POI
@@ -159,396 +152,420 @@ interface IQWeatherService {
      * @param number 数量，默认10个，最大支持20个
      */
     suspend fun getPoi(
-        longitude: String,
-        latitude: String,
-        range: Int = 10,
-        number: Int = 10
+            longitude: String,
+            latitude: String,
+            range: Int = 10,
+            number: Int = 10
     ): List<Location>
 }
 
-
 @OptIn(ExperimentalCoroutinesApi::class)
 class QWeatherService @Inject constructor(@ApplicationContext private val context: Context) :
-    IQWeatherService {
+        IQWeatherService {
     private val instance: QWeather
     private val TAG: String = "QWeatherExampleMainActivity"
 
-
     // 缓存 map
     private val cache = mutableMapOf<Pair<Double, Double>, CachedGridNow>()
-    private val cacheDurationMillis = 60 * 60 * 1000L  // 1 小时
-    private val concurrency = 10                       // 并发请求数
+    private val cacheDurationMillis = 60 * 60 * 1000L // 1 小时
+    private val concurrency = 10 // 并发请求数
     private val semaphore = Semaphore(concurrency)
 
     init {
         try {
-            val jwt = JWTGenerator(
-                "MC4CAQAwBQYDK2VwBCIEIHfPWEdN9zfEzH7TWR38/NvBtVcRhy76a8GoGdv5WNHr",
-                "2EKT9P93UX",
-                "CC5BTDE5JF"
-            )
-            instance = QWeather.getInstance(context, "nq6r6xdaqp.re.qweatherapi.com")
-                .setTokenGenerator(jwt)
-                .setLogEnable(false)
+            // 推荐从 BuildConfig 或 ApiKeyProvider 中读取以下三项凭证（不要硬编码）
+            val privateKey = BuildConfig.QWEATHER_JWT_PRIVATE
+            val kid = BuildConfig.QWEATHER_JWT_KID
+            val issuer = BuildConfig.QWEATHER_JWT_ISSUER
+
+            val jwt = JWTGenerator(privateKey, kid, issuer)
+            instance =
+                    QWeather.getInstance(context, "nq6r6xdaqp.re.qweatherapi.com")
+                            .setTokenGenerator(jwt)
+                            .setLogEnable(false)
         } catch (e: Exception) {
             throw Exception("QWeather init failed")
         }
     }
 
     override suspend fun getWeatherNow(locationId: String): WeatherNow {
-        val parameter = WeatherParameter(locationId)
-            .lang(Lang.ZH_HANS).unit(Unit.METRIC)
+        val parameter = WeatherParameter(locationId).lang(Lang.ZH_HANS).unit(Unit.METRIC)
         return suspendCancellableCoroutine { cont ->
-            instance.weatherNow(parameter, object : Callback<WeatherNowResponse> {
-                override fun onSuccess(response: WeatherNowResponse) {
-                    cont.resume(response.now, null)
-                }
+            instance.weatherNow(
+                    parameter,
+                    object : Callback<WeatherNowResponse> {
+                        override fun onSuccess(response: WeatherNowResponse) {
+                            cont.resume(response.now, null)
+                        }
 
-                override fun onFailure(errorResponse: ErrorResponse) {
-                    Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resumeWithException(Exception(errorResponse.toString()))
-                }
+                        override fun onFailure(errorResponse: ErrorResponse) {
+                            Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
+                            cont.resumeWithException(Exception(errorResponse.toString()))
+                        }
 
-                override fun onException(e: Throwable) {
-                    Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resumeWithException(e)
-                }
-            })
+                        override fun onException(e: Throwable) {
+                            Log.e(TAG, "getWeatherNow onException: $e")
+                            cont.resumeWithException(e)
+                        }
+                    }
+            )
         }
     }
 
     override suspend fun getWeather24Hour(locationId: String): List<WeatherHourly> {
-        val parameter = WeatherParameter(locationId)
-            .lang(Lang.ZH_HANS).unit(Unit.METRIC)
+        val parameter = WeatherParameter(locationId).lang(Lang.ZH_HANS).unit(Unit.METRIC)
         return suspendCancellableCoroutine { cont ->
-            instance.weather24h(parameter, object : Callback<WeatherHourlyResponse> {
-                override fun onSuccess(response: WeatherHourlyResponse) {
-                    cont.resume(response.hourly, null)
-                }
+            instance.weather24h(
+                    parameter,
+                    object : Callback<WeatherHourlyResponse> {
+                        override fun onSuccess(response: WeatherHourlyResponse) {
+                            cont.resume(response.hourly, null)
+                        }
 
-                override fun onFailure(errorResponse: ErrorResponse) {
-                    Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resume(emptyList(), null)
-                }
+                        override fun onFailure(errorResponse: ErrorResponse) {
+                            Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
+                            cont.resume(emptyList(), null)
+                        }
 
-                override fun onException(e: Throwable) {
-                    Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resume(emptyList(), null)
-                }
-            })
+                        override fun onException(e: Throwable) {
+                            Log.e(TAG, "getWeatherNow onException: $e")
+                            cont.resume(emptyList(), null)
+                        }
+                    }
+            )
         }
     }
 
     override suspend fun getWeather168Hour(locationId: String): List<WeatherHourly> {
-        val parameter = WeatherParameter(locationId)
-            .lang(Lang.ZH_HANS).unit(Unit.METRIC)
+        val parameter = WeatherParameter(locationId).lang(Lang.ZH_HANS).unit(Unit.METRIC)
         return suspendCancellableCoroutine { cont ->
-            instance.weather168h(parameter, object : Callback<WeatherHourlyResponse> {
-                override fun onSuccess(response: WeatherHourlyResponse) {
-                    cont.resume(response.hourly, null)
-                }
+            instance.weather168h(
+                    parameter,
+                    object : Callback<WeatherHourlyResponse> {
+                        override fun onSuccess(response: WeatherHourlyResponse) {
+                            cont.resume(response.hourly, null)
+                        }
 
-                override fun onFailure(errorResponse: ErrorResponse) {
-                    Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resume(emptyList(), null)
-                }
+                        override fun onFailure(errorResponse: ErrorResponse) {
+                            Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
+                            cont.resume(emptyList(), null)
+                        }
 
-                override fun onException(e: Throwable) {
-                    Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resume(emptyList(), null)
-                }
-            })
+                        override fun onException(e: Throwable) {
+                            Log.e(TAG, "getWeatherNow onException: $e")
+                            cont.resume(emptyList(), null)
+                        }
+                    }
+            )
         }
     }
 
     override suspend fun getWeather3Day(locationId: String): List<WeatherDaily> {
-        val parameter = WeatherParameter(locationId)
-            .lang(Lang.ZH_HANS).unit(Unit.METRIC)
+        val parameter = WeatherParameter(locationId).lang(Lang.ZH_HANS).unit(Unit.METRIC)
         return suspendCancellableCoroutine { cont ->
-            instance.weather3d(parameter, object : Callback<WeatherDailyResponse> {
-                override fun onSuccess(response: WeatherDailyResponse) {
-                    cont.resume(response.daily, null)
-                }
+            instance.weather3d(
+                    parameter,
+                    object : Callback<WeatherDailyResponse> {
+                        override fun onSuccess(response: WeatherDailyResponse) {
+                            cont.resume(response.daily, null)
+                        }
 
-                override fun onFailure(errorResponse: ErrorResponse) {
-                    Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resume(emptyList(), null)
-                }
+                        override fun onFailure(errorResponse: ErrorResponse) {
+                            Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
+                            cont.resume(emptyList(), null)
+                        }
 
-                override fun onException(e: Throwable) {
-                    Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resume(emptyList(), null)
-                }
-            })
+                        override fun onException(e: Throwable) {
+                            Log.e(TAG, "getWeatherNow onException: $e")
+                            cont.resume(emptyList(), null)
+                        }
+                    }
+            )
         }
     }
 
     override suspend fun getWeather7Day(locationId: String): List<WeatherDaily> {
-        val parameter = WeatherParameter(locationId)
-            .lang(Lang.ZH_HANS).unit(Unit.METRIC)
+        val parameter = WeatherParameter(locationId).lang(Lang.ZH_HANS).unit(Unit.METRIC)
         return suspendCancellableCoroutine { cont ->
-            instance.weather7d(parameter, object : Callback<WeatherDailyResponse> {
-                override fun onSuccess(response: WeatherDailyResponse) {
-                    cont.resume(response.daily, null)
-                }
+            instance.weather7d(
+                    parameter,
+                    object : Callback<WeatherDailyResponse> {
+                        override fun onSuccess(response: WeatherDailyResponse) {
+                            cont.resume(response.daily, null)
+                        }
 
-                override fun onFailure(errorResponse: ErrorResponse) {
-                    Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resume(emptyList(), null)
-                }
+                        override fun onFailure(errorResponse: ErrorResponse) {
+                            Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
+                            cont.resume(emptyList(), null)
+                        }
 
-                override fun onException(e: Throwable) {
-                    Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resume(emptyList(), null)
-                }
-            })
+                        override fun onException(e: Throwable) {
+                            Log.e(TAG, "getWeatherNow onException: $e")
+                            cont.resume(emptyList(), null)
+                        }
+                    }
+            )
         }
     }
 
     override suspend fun getWeatherMoreDay(locationId: String): List<WeatherDaily> {
-        val parameter = WeatherParameter(locationId)
-            .lang(Lang.ZH_HANS).unit(Unit.METRIC)
+        val parameter = WeatherParameter(locationId).lang(Lang.ZH_HANS).unit(Unit.METRIC)
         return suspendCancellableCoroutine { cont ->
-            instance.weather30d(parameter, object : Callback<WeatherDailyResponse> {
-                override fun onSuccess(response: WeatherDailyResponse) {
-                    cont.resume(response.daily, null)
-                }
+            instance.weather30d(
+                    parameter,
+                    object : Callback<WeatherDailyResponse> {
+                        override fun onSuccess(response: WeatherDailyResponse) {
+                            cont.resume(response.daily, null)
+                        }
 
-                override fun onFailure(errorResponse: ErrorResponse) {
-                    Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resume(emptyList(), null)
-                }
+                        override fun onFailure(errorResponse: ErrorResponse) {
+                            Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
+                            cont.resume(emptyList(), null)
+                        }
 
-                override fun onException(e: Throwable) {
-                    Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resume(emptyList(), null)
-                }
-            })
+                        override fun onException(e: Throwable) {
+                            Log.e(TAG, "getWeatherNow onException: $e")
+                            cont.resume(emptyList(), null)
+                        }
+                    }
+            )
         }
     }
 
     override suspend fun getWeatherIndices(locationId: String): List<IndicesDaily> {
-        val parameter = IndicesParameter(locationId, Indices.ALL)
-            .lang(Lang.ZH_HANS)
+        val parameter = IndicesParameter(locationId, Indices.ALL).lang(Lang.ZH_HANS)
         return suspendCancellableCoroutine { cont ->
-            instance.indices1d(parameter, object : Callback<IndicesDailyResponse> {
-                override fun onSuccess(response: IndicesDailyResponse) {
-                    cont.resume(response.daily, null)
-                }
+            instance.indices1d(
+                    parameter,
+                    object : Callback<IndicesDailyResponse> {
+                        override fun onSuccess(response: IndicesDailyResponse) {
+                            cont.resume(response.daily, null)
+                        }
 
-                override fun onFailure(errorResponse: ErrorResponse) {
-                    Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resume(emptyList(), null)
-                }
+                        override fun onFailure(errorResponse: ErrorResponse) {
+                            Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
+                            cont.resume(emptyList(), null)
+                        }
 
-                override fun onException(e: Throwable) {
-                    Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resume(emptyList(), null)
-                }
-            })
+                        override fun onException(e: Throwable) {
+                            Log.e(TAG, "getWeatherNow onException: $e")
+                            cont.resume(emptyList(), null)
+                        }
+                    }
+            )
         }
     }
 
     override suspend fun getWeatherIndices3Day(locationId: String): List<IndicesDaily> {
-        val parameter = IndicesParameter(locationId, Indices.ALL)
-            .lang(Lang.ZH_HANS)
+        val parameter = IndicesParameter(locationId, Indices.ALL).lang(Lang.ZH_HANS)
         return suspendCancellableCoroutine { cont ->
-            instance.indices3d(parameter, object : Callback<IndicesDailyResponse> {
-                override fun onSuccess(response: IndicesDailyResponse) {
-                    cont.resume(response.daily, null)
-                }
+            instance.indices3d(
+                    parameter,
+                    object : Callback<IndicesDailyResponse> {
+                        override fun onSuccess(response: IndicesDailyResponse) {
+                            cont.resume(response.daily, null)
+                        }
 
-                override fun onFailure(errorResponse: ErrorResponse) {
-                    Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resume(emptyList(), null)
-                }
+                        override fun onFailure(errorResponse: ErrorResponse) {
+                            Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
+                            cont.resume(emptyList(), null)
+                        }
 
-                override fun onException(e: Throwable) {
-                    Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resume(emptyList(), null)
-                }
-            })
+                        override fun onException(e: Throwable) {
+                            Log.e(TAG, "getWeatherNow onException: $e")
+                            cont.resume(emptyList(), null)
+                        }
+                    }
+            )
         }
     }
 
     override suspend fun getWarningNow(locationId: String): List<Warning> {
-        val parameter = WarningNowParameter(locationId)
-            .lang(Lang.ZH_HANS)
+        val parameter = WarningNowParameter(locationId).lang(Lang.ZH_HANS)
         return suspendCancellableCoroutine { cont ->
-            instance.warningNow(parameter, object : Callback<WarningResponse> {
-                override fun onSuccess(response: WarningResponse) {
-                    cont.resume(response.warning, null)
-                }
+            instance.warningNow(
+                    parameter,
+                    object : Callback<WarningResponse> {
+                        override fun onSuccess(response: WarningResponse) {
+                            cont.resume(response.warning, null)
+                        }
 
-                override fun onFailure(errorResponse: ErrorResponse) {
-                    Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resume(emptyList(), null)
-                }
+                        override fun onFailure(errorResponse: ErrorResponse) {
+                            Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
+                            cont.resume(emptyList(), null)
+                        }
 
-                override fun onException(e: Throwable) {
-                    Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resume(emptyList(), null)
-                }
-            })
+                        override fun onException(e: Throwable) {
+                            Log.e(TAG, "getWeatherNow onException: $e")
+                            cont.resume(emptyList(), null)
+                        }
+                    }
+            )
         }
     }
 
     override suspend fun getAirCurrent(longitude: Double, latitude: Double): AirV1CurrentResponse {
         val parameter = AirV1Parameter(latitude, longitude).setLang(Lang.ZH_HANS)
         return suspendCancellableCoroutine { cont ->
-            instance.airCurrent(parameter, object : Callback<AirV1CurrentResponse> {
-                override fun onSuccess(response: AirV1CurrentResponse) {
-                    cont.resume(response, null)
-                }
+            instance.airCurrent(
+                    parameter,
+                    object : Callback<AirV1CurrentResponse> {
+                        override fun onSuccess(response: AirV1CurrentResponse) {
+                            cont.resume(response, null)
+                        }
 
-                override fun onFailure(errorResponse: ErrorResponse) {
-                    Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resumeWithException(Exception(errorResponse.toString()))
-                }
+                        override fun onFailure(errorResponse: ErrorResponse) {
+                            Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
+                            cont.resumeWithException(Exception(errorResponse.toString()))
+                        }
 
-                override fun onException(e: Throwable) {
-                    Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resumeWithException(e)
-                }
-            })
+                        override fun onException(e: Throwable) {
+                            Log.e(TAG, "getWeatherNow onException: $e")
+                            cont.resumeWithException(e)
+                        }
+                    }
+            )
         }
     }
 
-    override suspend fun getAirHourly(
-        longitude: Double,
-        latitude: Double
-    ): List<AirHourly> {
+    override suspend fun getAirHourly(longitude: Double, latitude: Double): List<AirHourly> {
         val parameter = AirV1Parameter(latitude, longitude).setLang(Lang.ZH_HANS)
         return suspendCancellableCoroutine { cont ->
-            instance.airHourly(parameter, object : Callback<AirV1HourlyResponse> {
-                override fun onSuccess(response: AirV1HourlyResponse) {
-                    cont.resume(response.hours, null)
-                }
+            instance.airHourly(
+                    parameter,
+                    object : Callback<AirV1HourlyResponse> {
+                        override fun onSuccess(response: AirV1HourlyResponse) {
+                            cont.resume(response.hours, null)
+                        }
 
-                override fun onFailure(errorResponse: ErrorResponse) {
-                    Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resume(emptyList(), null)
-                }
+                        override fun onFailure(errorResponse: ErrorResponse) {
+                            Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
+                            cont.resume(emptyList(), null)
+                        }
 
-                override fun onException(e: Throwable) {
-                    Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resume(emptyList(), null)
-                }
-            })
+                        override fun onException(e: Throwable) {
+                            Log.e(TAG, "getWeatherNow onException: $e")
+                            cont.resume(emptyList(), null)
+                        }
+                    }
+            )
         }
     }
 
-    override suspend fun getAirDaily(
-        longitude: Double,
-        latitude: Double
-    ): List<AirDaily> {
+    override suspend fun getAirDaily(longitude: Double, latitude: Double): List<AirDaily> {
         val parameter = AirV1Parameter(latitude, longitude).setLang(Lang.ZH_HANS)
         return suspendCancellableCoroutine { cont ->
-            instance.airDaily(parameter, object : Callback<AirV1DailyResponse> {
-                override fun onSuccess(response: AirV1DailyResponse) {
-                    cont.resume(response.days, null)
-                }
+            instance.airDaily(
+                    parameter,
+                    object : Callback<AirV1DailyResponse> {
+                        override fun onSuccess(response: AirV1DailyResponse) {
+                            cont.resume(response.days, null)
+                        }
 
-                override fun onFailure(errorResponse: ErrorResponse) {
-                    Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resume(emptyList(), null)
-                }
+                        override fun onFailure(errorResponse: ErrorResponse) {
+                            Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
+                            cont.resume(emptyList(), null)
+                        }
 
-                override fun onException(e: Throwable) {
-                    Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resume(emptyList(), null)
-                }
-            })
+                        override fun onException(e: Throwable) {
+                            Log.e(TAG, "getWeatherNow onException: $e")
+                            cont.resume(emptyList(), null)
+                        }
+                    }
+            )
         }
     }
 
     override suspend fun getCurrentCity(
-        locationId: String,
-        adm: String?,
-        range: Range?,
-        number: Int?
+            locationId: String,
+            adm: String?,
+            range: Range?,
+            number: Int?
     ): List<Location> {
-        var parameter = GeoCityLookupParameter(locationId)
-            .lang(Lang.ZH_HANS)
-        if (range != null)
-            parameter = parameter.range(range)
-        if (adm != null)
-            parameter = parameter.adm(adm)
-        if (number != null)
-            parameter = parameter.number(number)
-
+        var parameter = GeoCityLookupParameter(locationId).lang(Lang.ZH_HANS)
+        if (range != null) parameter = parameter.range(range)
+        if (adm != null) parameter = parameter.adm(adm)
+        if (number != null) parameter = parameter.number(number)
 
         return suspendCancellableCoroutine { cont ->
-            instance.geoCityLookup(parameter, object : Callback<GeoCityLookupResponse> {
-                override fun onSuccess(response: GeoCityLookupResponse) {
-                    cont.resume(response.location, null)
-                }
+            instance.geoCityLookup(
+                    parameter,
+                    object : Callback<GeoCityLookupResponse> {
+                        override fun onSuccess(response: GeoCityLookupResponse) {
+                            cont.resume(response.location, null)
+                        }
 
-                override fun onFailure(errorResponse: ErrorResponse) {
-                    Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resume(emptyList(), null)
-                }
+                        override fun onFailure(errorResponse: ErrorResponse) {
+                            Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
+                            cont.resume(emptyList(), null)
+                        }
 
-                override fun onException(e: Throwable) {
-                    Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resume(emptyList(), null)
-                }
-            })
+                        override fun onException(e: Throwable) {
+                            Log.e(TAG, "getWeatherNow onException: $e")
+                            cont.resume(emptyList(), null)
+                        }
+                    }
+            )
         }
     }
 
     override suspend fun getCityTop(number: Int, range: Range?): List<Location> {
-        var parameter = GeoCityTopParameter().number(number)
-            .lang(Lang.ZH_HANS)
-        if (range != null)
-            parameter = parameter.range(range)
+        var parameter = GeoCityTopParameter().number(number).lang(Lang.ZH_HANS)
+        if (range != null) parameter = parameter.range(range)
 
         return suspendCancellableCoroutine { cont ->
-            instance.geoCityTop(parameter, object : Callback<GeoCityTopResponse> {
-                override fun onSuccess(response: GeoCityTopResponse) {
-                    cont.resume(response.topCityList, null)
-                }
+            instance.geoCityTop(
+                    parameter,
+                    object : Callback<GeoCityTopResponse> {
+                        override fun onSuccess(response: GeoCityTopResponse) {
+                            cont.resume(response.topCityList, null)
+                        }
 
-                override fun onFailure(errorResponse: ErrorResponse) {
-                    Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resume(emptyList(), null)
-                }
+                        override fun onFailure(errorResponse: ErrorResponse) {
+                            Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
+                            cont.resume(emptyList(), null)
+                        }
 
-                override fun onException(e: Throwable) {
-                    Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resume(emptyList(), null)
-                }
-            })
+                        override fun onException(e: Throwable) {
+                            Log.e(TAG, "getWeatherNow onException: $e")
+                            cont.resume(emptyList(), null)
+                        }
+                    }
+            )
         }
     }
 
     override suspend fun getPoi(
-        longitude: String,
-        latitude: String,
-        range: Int,
-        number: Int
+            longitude: String,
+            latitude: String,
+            range: Int,
+            number: Int
     ): List<Location> {
-        var parameter = GeoPoiRangeParameter("$longitude,$latitude", Poi.SCENIC)
-            .number(number).radius(range)
-            .lang(Lang.ZH_HANS)
+        var parameter =
+                GeoPoiRangeParameter("$longitude,$latitude", Poi.SCENIC)
+                        .number(number)
+                        .radius(range)
+                        .lang(Lang.ZH_HANS)
 
         return suspendCancellableCoroutine { cont ->
-            instance.geoPoiRange(parameter, object : Callback<GeoPoiResponse> {
-                override fun onSuccess(response: GeoPoiResponse) {
-                    cont.resume(response.poi, null)
-                }
+            instance.geoPoiRange(
+                    parameter,
+                    object : Callback<GeoPoiResponse> {
+                        override fun onSuccess(response: GeoPoiResponse) {
+                            cont.resume(response.poi, null)
+                        }
 
-                override fun onFailure(errorResponse: ErrorResponse) {
-                    Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
-                    cont.resume(emptyList(), null)
-                }
+                        override fun onFailure(errorResponse: ErrorResponse) {
+                            Log.e(TAG, "getWeatherNow onFailure: $errorResponse")
+                            cont.resume(emptyList(), null)
+                        }
 
-                override fun onException(e: Throwable) {
-                    Log.e(TAG, "getWeatherNow onException: $e")
-                    cont.resume(emptyList(), null)
-                }
-            })
+                        override fun onException(e: Throwable) {
+                            Log.e(TAG, "getWeatherNow onException: $e")
+                            cont.resume(emptyList(), null)
+                        }
+                    }
+            )
         }
     }
-
 }

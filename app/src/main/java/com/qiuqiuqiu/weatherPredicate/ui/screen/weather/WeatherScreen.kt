@@ -30,7 +30,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.rounded.Warning
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -142,16 +143,16 @@ fun WeatherScreen(navController: NavController) {
                     .background(MaterialTheme.colorScheme.background),
                 contentAlignment = Alignment.Center
             ) {
-                Column {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Icon(
-                            Icons.Default.Warning,
+                            Icons.Rounded.Warning,
                             null,
-                            tint = MaterialTheme.colorScheme.onBackground,
+                            tint = MaterialTheme.colorScheme.error,
                             modifier = Modifier.size(22.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -163,7 +164,7 @@ fun WeatherScreen(navController: NavController) {
                         )
                     }
                     Spacer(modifier = Modifier.height(12.dp))
-                    IconButton(onClick = { mainViewModel.initCities() }) {
+                    Button(onClick = { mainViewModel.initCities() }) {
                         Text(
                             text = "点击重试",
                             color = MaterialTheme.colorScheme.primary,
