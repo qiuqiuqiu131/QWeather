@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/icon.png" alt="QWeather Icon" width="100" height="100"/>
+  <img src="assets/icon.png" alt="QWeather Icon" width="120" height="120"/>
   <h2 align="center">QWeather 天气预测APP</h2>
 </p>
 
