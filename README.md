@@ -77,7 +77,10 @@
 - 对搜索输入做 debounce（例如 300ms）并缓存最近查询结果。
 - 在 Retrofit/OkHttp 中配置 Debug 日志拦截器（仅 Debug 构建）。
 
-
+## APK 下载
+项目文件夹中已经提供的最新的安装包[QWeather.apk](apk/QWeather.apk)。
+另外，也提供Web下载链接: http://qiuqiuqiu.com.cn:10000/download/SukiChat.zip
+可根据情况选择下载
 ## 贡献
 欢迎提交 Issue 或 PR。请遵循：
 - 描述复现步骤与期望行为
